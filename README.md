@@ -4,7 +4,10 @@ Django Sharding is a library and part-framework for sharding Django applications
 
 It helps you to scale your applications by sharding your data across multiple databases in a consistent way.
 
-(badges for pypi and travis etc)
+[![Circle CI](https://circleci.com/gh/JBKahn/django-sharding.svg?style=svg)](https://circleci.com/gh/JBKahn/django-sharding)
+[![PyPI version](https://badge.fury.io/py/django-sharding.svg)](https://badge.fury.io/py/django-sharding)
+[![PyPi downloads](https://img.shields.io/pypi/dm/django-sharding.svg)](https://crate.io/packages/django-sharding/)
+[![Coverage Status](https://coveralls.io/repos/JBKahn/django-sharding/badge.svg?branch=coveralls&service=github)](https://coveralls.io/github/JBKahn/django-sharding?branch=coveralls)
 
 ### What is Sharding?
 

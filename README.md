@@ -58,31 +58,31 @@ DATABASES = database_configs(databases_dict={
         {
             'name': 'default',
             'environment_variable': 'DATABASE_URL',
-            'default_database_url': 'postgres://sharding:sharding@localhost/sharding'
+            'default_database_url': 'postgres://user:pw@localhost/sharding'
         }
     ],
     'sharded_databases': [
         {
             'name': 'app_shard_001',
             'environment_variable': 'SHARD_001_DATABASE_URL',
-            'default_database_url': 'postgres://sharding:sharding@localhost/sharding_001',
+            'default_database_url': 'postgres://user:pw@localhost/sharding_001',
             'replicas': [
                 {
                     'name': 'app_shard_001_replica_001',
                     'environment_variable': 'REPLICA_001_DATABASE_URL',
-                    'default_database_url': 'postgres://sharding:sharding@localhost/sharding_replica_001'
+                    'default_database_url': 'postgres://user:pw@localhost/shard_replica_001'
                 },
                 {
                     'name': 'app_shard_001_replica_002',
                     'environment_variable': 'REPLICA_002_DATABASE_URL',
-                    'default_database_url': 'postgres://sharding:sharding@localhost/sharding_replica_002'
+                    'default_database_url': 'postgres://user:pw@localhost/shard_replica_002'
                 },
             ]
         },
         {
             'name': 'app_shard_002',
             'environment_variable': 'SHARD_002_DATABASE_URL',
-            'default_database_url': 'mysql://sharding:sharding@localhost/sharding_002'
+            'default_database_url': 'mysql://user:pw@localhost/sharding_002'
         },
     ]
 })

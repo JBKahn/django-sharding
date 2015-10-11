@@ -34,10 +34,6 @@ class RouterReadTestCase(TestCase):
             self.assertEqual(self.sut.db_for_read(model=TestModel, **hints), 'testing')
 
     def test_sharded_instance(self):
-	import ipdb; ipdb.set_trace()
-
-	from django.db import router
-        item = TestModel.objects.create(random_string=2, user_pk=self.user.pk)
         item = TestModel.objects.using('app_shard_002').create(random_string=2, user_pk=self.user.pk)
         hints = {'instance': item}
         self.assertEqual(self.sut.db_for_read(model=TestModel, **hints), 'app_shard_002')

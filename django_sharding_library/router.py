@@ -25,7 +25,6 @@ class ShardedRouter(object):
         return apps.get_app_config('django_sharding').get_routing_strategy(shard_group)
 
     def db_for_read(self, model, **hints):
-	import ipdb; ipdb.set_trace()
         specific_database = self.get_specific_database_or_none(model)
         if specific_database:
             return specific_database
@@ -43,7 +42,6 @@ class ShardedRouter(object):
         return None
 
     def db_for_write(self, model, **hints):
-	import ipdb; ipdb.set_trace()
         specific_database = self.get_specific_database_or_none(model)
         if specific_database:
             return specific_database

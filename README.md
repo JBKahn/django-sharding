@@ -13,6 +13,10 @@ It helps you to scale your applications by sharding your data across multiple da
 
 Sharding is a way of horizontally partitioning your data by storing different rows of the same table in multiple tables across multiple databases. This helps to increase the number of connections to a given resource as well as improves read performance of your application.
 
+### Read The Documentation
+
+For information about how to setup sharding in your application, [read the documentation](http://josephkahn.io/django-sharding/).
+
 ### Developer Experience
 
 I wrote this library after working on this problem for [Wave](https://www.waveapps.com) and not being able to find a library that suited our needs. What we were looking for was something that was powerful, extensible and customizable. This library was created for just that purpose and includes at least one implimentation of each part of the pipeline with room to replace any individual components.

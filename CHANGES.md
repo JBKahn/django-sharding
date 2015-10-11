@@ -1,6 +1,14 @@
 Changelog
 =========
 
+0.0.2 (Oct 11th, 2015)
+------------------
+
+### More Tests and Docs
+
+- Added additional tests and updated docs
+
+
 0.0.1 (Oct 11th, 2015)
 ------------------
 

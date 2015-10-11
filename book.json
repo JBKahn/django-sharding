@@ -1,0 +1,13 @@
+{
+  "gitbook": "2.4.2",
+  "structure": {
+    "summary": "docs/README.md"
+  },
+  "plugins": ["edit-link", "prism"],
+  "pluginsConfig": {
+    "edit-link": {
+      "base": "https://github.com/JBKahn/django-sharding/tree/master",
+      "label": "Edit This Page"
+    }
+  }
+}

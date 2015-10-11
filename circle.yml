@@ -1,0 +1,21 @@
+machine:
+  environment:
+    DATABASE_URL: postgres://ubuntu:@127.0.0.1:5432/circle_test
+    SHARD_001_DATABASE_URL: mysql://ubuntu:@127.0.0.1/shard_001
+    SHARD_002_DATABASE_URL: postgres://ubuntu:@127.0.0.1:5432/shard_002
+    REPLICA_001_DATABASE_URL: postgres://ubuntu:@127.0.0.1:5432/sharding_replica_001
+    REPLICA_002_DATABASE_URL: postgres://ubuntu:@127.0.0.1:5432/sharding_replica_002
+  python:
+    version: 2.7.6
+
+test:
+  pre:
+    - mysqladmin -uubuntu create shard_001
+    - createdb -U ubuntu -w -p 5432 shard_002
+    - createdb -U ubuntu -w -p 5432 sharding_replica_001
+    - createdb -U ubuntu -w -p 5432 sharding_replica_002
+
+dependencies:
+  override:
+    - pip install psycopg2==2.6.1
+    - pip install -r requirements-test.txt

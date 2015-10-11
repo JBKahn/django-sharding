@@ -1,0 +1,5 @@
+-r requirements.txt
+
+psycopg2==2.6.1
+MySQL-python==1.2.5
+mock==1.0.1

@@ -23,13 +23,13 @@ class BaseBucketingStrategy(object):
         Returns the shard for the model which has not previously been bucketed
         into a shard.
         """
-        raise NotImplemented
+        raise NotImplementedError
 
     def get_shard(self, model_sharded_by):
         """
         Returns the shard for a model which has already been assigned a shard.
         """
-        raise NotImplemented
+        raise NotImplementedError
 
 
 class BaseShardedModelBucketingStrategy(BaseBucketingStrategy):
@@ -38,7 +38,8 @@ class BaseShardedModelBucketingStrategy(BaseBucketingStrategy):
     the model.
     """
     def get_shard(self, model_sharded_by):
-        return model_sharded_by.shard
+        sharded_field = getattr(model_sharded_by, 'django_sharding__shard_field')
+        return getattr(model_sharded_by, sharded_field)
 
 
 class RoundRobinBucketingStrategy(BaseShardedModelBucketingStrategy):
@@ -68,7 +69,7 @@ class RandomBucketingStrategy(BaseShardedModelBucketingStrategy):
     the model.
     """
     def __init__(self, shard_group, databases):
-        super(RoundRobinBucketingStrategy, self).__init__(shard_group)
+        super(RandomBucketingStrategy, self).__init__(shard_group)
         self.shards = self.get_shards(databases)
 
     def pick_shard(self, model_sharded_by):
@@ -83,14 +84,14 @@ class ModBucketingStrategy(BaseBucketingStrategy):
     change.
     """
     def __init__(self, shard_group, databases):
-        super(RoundRobinBucketingStrategy, self).__init__(shard_group)
+        super(ModBucketingStrategy, self).__init__(shard_group)
         self.shards = self.get_shards(databases)
 
     def pick_shard(self, model_sharded_by):
-        self.shards[hash(str(model_sharded_by.pk)) % len(self.shards)]
+        return self.shards[hash(str(model_sharded_by.pk)) % len(self.shards)]
 
     def get_shard(self, model_sharded_by):
-        self.shards[hash(str(model_sharded_by.pk)) % len(self.shards)]
+        return self.pick_shard(model_sharded_by)
 
 
 class SavedModBucketingStrategy(BaseShardedModelBucketingStrategy, ModBucketingStrategy):

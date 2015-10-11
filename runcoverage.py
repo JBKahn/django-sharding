@@ -56,6 +56,8 @@ try:
         ],
         SITE_ID=1,
         MIDDLEWARE_CLASSES=(),
+        TEST_RUNNER='django_nose.NoseTestSuiteRunner',
+        NOSE_ARGS=['--with-coverage', '--cover-package=django_sharding,django_sharding_library']
     )
 
     try:
@@ -79,12 +81,8 @@ def run_tests(*test_args):
     # Run tests
     TestRunner = get_runner(settings)
     test_runner = TestRunner()
-    # from django.core.management import call_command; call_command('makemigrations', 'tests')
 
-    failures = test_runner.run_tests(test_args)
-
-    if failures:
-        sys.exit(bool(failures))
+    test_runner.run_tests(test_args)
     sys.exit(0)
 
 

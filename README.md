@@ -7,7 +7,7 @@ It helps you to scale your applications by sharding your data across multiple da
 [![Circle CI](https://circleci.com/gh/JBKahn/django-sharding.svg?style=svg)](https://circleci.com/gh/JBKahn/django-sharding)
 [![PyPI version](https://badge.fury.io/py/django-sharding.svg)](https://badge.fury.io/py/django-sharding)
 [![PyPi downloads](https://img.shields.io/pypi/dm/django-sharding.svg)](https://crate.io/packages/django-sharding/)
-[![Coverage Status](https://coveralls.io/repos/JBKahn/django-sharding/badge.svg?branch=coveralls&service=github)](https://coveralls.io/github/JBKahn/django-sharding?branch=coveralls)
+[![Coverage Status](https://coveralls.io/repos/JBKahn/django-sharding/badge.svg?branch=master&service=github)](https://coveralls.io/github/JBKahn/django-sharding?branch=coveralls)
 
 ### What is Sharding?
 
@@ -23,73 +23,11 @@ The package was influenced by my experiences at Wave as well as the help and cod
 
 ### Installation
 
-To install the package, use pypi:
+Check out the [installation section](http://josephkahn.io/django-sharding/docs/installation/Settings.html) of the docs for basic package setup.
 
-```
-pip install django-sharding
-```
+### Basis Setup & Usage
 
-and Add the package to your installed apps:
-
-```python
-INSTALLED_APPS=[
-    ...,
-    "django_sharding",
-],
-```
-
-### Using The Default Configuration
-
-Refer to the configuration section (link) of the ReadMe for additional information.
-
-Add the following to your settings file:
-
-```python
-# Most applications will not need aditional routers but if you need your own then
-# remember that order does matter. Read up on them here (link).
-DATABASE_ROUTERS=['django_sharding_library.router.ShardedRouter'],
-
-```
-
-Add your databases to you settings file in the following format based on, and using, dj-database (link).
-This structure supports unsharded sets of databses as well as replicates. This setting uses a single shard group,
-more advanced structures are possible and checkout the other section of the docs for more information (link):
-
-```python
-DATABASES = database_configs(databases_dict={
-    'unsharded_databases': [
-        {
-            'name': 'default',
-            'environment_variable': 'DATABASE_URL',
-            'default_database_url': 'postgres://user:pw@localhost/sharding'
-        }
-    ],
-    'sharded_databases': [
-        {
-            'name': 'app_shard_001',
-            'environment_variable': 'SHARD_001_DATABASE_URL',
-            'default_database_url': 'postgres://user:pw@localhost/sharding_001',
-            'replicas': [
-                {
-                    'name': 'app_shard_001_replica_001',
-                    'environment_variable': 'REPLICA_001_DATABASE_URL',
-                    'default_database_url': 'postgres://user:pw@localhost/shard_replica_001'
-                },
-                {
-                    'name': 'app_shard_001_replica_002',
-                    'environment_variable': 'REPLICA_002_DATABASE_URL',
-                    'default_database_url': 'postgres://user:pw@localhost/shard_replica_002'
-                },
-            ]
-        },
-        {
-            'name': 'app_shard_002',
-            'environment_variable': 'SHARD_002_DATABASE_URL',
-            'default_database_url': 'mysql://user:pw@localhost/sharding_002'
-        },
-    ]
-})
-```
+#### Sharding by User
 
 Select a model to shard by and open up the models.py file. Here we'll use the user model:
 
@@ -109,7 +47,7 @@ Add that custom User to your settings file using the string class path:
 AUTH_USER_MODEL = '<app_with_user_model>.User'
 ```
 
-### Create Your First Sharded Model
+#### Create Your First Sharded Model
 
 Define your new model, eg:
 

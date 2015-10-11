@@ -3,3 +3,6 @@
 psycopg2==2.6.1
 MySQL-python==1.2.5
 mock==1.0.1
+django_nose==1.4.2
+coverage==4.0
+coveralls==1.0

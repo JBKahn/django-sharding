@@ -14,7 +14,7 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     install_requires=['Django>=1.8', 'dj-database-url==0.3.0'],
-    tests_require=['psycopg2==2.6.1', 'MySQL-python==1.2.5', 'mock==1.0.1'],
+    tests_require=['psycopg2==2.6.1', 'MySQL-python==1.2.5', 'mock==1.0.1', 'django_nose==1.4.2', 'coverage==4.0', 'coveralls==1.0'],
     license="BSD",
     zip_safe=False,
     keywords='django shard sharding library',

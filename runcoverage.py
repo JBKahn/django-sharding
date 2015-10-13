@@ -1,3 +1,4 @@
+import os
 import sys
 
 try:
@@ -57,7 +58,7 @@ try:
         SITE_ID=1,
         MIDDLEWARE_CLASSES=(),
         TEST_RUNNER='django_nose.NoseTestSuiteRunner',
-        NOSE_ARGS=['--with-coverage', '--cover-package=django_sharding,django_sharding_library']
+        NOSE_ARGS=['--with-coverage', '--cover-package=django_sharding,django_sharding_library', '--cover-html', '--cover-html-dir={}'.format(os.getenv('CIRCLE_TEST_REPORTS', '.')), '--with-xunit', '--xunit-file={}/nosetests.xml'.format(os.getenv('CIRCLE_TEST_REPORTS', '.'))]
     )
 
     try:

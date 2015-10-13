@@ -16,9 +16,9 @@ test:
     - createdb -U ubuntu -w -p 5432 sharding_replica_002
   post:
     # - python ./runcoverage.py
-    - coverage run ./runtests.py
-    - coverage report -m --source=django_sharding,django_sharding_library
-    - coverage html -d $CIRCLE_ARTIFACTS --source=django_sharding,django_sharding_library
+    - coverage run --source=django_sharding,django_sharding_library ./runtests.py
+    - coverage report -m
+    - coverage html -d $CIRCLE_ARTIFACTS
     - coveralls
 
 dependencies:

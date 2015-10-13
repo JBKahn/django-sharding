@@ -16,8 +16,9 @@ test:
     - createdb -U ubuntu -w -p 5432 sharding_replica_002
   post:
     # - python ./runcoverage.py
-    - coverage report ./runtests.py 
-    - coverage html -d $CIRCLE_ARTIFACTS ./runtests.py 
+    - coverage run ./runtests.py
+    - coverage report
+    - coverage html -d $CIRCLE_ARTIFACTS
     - coveralls
 
 dependencies:

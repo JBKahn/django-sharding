@@ -17,8 +17,8 @@ test:
   post:
     # - python ./runcoverage.py
     - coverage run ./runtests.py
-    - coverage report
-    - coverage html -d $CIRCLE_ARTIFACTS
+    - coverage report -m --source=django_sharding,django_sharding_library
+    - coverage html -d $CIRCLE_ARTIFACTS --source=django_sharding,django_sharding_library
     - coveralls
 
 dependencies:

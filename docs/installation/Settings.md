@@ -24,14 +24,14 @@ Refer to the configuration section (link) of the ReadMe for additional informati
 Add the following to your settings file:
 
 ```python
-# Most applications will not need aditional routers but if you need your own then
+# Most applications will not need additional routers but if you need your own then
 # remember that order does matter. Read up on them here (link).
 DATABASE_ROUTERS=['django_sharding_library.router.ShardedRouter'],
 
 ```
 
 Add your databases to you settings file in the following format based on, and using, dj-database (link).
-This structure supports unsharded sets of databses as well as replicates. This setting uses a single shard group,
+This structure supports unsharded sets of databases as well as replicates. This setting uses a single shard group,
 more advanced structures are possible and checkout the other section of the docs for more information (link):
 
 ```python
@@ -72,7 +72,7 @@ DATABASES = database_configs(databases_dict={
 
 ### Additional Settings
 
-There are several settings you can set that are not covered by the simple setup instructions. That may be because you want to use a different set of componenets than the default or wish to integrate your own with the library.
+There are several settings you can set that are not covered by the simple setup instructions. That may be because you want to use a different set of components than the default or wish to integrate your own with the library.
 
 For each of the shard groups you can specify the read strategy for choosing a database to read from (from the primary and its replicates) as well as the strategy used to assign shards for this shard group.
 
@@ -84,7 +84,7 @@ DJANGO_FRAGMENTS_SHARD_SETTINGS = {
         'BUCKETING_STRATEGY': SomeCoolStrategy(
             shard_group='user_shard_group', databases=DATABASES
         ),
-        'ROUTING_STRATEGY': ReadOnlyFromPrimaryDatabses(databases=DATABASES),
+        'ROUTING_STRATEGY': ReadOnlyFromPrimaryDatabases(databases=DATABASES),
     }
 }
 ```

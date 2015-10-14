@@ -1,6 +1,6 @@
 # Sharding Functions
 
-A sharding function is a function that is used to choose a shard for a group of objects. This is composed of two core functionts that decide how to pick a shard in the case where we haven't previously chosen one and how to retrieve a previously chosen shard. This is split into the two functions `pick_shard` and `get_shard`. There are times when those two functions do the same thing, but in many cases the choice to pick a shard is non-deterministic and so you'll need to read from a stored value in `get_shard`.
+A sharding function is a function that is used to choose a shard for a group of objects. This is composed of two core functions that decide how to pick a shard in the case where we haven't previously chosen one and how to retrieve a previously chosen shard. This is split into the two functions `pick_shard` and `get_shard`. There are times when those two functions do the same thing, but in many cases the choice to pick a shard is non-deterministic and so you'll need to read from a stored value in `get_shard`.
 
 Note: This library does support Functional Sharding, which allows you to have multiple groups of shards or `sharding_group`s. This would allow you to store all of the objects of type A on one set of shards and all of the items of type B on another set of shards. However, the author does not suggest having multiple sharding functions and splitting data for one related item across multiple shards. Doing so prevents you from doing database joins on those items and typically the desire to split data in this way suggests that the whole system should be split. It is much easier and simpler to store all related data on a single shard.
 
@@ -34,11 +34,11 @@ class BaseBucketingStrategy(object):
         raise NotImplemented
 ```
 
-There are multiple ways to impliment the above code and I will provide, as an example, the functions that are shipped with this packages. There are two types of strategies that you may wish to use. The first kind, deterministic functions, will always return the same bucket and storage of the chosen shard is optional. The second kind, non-deterministic functions, require the shard to be stored as there is no way to derive the shard that belongs to a group of objects
+There are multiple ways to implement the above code and I will provide, as an example, the functions that are shipped with this packages. There are two types of strategies that you may wish to use. The first kind, deterministic functions, will always return the same bucket and storage of the chosen shard is optional. The second kind, non-deterministic functions, require the shard to be stored as there is no way to derive the shard that belongs to a group of objects
 
 #### Deterministic Functions
 
-I have not shipped this package with any truely deterministic functions as all the ones that I've implimented either use randomness, order or depend on the number of shards in the system as the time that the shard is picked. This is not highly reccomended andis a considerably harder method but could still be implimented. For example, if the number of shards were never going to change, you could do something like this:
+I have not shipped this package with any truly deterministic functions as all the ones that I've implemented either use randomness, order or depend on the number of shards in the system as the time that the shard is picked. This is not highly recommended and is a considerably harder method but could still be implemented. For example, if the number of shards were never going to change, you could do something like this:
 
 ```python
 class ModBucketingStrategy(BaseBucketingStrategy):

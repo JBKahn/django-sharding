@@ -17,19 +17,19 @@ def model_config(shard_group=None, database=None):
     """
     def configure(cls):
         if database and shard_group:
-            raise ShardedModelIntializationException(
+            raise ShardedModelInitializationException(
                 'A model cannot be both sharded and stored on a particular database.'
             )
 
         if not database and not shard_group:
-            raise ShardedModelIntializationException(
+            raise ShardedModelInitializationException(
                 'The model should be either sharded or stored on a database '
                 'in the `model_config` decorator is used.'
             )
 
         if database:
             if not settings.DATABASES.get(database, {}).get('PRIMARY'):
-                raise NonExistantDatabaseException(
+                raise NonExistentDatabaseException(
                     'Unable to place {} in {} as that is not an existing primary '
                     'database in the system.'.format(cls._meta.model_name, database)
                 )
@@ -41,18 +41,18 @@ def model_config(shard_group=None, database=None):
                 cls._meta.fields
             )
             if not sharded_fields:
-                raise ShardedModelIntializationException(
+                raise ShardedModelInitializationException(
                     'All sharded models require a ShardedIDFieldMixin.'
                 )
 
             if not filter(lambda field: field == cls._meta.pk, sharded_fields):
-                raise ShardedModelIntializationException(
+                raise ShardedModelInitializationException(
                     'All sharded models require the ShardedAutoIDField to be the '
                     'primary key. Set primary_key=True on the field.'
                 )
 
             if not callable(getattr(cls, 'get_shard', None)):
-                raise ShardedModelIntializationException(
+                raise ShardedModelInitializationException(
                     'You must define a get_shard method on the sharded model.'
                 )
 

@@ -1,7 +1,7 @@
 from django.db import models
 from django_sharding_library.id_generation_strategies import TableStrategyModel
 from django_sharding_library.decorators import model_config
-from django_sharding_library.exceptions import NonExistantDatabaseException, ShardedModelIntializationException
+from django_sharding_library.exceptions import NonExistentDatabaseException, ShardedModelInitializationException
 from django_sharding_library.fields import TableShardedIDField
 from django.test import TestCase
 
@@ -14,7 +14,7 @@ class ModelConfigDecoratorTestCase(TestCase):
         self.id_table = ShardedDecoratorTestModelIDs
 
     def test_model_cannot_be_both_sharded_and_marked_for_a_specific_db(self):
-        with self.assertRaises(ShardedModelIntializationException):
+        with self.assertRaises(ShardedModelInitializationException):
             @model_config(shard_group='default', database='default')
             class TestModelTwo(models.Model):
                 id = TableShardedIDField(primary_key=True, source_table=self.id_table)
@@ -25,7 +25,7 @@ class ModelConfigDecoratorTestCase(TestCase):
                     pass
 
     def test_sharded_model_requires_a_get_shard_method(self):
-        with self.assertRaises(ShardedModelIntializationException):
+        with self.assertRaises(ShardedModelInitializationException):
             @model_config(shard_group='default')
             class TestModelTwo(models.Model):
                 id = TableShardedIDField(primary_key=True, source_table=self.id_table)
@@ -33,7 +33,7 @@ class ModelConfigDecoratorTestCase(TestCase):
                 user_pk = models.PositiveIntegerField()
 
     def test_sharded_id_field_must_be_primary_key(self):
-        with self.assertRaises(ShardedModelIntializationException):
+        with self.assertRaises(ShardedModelInitializationException):
             @model_config(shard_group='default')
             class TestModelTwo(models.Model):
                 id = TableShardedIDField(source_table=self.id_table)
@@ -44,7 +44,7 @@ class ModelConfigDecoratorTestCase(TestCase):
                     pass
 
     def test_sharded_model_must_have_sharded_id_fied(self):
-        with self.assertRaises(ShardedModelIntializationException):
+        with self.assertRaises(ShardedModelInitializationException):
             @model_config(shard_group='default')
             class TestModelTwo(models.Model):
                 random_string = models.CharField(max_length=120)
@@ -68,13 +68,13 @@ class ModelConfigDecoratorTestCase(TestCase):
         self.assertEqual(getattr(TestModelThree, 'django_sharding__shard_group', None), 'testing')
 
     def test_cannot_place_database_on_replica_db(self):
-        with self.assertRaises(NonExistantDatabaseException):
+        with self.assertRaises(NonExistentDatabaseException):
             @model_config(database='app_shard_001_replica_001')
             class ShardedTestModelIDsTwo(TableStrategyModel):
                 pass
 
     def test_cannot_place_database_on_non_existant_db(self):
-        with self.assertRaises(NonExistantDatabaseException):
+        with self.assertRaises(NonExistentDatabaseException):
             @model_config(database='i_do_not_exist')
             class ShardedTestModelIDsTwo(TableStrategyModel):
                 pass

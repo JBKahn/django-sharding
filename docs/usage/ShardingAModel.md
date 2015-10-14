@@ -2,11 +2,11 @@
 
 ### Defining The Shard Key
 
-Based on the erlier sections of the documentation, you need to choose a starding function, strategy and ID generation strategy. 
+Based on the earlier sections of the documentation, you need to choose a sharding function, strategy and ID generation strategy. 
 
 #### Storing The Shard On The Model With The Shard Key
 
-The first way to do this is to store the shard on the model with the shard key. For simiplicity, we'll assume that you want to shard all your data by a key on the User table, although the `ShardedByMixin` could be used on any model. The code would therfore look something like this:
+The first way to do this is to store the shard on the model with the shard key. For simplicity, we'll assume that you want to shard all your data by a key on the User table, although the `ShardedByMixin` could be used on any model. The code would therefore look something like this:
 
 ```python
 from django.contrib.auth.models import AbstractUser
@@ -28,7 +28,7 @@ Now the result is that the User table has a field on it to store the shard and t
 
 #### Storing The Shard On The a Model Without The Shard Key
 
-Alternatively you may want to store the shard somewhere else. For example, the system primary runs on operations done on branches of a bank and so you could store the shard on the branch but you'd also like all branches of the same bank to be on a single shard. In this situation, you'll want to store the shard on the branch but ensure that no two branches of the same bank are ever on different shards. To do that, you need to use a second table to store the shard and foriegn key to that table rather than storing the shard directly.
+Alternatively you may want to store the shard somewhere else. For example, the system primary runs on operations done on branches of a bank and so you could store the shard on the branch but you'd also like all branches of the same bank to be on a single shard. In this situation, you'll want to store the shard on the branch but ensure that no two branches of the same bank are ever on different shards. To do that, you need to use a second table to store the shard and foreign key to that table rather than storing the shard directly.
 
 For example, this code sets up `SomeCoolGuyModel` to store the shard using a foreign key so that all `SomeCoolGuyModel`s that are nested under the same user are on the same shard.
 
@@ -94,7 +94,7 @@ The above example illustrates the id generation strategy of using an unsharded t
 
 #### Accessing Data on Sharded Models
 
-When you're not re-saving an instance of the model you've retreived, you need to tell Django which database to read from and which to save on. This is done by using the `using` command:
+When you're not re-saving an instance of the model you've retrieved, you need to tell Django which database to read from and which to save on. This is done by using the `using` command:
 
 ```python
 # You can use the method on the model or another one to get the shard

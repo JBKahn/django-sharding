@@ -4,13 +4,13 @@ In this library I've included a single router, which uses the previous component
 
 #### Choosing a Database to Read From
 
-The first thing that it checks for is whether or not that database is non-sharded but routed to a database that is not `deafult`. If that is the case, then we know to send you to that database.
+The first thing that it checks for is whether or not that database is non-sharded but routed to a database that is not `default`. If that is the case, then we know to send you to that database.
 
 On the other hard, if the model is sharded then we attempt to choose a shard for the model if we are provided an instance. In that case, we either have already chosen a shard (for example, we read this previously and are attempting a refresh) or we need to ask the instance how to get it's shard. For now, you can ignore the use of a shard group as that will come up later in the guide.
 
 If neither of these two cases are known, we return `None` lettings Django know that our router has no opinion on what to do.
 
-Note that the `self.get_read_db_routing_strategy` is not included here as that will be adressed in another section.
+Note that the `self.get_read_db_routing_strategy` is not included here as that will be addressed in another section.
 
 ```python
     def get_shard_for_instance(self, instance):
@@ -58,7 +58,7 @@ This works similarly to reading as we need to identify which database to read fr
 
 Typically, we can only allow relations between items on the same database as you cannot have a foreign key across a database. As such, we have to check that both objects are stored on the same database.
 
-First we check if it's non-sharded but stored on a single database other than `default`. If they both are, then we only allow the relation is they are stored on the same database. Similarly, the second check looks at the stard status of both items and wether they would be on the same shard or not. If non of these checks are true, then the items are assumed to both be on the default database and the relation is allowed.
+First we check if it's non-sharded but stored on a single database other than `default`. If they both are, then we only allow the relation is they are stored on the same database. Similarly, the second check looks at the shard status of both items and whether they would be on the same shard or not. If non of these checks are true, then the items are assumed to both be on the default database and the relation is allowed.
 
 ```python
     def allow_relation(self, obj1, obj2, **hints):

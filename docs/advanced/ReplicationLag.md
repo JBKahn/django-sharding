@@ -2,14 +2,14 @@
 
 #### Why This Is Difficult
 
-As mentioned earlier in the documentation, when using replication drives you may get stale data if you read from one of these drives before the data has propogated from the primary drive. This is a difficult problem to solve due to the way routing works in Django.
+As mentioned earlier in the documentation, when using replication drives you may get stale data if you read from one of these drives before the data has propagated from the primary drive. This is a difficult problem to solve due to the way routing works in Django.
 
 For example, the following call:
 ```python
 CoolGuyModel.objects.using('some_database').create(user_id=1, some_cool_guy_string="123")
 ```
 
-Will result in the router recieving the information that we want to create an instance of `CoolGuyModel`. The router is not given the value of any field or details about the instance. As such, it's really hard to mark something as "dirty" such that it can only be read from the primary database. 
+Will result in the router receiving the information that we want to create an instance of `CoolGuyModel`. The router is not given the value of any field or details about the instance. As such, it's really hard to mark something as "dirty" such that it can only be read from the primary database. 
 
 The [Django Multi DB Router](https://github.com/jbalogh/django-multidb-router), which is made to be used for replication database, uses a cookie-based strategy. It adds a cookie every time a user calls a function which modifies data and that entire require reads only from primary database. There are two flaws with this method that prevent it from being included here:
 
@@ -37,7 +37,7 @@ from multidb.pinning import this_thread_is_pinned
 from django_sharding_library.router import ShardedRouter
 
 
-class ShardedRouterWithRepliationLagTimeSupport(ShardedRouter):
+class ShardedRouterWithReplicationLagTimeSupport(ShardedRouter):
     """
     A router that is shard-aware and supports replication lag time.
     """
@@ -58,7 +58,7 @@ class ShardedRouterWithRepliationLagTimeSupport(ShardedRouter):
         return mapping
 
     def db_for_read(self, model, **hints):
-        database = super(ShardedRouterWithRepliationLagTimeSupport, self).db_for_read(
+        database = super(ShardedRouterWithReplicationLagTimeSupport, self).db_for_read(
             model, **hints
         )
         if database is not None:
@@ -73,10 +73,10 @@ class ShardedRouterWithRepliationLagTimeSupport(ShardedRouter):
 3. Set that router as your database router in your settings file:
 
 ```python
-DATABASE_ROUTERS=['<path_to_router>.ShardedRouterWithRepliationLagTimeSupport'],
+DATABASE_ROUTERS=['<path_to_router>.ShardedRouterWithReplicationLagTimeSupport'],
 ````
 
-4. Add the middlewear 
+4. Add the middleware
 
 ```python
 MIDDLEWARE_CLASSES = (

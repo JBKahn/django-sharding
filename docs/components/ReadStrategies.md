@@ -46,7 +46,7 @@ Here we'll go through some of the included strategies:
 
 ##### Primary Only Read Strategy
 
-A strategy that ignores existing replication databases and will always choose the primary database unless unstructed otherwise.
+A strategy that ignores existing replication databases and will always choose the primary database unless instructed otherwise.
 
 ```python
 class PrimaryOnlyRoutingStrategy(BaseRoutingStrategy):
@@ -95,7 +95,7 @@ class RoundRobinRoutingStrategy(BaseRoutingStrategy):
 
 ##### Ratio Routing Strategy
 
-Here I've provided a basic example, but you could choose to split it up across all the databases at any ratio. For example, you may want to read from the primary drive tem percent of the time, replica 1 forty percent of the time and replica 2 fifty percent of the time. Here's the example implimentation:
+Here I've provided a basic example, but you could choose to split it up across all the databases at any ratio. For example, you may want to read from the primary drive tem percent of the time, replica 1 forty percent of the time and replica 2 fifty percent of the time. Here's the example implementation:
 
 ```python
 class ExampleRatioRoutingStrategy(BaseRoutingStrategy):

@@ -4,9 +4,9 @@ When deciding how to shard, there are several considerations to make that will i
 
 ### Shard Groups
 
-You can think of shard groups as disticts groups of databases so that you can limit sharded data to a subset of the shards included in your application. For example, you may have six shards in your application and use three for one item and three to store another. The `default` shard group is used when no shard groups are given in the settings file.
+You can think of shard groups as distinct groups of databases so that you can limit sharded data to a subset of the shards included in your application. For example, you may have six shards in your application and use three for one item and three to store another. The `default` shard group is used when no shard groups are given in the settings file.
 
-While you may use this library however you'd like, the author reccomends that you only use the `default` shard group. This is because you will often want to do joins on the data later, when it will not be in the same set of databases, or the data is so split that it probably does not belong in the same application as the other data. In either case, it is simpler and easier to use one shard group over many.
+While you may use this library however you'd like, the author recommends that you only use the `default` shard group. This is because you will often want to do joins on the data later, when it will not be in the same set of databases, or the data is so split that it probably does not belong in the same application as the other data. In either case, it is simpler and easier to use one shard group over many.
 
 ### Storing Shards
 
@@ -18,11 +18,11 @@ In order to shard your data, you need to decide how to pick those shards. For ex
 
 ### Will I Use Replicate Databases?
 
-To an app without replicate databases, the read strategy for a router is unimportant. However, if you have replicates then you may want to decide how to use them. You may want to read from them evenly, randomly or using a known ratio as discussed in the components section of the docs. While replicates may be useful, the author feels that you should not use them in your production environment. As discussed by [pintrest](https://engineering.pinterest.com/blog/sharding-pinterest-how-we-scaled-our-mysql-fleet) in their Design Pgilosophies, you then have to take into account replication lag time as well as other issues. It would be simplier and easier to just include more shards.
+To an app without replicate databases, the read strategy for a router is unimportant. However, if you have replicates then you may want to decide how to use them. You may want to read from them evenly, randomly or using a known ratio as discussed in the components section of the docs. While replicates may be useful, the author feels that you should not use them in your production environment. As discussed by [pinterest](https://engineering.pinterest.com/blog/sharding-pinterest-how-we-scaled-our-mysql-fleet) in their Design Philosophies, you then have to take into account replication lag time as well as other issues. It would be simpler and easier to just include more shards.
 
 ### Logical vs Physical Sharding
 
-There are two types of shards you can create, logical shards and physical shards. A logical shard is splitting data into multiple databases on the same physical node. A physical shard is when splitting data across multiple nodes. It is the reccomendation of the author that you start using both. The reason is that it's easier to rebalance logical shards across machines that rebalance the data in physical shards. For example, imagine your application were to have two physical shards defined like so:
+There are two types of shards you can create, logical shards and physical shards. A logical shard is splitting data into multiple databases on the same physical node. A physical shard is when splitting data across multiple nodes. It is the recommendation of the author that you start using both. The reason is that it's easier to rebalance logical shards across machines that rebalance the data in physical shards. For example, imagine your application were to have two physical shards defined like so:
 
 ```python
 DATABASES = database_configs(databases_dict={
@@ -90,4 +90,4 @@ Then, as a way to rebalance the data, you could move either `app_shard_003` or `
 
 ### Many Shards or Few Shards?
 
-The author reccomends that you create more shards than you think are necessary. Extra logical shards allow you to much more easily rebalance data across physical nodes in the future. Also, by Storing data on different machines, you increase the number of connections to your databases.
+The author recommends that you create more shards than you think are necessary. Extra logical shards allow you to much more easily rebalance data across physical nodes in the future. Also, by Storing data on different machines, you increase the number of connections to your databases.

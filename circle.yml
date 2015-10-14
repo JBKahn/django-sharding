@@ -15,10 +15,7 @@ test:
     - createdb -U ubuntu -w -p 5432 sharding_replica_001
     - createdb -U ubuntu -w -p 5432 sharding_replica_002
   post:
-    - coverage run --source=django_sharding,django_sharding_library ./runtests.py
-    - coverage report -m
-    - coverage html -d $CIRCLE_ARTIFACTS
-    - [[ ! -z "$$COVERALLS_REPO_TOKEN" ]] && coveralls || true;
+    - run_coverage.sh
 
 dependencies:
   override:

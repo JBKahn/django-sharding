@@ -2,7 +2,7 @@
 
 There are two additional requirements to all data migrations used with the package. Firstly, that you need to specify what model the migration commands will be acting on. The second is a result of the previous requirement, which is that you only run data migrations on a specific model and a specific database or a shard group. For example, you cannot create Data on both the `default` database and `default` `shard_group`. In that case, you'd need to separate it into two migrations.
 
-The way to pass this information is to pass a `model_name` in as a hint. The format is to pass it in as a string of `<app_name>.<model_name>`, for example `auth.User`. Here's an example Data Migration:
+The way to pass this information is to pass a `model_name` in as a hint. The format is to pass it in as a string of `<app_name>.<model_name>`, e.g. `auth.User`. Here's an example Data Migration:
 
 ```python
 from __future__ import unicode_literals

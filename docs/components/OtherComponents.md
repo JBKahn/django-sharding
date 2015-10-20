@@ -176,7 +176,7 @@ As an example, say we have a webapp that serves all TD banks and we wish to stor
 
 As before, we simply store additional data in `__init__` and then retreive stored args and kwargs in `deconstruct`. In this case, we will make use of the `ForeignKey` field's args as well as the `shard_group` from our previous mixin.
 
-After which, we will create a method on pre_save to store the shard. Notice once again that we are loading the strategy from the AppConfig, which we will go through soon.
+After which, we will create a method on `pre_save` to store the shard. Notice once again that we are loading the strategy from the AppConfig, which we will go through soon.
 
 ```python
 class ShardForeignKeyStorageFieldMixin(ShardStorageFieldMixin):
@@ -257,9 +257,9 @@ class ShardedByMixin(models.Model):
         abstract = True
 ```
 
-#### Table Stragey Model
+#### Table Strategy Model
 
-Before when we talked about the `TableShardedIDField` for using an auto-incriment field to generate unique IDs for items, we required a table to store that information as an argument to that field. Sucha table is included to inherit from:
+Before when we talked about the `TableShardedIDField` for using an auto-incriment field to generate unique IDs for items, we required a table to store that information as an argument to that field. Such a table is included to inherit from:
 
 ```python
 class TableStrategyModel(models.Model):
@@ -272,7 +272,7 @@ class TableStrategyModel(models.Model):
 
 #### Shard Storage Mixin
 
-Before when we talked about the `ShardForeignKeyStorageField`, we discussed needing a table to store those shards in which uses a shard_key as a primary key on that table to ensure the shard_key will only ever be assigned a single shard. Here's an included version of that table to inherit from:
+Before when we talked about the `ShardForeignKeyStorageField`, we discussed needing a table to store those shards in which uses a `shard_key` as a primary key on that table to ensure the `shard_key` will only ever be assigned a single shard. Here's an included version of that table to inherit from:
 
 ```python
 class ShardStorageModel(models.Model):
@@ -287,7 +287,7 @@ class ShardStorageModel(models.Model):
 
 ### Signals
 
-We include one signal in the library which uses the attributes added by the other components in order to save shards to models when they are created. The `magic` part which automattically runs this is in the app config which is the last component we'll discuss.
+We include one signal in the library which uses the attributes added by the other components in order to save shards to models when they are created. The `magic` part which automatically runs this is in the app config which is the last component we'll discuss.
 
 ```python
 def save_shard_handler(sender, instance, **kwargs):

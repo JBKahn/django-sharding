@@ -1,6 +1,6 @@
 # Storing A Model On Another Database
 
-In vanilla Django it's not straight forward to store data on another database. Sometimes when you're not sharding a table, you may want to store it on another database. For example, for performance you may want to store your User table on a secondardy database. Doing this with the package is very easy, all you need to do is decorate your model like this:
+In vanilla Django it's not straight forward to store data on another database. Sometimes when you're not sharding a table, you may want to store it on another database. For example, for performance you may want to store your User table on a secondary database. Doing this with the package is very easy, all you need to do is decorate your model like this:
 
 
 ```python

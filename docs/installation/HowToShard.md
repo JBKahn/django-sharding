@@ -90,4 +90,4 @@ Then, as a way to rebalance the data, you could move either `app_shard_003` or `
 
 ### Many Shards or Few Shards?
 
-The author recommends that you create more shards than you think are necessary. Extra logical shards allow you to much more easily rebalance data across physical nodes in the future. Also, by Storing data on different machines, you increase the number of connections to your databases.
+The author recommends that you create more shards than you think are necessary. Extra logical shards allow you to much more easily rebalance data across physical nodes in the future. Also, by storing data on different machines, you increase the number of connections to your databases.

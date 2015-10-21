@@ -8,14 +8,15 @@ def database_config(environment_variable, default_database_url, shard_group=None
     """
     db_config = config(env=environment_variable, default=default_database_url)
     if not db_config:
-
         return db_config
-    db_config['TEST'] = db_config.get('TEST', {})
 
+    db_config['TEST'] = db_config.get('TEST', {})
     db_config['SHARD_GROUP'] = shard_group
+
     if is_replica_of:
         db_config['PRIMARY'] = is_replica_of
         db_config['TEST']['MIRROR'] = is_replica_of
+
     return db_config
 
 

@@ -83,7 +83,7 @@ class Car(models.Model):
 Run them as normal, for example:
 
 ```
-./managy.py makemigrations <app_name>
+./manage.py makemigrations <app_name>
 
 # To let django run the migrations in all the right places.
 ./manage.py migrate <app>

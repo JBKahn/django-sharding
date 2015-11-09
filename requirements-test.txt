@@ -1,7 +1,7 @@
 -r requirements.txt
 
 psycopg2==2.6.1
-mysql-connector-python==2.0.4
+PyMySQL==0.6.7
 mock==1.0.1
 django_nose==1.4.2
 coverage==4.0

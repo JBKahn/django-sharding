@@ -6,3 +6,4 @@ mock==1.0.1
 django_nose==1.4.2
 coverage==4.0
 coveralls==1.0
+tox==2.1.1

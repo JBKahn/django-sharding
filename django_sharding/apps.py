@@ -37,7 +37,7 @@ class ShardingConfig(AppConfig):
                 if not shard_field:
                     raise Exception('The model {} must have a `shard_field` attribute'.format(model))
             else:
-                shard_fields = filter(lambda field: getattr(field, 'django_sharding__stores_shard', False), model._meta.fields)
+                shard_fields = list(filter(lambda field: getattr(field, 'django_sharding__stores_shard', False), model._meta.fields))
                 if not any(shard_fields):
                     continue
 

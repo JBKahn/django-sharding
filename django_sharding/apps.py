@@ -22,7 +22,7 @@ class ShardingConfig(AppConfig):
             group_settings = shard_settings.get(shard_group, {})
             self.bucketers[shard_group] = group_settings.get(
                 'BUCKETING_STRATEGY',
-                RoundRobinBucketingStrategy(shard_group='default', databases=settings.DATABASES)
+                RoundRobinBucketingStrategy(shard_group=shard_group, databases=settings.DATABASES)
             )
             self.routing_strategies[shard_group] = group_settings.get(
                 'ROUTING_STRATEGY',

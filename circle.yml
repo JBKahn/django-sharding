@@ -5,8 +5,18 @@ machine:
     SHARD_002_DATABASE_URL: postgres://ubuntu:@127.0.0.1:5432/shard_002
     REPLICA_001_DATABASE_URL: postgres://ubuntu:@127.0.0.1:5432/sharding_replica_001
     REPLICA_002_DATABASE_URL: postgres://ubuntu:@127.0.0.1:5432/sharding_replica_002
+    TOX_PY27: '2.7.10'
+    TOX_PY32: '3.2.5'
+    TOX_PY33: '3.3.6'
+    TOX_PY34: '3.4.3'
+    TOX_PY35: '3.5.0'
+
   python:
     version: 2.7.6
+
+dependencies:
+  override:
+    - pyenv local $TOX_PY34 $TOX_PY33 $TOX_PY32 $TOX_PY27 $TOX_PY35
 
 test:
   pre:
@@ -14,13 +24,6 @@ test:
     - createdb -U ubuntu -w -p 5432 shard_002
     - createdb -U ubuntu -w -p 5432 sharding_replica_001
     - createdb -U ubuntu -w -p 5432 sharding_replica_002
-    - pyenv shell 3.2
-    - pyenv install 3.3.6
-    - pyenv shell 3.3
-    - pyenv install 3.4.3
-    - pyenv shell 3.4
-    - pyenv install 3.5.0
-    - pyenv shell 3.5
 
   override:
     - tox

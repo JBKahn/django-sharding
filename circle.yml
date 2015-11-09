@@ -15,11 +15,11 @@ test:
     - createdb -U ubuntu -w -p 5432 sharding_replica_001
     - createdb -U ubuntu -w -p 5432 sharding_replica_002
     - pyenv shell 3.2
-    - pyenv install 3.3
+    - pyenv install 3.3.6
     - pyenv shell 3.3
-    - pyenv install 3.4
+    - pyenv install 3.4.3
     - pyenv shell 3.4
-    - pyenv install 3.5
+    - pyenv install 3.5.0
     - pyenv shell 3.5
 
   override:

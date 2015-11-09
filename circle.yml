@@ -18,8 +18,3 @@ test:
     - tox
   post:
     - ./run_coverage.sh
-
-dependencies:
-  override:
-    - pip install psycopg2==2.6.1
-    - pip install -r requirements-test.txt

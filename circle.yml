@@ -14,6 +14,11 @@ test:
     - createdb -U ubuntu -w -p 5432 shard_002
     - createdb -U ubuntu -w -p 5432 sharding_replica_001
     - createdb -U ubuntu -w -p 5432 sharding_replica_002
+    - pyenv shell 3.2
+    - pyenv shell 3.3
+    - pyenv shell 3.4
+    - pyenv shell 3.5
+
   override:
     - tox
   post:

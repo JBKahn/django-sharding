@@ -1,6 +1,12 @@
 Changelog
 =========
 
+0.0.3 (Nov 23rd 2015)
+
+### Small Fix
+
+- Stop selecting incorrect shard group.
+
 0.0.2 (Oct 11th, 2015)
 ------------------
 

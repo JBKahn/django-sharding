@@ -21,8 +21,9 @@ class ShardedRouter(object):
     def get_shard_for_instance(self, instance):
         return instance._state.db or instance.get_shard()
 
-    def get_read_db_routing_strategy(self, shard_group):
-        return apps.get_app_config('django_sharding').get_routing_strategy(shard_group)
+    def get_read_db_routing_strategy(self, shard_group):\
+        app_config_app_label = getattr(settings, 'DJANGO_FRAGMENTS_SHARD_SETTINGS', {}).get('APP_CONFIG_APP', 'django_sharding')
+        return apps.get_app_config(app_config_app_label).get_routing_strategy(shard_group)
 
     def db_for_read(self, model, **hints):
         specific_database = self.get_specific_database_or_none(model)

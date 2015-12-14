@@ -73,21 +73,23 @@ class ShardedRouter(object):
         if settings.DATABASES[db].get('PRIMARY', None):
             return False
         model_name = model_name or hints.get('model_name')
-        if not model_name:
+        model = hints.get('model')
+        if not model_name and not model:
             raise InvalidMigrationException(
-                'Model name not provided in migration, please pass a `model_name` with the hints passed into the migration.'
+                'Model name not provided in migration, please pass a `model_name` or `model` with the hints passed into the migration.'
             )
 
         # Sometimes, when extending models from another app i.e. the User Model, the app label
         # is the app label of the app where the change is defined but to app with the model is
         # passed in with the model name.
-        try:
-            app = apps.get_app_config(app_label)
-            model = app.get_model(model_name)
-        except LookupError:
-            app_label = model_name.split('.')[0]
-            app = apps.get_app_config(app_label)
-            model = app.get_model(model_name[len(app_label) + 1:])
+        if not model:
+            try:
+                app = apps.get_app_config(app_label)
+                model = app.get_model(model_name)
+            except LookupError:
+                app_label = model_name.split('.')[0]
+                app = apps.get_app_config(app_label)
+                model = app.get_model(model_name[len(app_label) + 1:])
 
         single_database = self.get_specific_database_or_none(model)
         shard_group = self.get_shard_group_if_sharded_or_none(model)

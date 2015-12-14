@@ -6,7 +6,7 @@ from django.dispatch import receiver
 
 from django_sharding_library.routing_read_strategies import PrimaryOnlyRoutingStrategy
 from django_sharding_library.sharding_functions import RoundRobinBucketingStrategy
-from django_sharding_library.signals import save_shard_handler
+from django_sharding_library.signals import create_save_shard_handler
 
 
 class ShardingConfig(AppConfig):
@@ -56,7 +56,7 @@ class ShardingConfig(AppConfig):
             if group_settings.get('SKIP_ADD_SHARDED_SIGNAL', False):
                 continue
 
-            receiver(models.signals.pre_save, sender=model)(save_shard_handler)
+            receiver(models.signals.pre_save, sender=model)(create_save_shard_handler(self.name))
 
     def get_routing_strategy(self, shard_group):
         return self.routing_strategies[shard_group]

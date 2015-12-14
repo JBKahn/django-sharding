@@ -169,6 +169,7 @@ class RouterAllowMigrateTestCase(TestCase):
         self.sut.allow_migrate(db='default', app_label='tests', **hints)
 
     def test_requires_model_to_be_passed_in(self):
+        from django.contrib.auth import get_user_model
         with self.assertRaises(InvalidMigrationException):
             self.sut.allow_migrate(db='default', app_label='tests')
 

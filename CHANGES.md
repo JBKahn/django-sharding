@@ -1,6 +1,13 @@
 Changelog
 =========
 
+0.0.5 (Dec 14th 2015)
+------------------
+
+### Small Fix for people wrapping the package
+
+- Allow you to rename the app the config is loaded in through a hiddden setting
+
 0.0.4 (Dec 14th 2015)
 ------------------
 

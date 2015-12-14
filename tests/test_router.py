@@ -168,6 +168,13 @@ class RouterAllowMigrateTestCase(TestCase):
         hints = {'model_name': 'User'}
         self.sut.allow_migrate(db='default', app_label='tests', **hints)
 
+    def test_requires_model_to_be_passed_in(self):
+        with self.assertRaises(InvalidMigrationException):
+            self.sut.allow_migrate(db='default', app_label='tests')
+
+        hints = {'model': get_user_model()}
+        self.sut.allow_migrate(db='default', app_label='tests', model_name=None, **hints)
+
     def test_migrate_replica_will_not_work(self):
         self.assertFalse(self.sut.allow_migrate(db='app_shard_001_replica_001', app_label='tests', model_name='TestModel'))
         self.assertTrue(self.sut.allow_migrate(db='app_shard_001', app_label='tests', model_name='TestModel'))

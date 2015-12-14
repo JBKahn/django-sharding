@@ -1,6 +1,12 @@
 Changelog
 =========
 
+0.0.4 (Dec 14th 2015)
+
+### Small Fix for Django 1.9
+
+- Updated the router to accept the `model` hint in addition to already accepting the `model_name` hint.
+
 0.0.3 (Nov 23rd 2015)
 
 ### Small Fix

@@ -1,6 +1,13 @@
 Changelog
 =========
 
+0.0.6 (Dec 15th 2015)
+------------------
+
+### Small fix of legacy settings name
+
+- `DJANGO_FRAGMENTS_SHARD_SETTINGS` to `DJANGO_SHARDING_SETTINGS`.
+
 0.0.5 (Dec 14th 2015)
 ------------------
 

@@ -13,7 +13,7 @@ class ShardingConfig(AppConfig):
     name = 'django_sharding'
 
     def ready(self):
-        shard_settings = getattr(settings, 'DJANGO_FRAGMENTS_SHARD_SETTINGS', {})
+        shard_settings = getattr(settings, 'DJANGO_SHARDING_SETTINGS', {})
         shard_groups = [settings.DATABASES[db_settings]['SHARD_GROUP'] for db_settings in settings.DATABASES]
         shard_groups = set(filter(lambda group: group is not None, shard_groups))
         self.bucketers = {}

@@ -140,7 +140,7 @@ class ShardForeignKeyStorageFieldMixin(ShardStorageFieldMixin):
             shard_storage_table = getattr(self, 'django_sharding__shard_storage_table')
             shard_group = getattr(self, 'django_sharding__shard_group')
 
-            app_config_app_label = getattr(settings, 'DJANGO_FRAGMENTS_SHARD_SETTINGS', {}).get('APP_CONFIG_APP', 'django_sharding')
+            app_config_app_label = getattr(settings, 'DJANGO_SHARDING_SETTINGS', {}).get('APP_CONFIG_APP', 'django_sharding')
             bucketer = apps.get_app_config(app_config_app_label).get_bucketer(shard_group)
             shard = bucketer.pick_shard(model_instance)
             shard_object, _ = shard_storage_table.objects.get_or_create(shard_key=shard_key)

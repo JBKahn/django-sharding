@@ -10,7 +10,7 @@ def save_shard_handler(sender, instance, **kwargs):
     def shard_handler(sender, instance, **kwargs):
         save_shard_handler(sender, instance, **kwargs)
     """
-    app_config_app_label = getattr(settings, 'DJANGO_FRAGMENTS_SHARD_SETTINGS', {}).get('APP_CONFIG_APP', 'django_sharding')
+    app_config_app_label = getattr(settings, 'DJANGO_SHARDING_SETTINGS', {}).get('APP_CONFIG_APP', 'django_sharding')
     bucketer = apps.get_app_config(app_config_app_label).get_bucketer(sender.django_sharding__shard_group)
     shard_fields = filter(lambda field: getattr(field, 'django_sharding__stores_shard', False), sender._meta.fields)
     if not any(shard_fields):

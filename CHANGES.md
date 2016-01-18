@@ -1,6 +1,13 @@
 Changelog
 =========
 
+0.0.7 (Jan 18th 2016)
+------------------
+
+### Small fix for django migrations
+
+- The shards field is using sorted choices so that the migration is the same regardless of the machine.
+
 0.0.6 (Dec 15th 2015)
 ------------------
 

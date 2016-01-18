@@ -8,9 +8,11 @@ def _get_primary_shards():
     """
     Returns the names of databases which make up the shards and have no primary.
     """
-    return filter(
-        lambda db: not settings.DATABASES[db].get('PRIMARY', None) and settings.DATABASES[db].get('SHARD_GROUP', None),
-        settings.DATABASES.keys()
+    return sorted(
+        filter(
+            lambda db: not settings.DATABASES[db].get('PRIMARY', None) and settings.DATABASES[db].get('SHARD_GROUP', None),
+            settings.DATABASES.keys()
+        )
     )
 
 

@@ -6,7 +6,7 @@ machine:
     REPLICA_001_DATABASE_URL: postgres://ubuntu:@127.0.0.1:5432/sharding_replica_001
     REPLICA_002_DATABASE_URL: postgres://ubuntu:@127.0.0.1:5432/sharding_replica_002
     TOX_PY27: '2.7.11'
-    TOX_PY33: '3.3.6'
+    TOX_PY33: '3.3.3'
     TOX_PY34: '3.4.3'
     TOX_PY35: '3.5.0'
   python:

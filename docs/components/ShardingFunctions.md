@@ -97,13 +97,13 @@ class RoundRobinBucketingStrategy(BaseShardedModelBucketingStrategy):
         self._shards_cycle = cycle(shards)
 
     def pick_shard(self, model_sharded_by):
-        return self._shards_cycle.next()
+        return next(self._shards_cycle)
 
     def get_shard(self, model_sharded_by):
         return model_sharded_by.shard
 ```
 
-Since this is initialized at app initialization time, it begins the cycle at a random index, otherwise the first shard would always be imbalanced. 
+Since this is initialized at app initialization time, it begins the cycle at a random index, otherwise the first shard would always be imbalanced.
 
 ##### Mod Bucketing Strategy
 

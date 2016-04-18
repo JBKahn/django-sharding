@@ -1,6 +1,8 @@
 from itertools import cycle
 from random import choice, randint
 
+from django.utils.six import next
+
 
 class BaseRoutingStrategy(object):
     """
@@ -60,7 +62,7 @@ class RoundRobinRoutingStrategy(BaseRoutingStrategy):
             self.read_cycles[primary] = cycle(replicas + [primary])
 
     def pick_read_db(self, primary_db_name):
-        return self.read_cycles[primary_db_name].next()
+        return next(self.read_cycles[primary_db_name])
 
 
 class RandomRoutingStrategy(BaseRoutingStrategy):

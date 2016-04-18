@@ -1,6 +1,8 @@
 from itertools import cycle
 from random import choice, randint
 
+from django.utils.six import next
+
 
 class BaseBucketingStrategy(object):
     """
@@ -59,7 +61,7 @@ class RoundRobinBucketingStrategy(BaseShardedModelBucketingStrategy):
         self._shards_cycle = cycle(shards)
 
     def pick_shard(self, model_sharded_by):
-        return self._shards_cycle.next()
+        return next(self._shards_cycle)
 
 
 class RandomBucketingStrategy(BaseShardedModelBucketingStrategy):

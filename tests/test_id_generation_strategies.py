@@ -34,7 +34,7 @@ class UUIDStrategyTestCase(TestCase):
     def test_returns_value_with_db_name_and_uuid(self):
         sut = UUIDStrategy()
         for i in xrange(100):
-            database = choice(settings.DATABASES.keys())
+            database = choice(list(settings.DATABASES.keys()))
             id = sut.get_next_id(database)
             self.assertTrue(id.startswith(database))
             uuid_value = id[len(database) + 1:]

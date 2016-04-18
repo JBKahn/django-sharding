@@ -239,7 +239,7 @@ def _get_primary_shards():
     Returns the names of databases which make up the shards and have no primary.
     """
     return [
-        database_name for (database_name, db_settings) in settings.DATABASES.viewitems()
+        database_name for (database_name, db_settings) in settings.DATABASES.items()
         if not db_settings.get('PRIMARY', None) and db_settings.get('SHARD_GROUP', None)
     ]
 

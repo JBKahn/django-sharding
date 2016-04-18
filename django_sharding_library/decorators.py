@@ -25,11 +25,11 @@ def model_config(shard_group=None, database=None):
             setattr(cls, 'django_sharding__database', database)
 
         if shard_group:
-            sharded_fields = filter(lambda field: issubclass(type(field), ShardedIDFieldMixin), cls._meta.fields)
+            sharded_fields = list(filter(lambda field: issubclass(type(field), ShardedIDFieldMixin), cls._meta.fields))
             if not sharded_fields:
                 raise ShardedModelInitializationException('All sharded models require a ShardedIDFieldMixin.')
 
-            if not filter(lambda field: field == cls._meta.pk, sharded_fields):
+            if not list(filter(lambda field: field == cls._meta.pk, sharded_fields)):
                 raise ShardedModelInitializationException('All sharded models require the ShardedAutoIDField to be the primary key. Set primary_key=True on the field.')
 
             if not callable(getattr(cls, 'get_shard', None)):

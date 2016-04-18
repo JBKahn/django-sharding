@@ -36,16 +36,16 @@ def model_config(shard_group=None, database=None):
             setattr(cls, 'django_sharding__database', database)
 
         if shard_group:
-            sharded_fields = filter(
+            sharded_fields = list(filter(
                 lambda field: issubclass(type(field), ShardedIDFieldMixin),
                 cls._meta.fields
-            )
+            ))
             if not sharded_fields:
                 raise ShardedModelInitializationException(
                     'All sharded models require a ShardedIDFieldMixin.'
                 )
 
-            if not filter(lambda field: field == cls._meta.pk, sharded_fields):
+            if not list(filter(lambda field: field == cls._meta.pk, sharded_fields)):
                 raise ShardedModelInitializationException(
                     'All sharded models require the ShardedAutoIDField to be the '
                     'primary key. Set primary_key=True on the field.'
@@ -292,16 +292,16 @@ We include one signal in the library which uses the attributes added by the othe
 ```python
 def save_shard_handler(sender, instance, **kwargs):
     bucketer = apps.get_app_config('django_sharding').get_bucketer(sender.shard_group)
-    shard_fields = filter(
+    shard_fields = list(filter(
         lambda field: getattr(field, 'django_sharding__stores_shard', False),
         sender._meta.fields
-    )
+    ))
     if len(shard_fields) != 1:
         shard_field_name = getattr(sender, 'django_sharding__shard_field', None)
-        shard_fields = filter(
+        shard_fields = list(filter(
             lambda field: field.name == shard_field_name,
             sender._meta.fields
-        )
+        ))
 
     if not any(shard_fields):
         return

@@ -14,7 +14,7 @@ machine:
 
 dependencies:
   override:
-    - pip install --upgrade pip tox tox-pyenv
+    - pip install --upgrade pip
     - pip install --upgrade -r requirements-test.txt
     - pyenv local $TOX_PY35 $TOX_PY34 $TOX_PY33 $TOX_PY27
 

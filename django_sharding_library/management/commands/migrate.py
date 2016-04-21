@@ -21,10 +21,10 @@ class Command(MigrationCommand):
             super(Command, self).handle(*args, **options)
 
     def get_all_but_replica_dbs(self):
-        return filter(
+        return list(filter(
             lambda db: not settings.DATABASES[db].get('PRIMARY', None),
             settings.DATABASES.keys()
-        )
+        ))
 
     def add_arguments(self, parser):
         super(Command, self).add_arguments(parser)

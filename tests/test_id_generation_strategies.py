@@ -3,6 +3,7 @@ from uuid import UUID
 
 from django.conf import settings
 from django.test import TestCase
+from django.utils.six.moves import xrange
 
 from tests.models import ShardedModelIDs
 from django_sharding_library.id_generation_strategies import TableStrategy, UUIDStrategy
@@ -33,7 +34,7 @@ class UUIDStrategyTestCase(TestCase):
     def test_returns_value_with_db_name_and_uuid(self):
         sut = UUIDStrategy()
         for i in xrange(100):
-            database = choice(settings.DATABASES.keys())
+            database = choice(list(settings.DATABASES.keys()))
             id = sut.get_next_id(database)
             self.assertTrue(id.startswith(database))
             uuid_value = id[len(database) + 1:]

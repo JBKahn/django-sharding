@@ -2,6 +2,7 @@ from mock import Mock
 
 from django.conf import settings
 from django.test import TestCase
+from django.utils.six.moves import xrange
 
 from django_sharding_library.sharding_functions import (
     BaseBucketingStrategy,

@@ -3,6 +3,7 @@ from mock import patch
 from django.conf import settings
 from django.db.utils import DataError, IntegrityError
 from django.test import TestCase
+from django.utils.six.moves import xrange
 
 from django_sharding_library.constants import Backends
 from django_sharding_library.fields import ShardedIDFieldMixin, ShardLocalStorageFieldMixin, ShardStorageFieldMixin, ShardForeignKeyStorageFieldMixin, ShardForeignKeyStorageField

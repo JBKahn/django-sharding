@@ -44,10 +44,10 @@ class Command(MigrationCommand):
         Return a list of primary databases, used to prevent migrations from
         being run on replication databases.
         """
-        return filter(
+        return list(filter(
             lambda db: not settings.DATABASES[db].get('PRIMARY', None),
             settings.DATABASES.keys()
-        )
+        ))
 
     def add_arguments(self, parser):
         """

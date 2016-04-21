@@ -86,11 +86,11 @@ class RoundRobinRoutingStrategy(BaseRoutingStrategy):
         super(RoundRobinRoutingStrategy, self).__init__(databases)
         self.read_cycles = {}
 
-        for primary, replicas in self.primary_replica_mapping.viewitems():
+        for primary, replicas in self.primary_replica_mapping.items():
             self.read_cycles[primary] = cycle(replicas + [primary])
 
     def pick_read_db(self, primary_db_name):
-        return self.read_cycles[primary_db_name].next()
+        return next(self.read_cycles[primary_db_name])
 ```
 
 ##### Ratio Routing Strategy

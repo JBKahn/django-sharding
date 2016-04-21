@@ -1,6 +1,14 @@
 Changelog
 =========
 
+0.0.8 (Apr 20th 2016)
+------------------
+
+### A few fixes for compatibility with python3 and using tox for testing
+
+- Tested on pthon 2.7, 3.4 and 3.5
+
+
 0.0.7 (Jan 18th 2016)
 ------------------
 

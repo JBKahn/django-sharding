@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-version = '0.0.7'
+version = '0.0.8'
 
 
 setup(
@@ -23,6 +23,8 @@ setup(
         'Intended Audience :: Developers',
         'Natural Language :: English',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5'
     ],
     test_suite='runtests.run_tests',
 )

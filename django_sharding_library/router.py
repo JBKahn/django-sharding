@@ -86,11 +86,11 @@ class ShardedRouter(object):
         # is the app label of the app where the change is defined but to app with the model is
         # passed in with the model name.
         try:
-	    app = apps.get_app_config(app_label)
+            app = apps.get_app_config(app_label)
             model = app.get_model(model_name)
         except LookupError:
-	    app_label = model_name.split('.')[0]
-	    app = apps.get_app_config(app_label)
+            app_label = model_name.split('.')[0]
+            app = apps.get_app_config(app_label)
             model = app.get_model(model_name[len(app_label) + 1:])
 
         single_database = self.get_specific_database_or_none(model)

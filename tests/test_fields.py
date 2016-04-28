@@ -13,7 +13,7 @@ from tests.models import ShardedModelIDs, ShardedTestModelIDs, TestModel, ShardS
 
 class BigAutoFieldTestCase(TestCase):
     def test_largest_id(self):
-        if settings.DATABASES['default']['ENGINE'] == Backends.POSTGRES:
+        if settings.DATABASES['default']['ENGINE'] in [Backends.POSTGRES, Backends.SQLITE]:
             max_id = 9223372036854775807
         else:
             max_id = 18446744073709551615
@@ -41,7 +41,7 @@ class FakeIDGenerationStrategy(BaseIDGenerationStrategy):
 
 class TableShardedIDFieldTestCase(TestCase):
     def test_largest_id(self):
-        if settings.DATABASES['app_shard_001']['ENGINE'] == Backends.POSTGRES:
+        if settings.DATABASES['app_shard_001']['ENGINE'] in [Backends.POSTGRES, Backends.SQLITE]:
             max_id = 9223372036854775807
         else:
             max_id = 18446744073709551615

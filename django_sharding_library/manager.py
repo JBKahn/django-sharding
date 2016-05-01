@@ -33,21 +33,19 @@ class ShardQuerySet(QuerySet):
         if self._db:
             return self._db
 
-        if self._for_write:
-            return router.db_for_write(self.model, exact_lookups=self._exact_lookups,
-                                       instance=getattr(self, '_instance', None))
-        return router.db_for_read(self.model, exact_lookups=self._exact_lookups)
+        self._hints['exact_lookups'] = self._exact_lookups
+        if not self._hints.get('instance') and getattr(self, '_instance', None):
+            self._hints['instance'] = getattr(self, '_instance')
+
+        return super(ShardQuerySet, self).db
 
     def create(self, **kwargs):
         """
         Not sure if this is necessary anymore, it was in 1.4. Grabs the instance before its too late to pass it to the
         router as a hint.
         """
-        obj = self.model(**kwargs)
-        self._for_write = True
-        self._instance = obj
-        obj.save(force_insert=True, using=self.db)
-        return obj
+        self._instance = self.model(**kwargs)
+        return super(ShardQuerySet, self).create(**kwargs)
 
 
 class ShardManager(Manager):

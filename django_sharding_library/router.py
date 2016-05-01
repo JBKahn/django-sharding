@@ -21,6 +21,9 @@ class ShardedRouter(object):
     def get_shard_for_instance(self, instance):
         return instance._state.db or instance.get_shard()
 
+    def get_shard_for_id_field(self, model, sharded_by_field_id):
+        return model.get_shard_from_id(sharded_by_field_id)
+
     def get_read_db_routing_strategy(self, shard_group):
         app_config_app_label = getattr(settings, 'DJANGO_SHARDING_SETTINGS', {}).get('APP_CONFIG_APP', 'django_sharding')
         return apps.get_app_config(app_config_app_label).get_routing_strategy(shard_group)
@@ -31,9 +34,15 @@ class ShardedRouter(object):
             return specific_database
 
         if self.get_shard_group_if_sharded_or_none(model):
+            shard = None
             instance = hints.get('instance')
+            shard_field_id = hints.get('_exact_lookups', {}).get(
+                getattr(model, 'django_sharding__sharded_by_field', None))
             if instance:
                 shard = self.get_shard_for_instance(instance)
+            elif shard_field_id:
+                shard = self.get_shard_for_id_field(model, shard_field_id)
+            if shard:
                 # TODO: remove the second, should not use the shard_group attribute anywhere anymore
                 shard_group = getattr(model, 'django_sharding__shard_group', getattr(model, 'shard_group', None))
                 if not shard_group:
@@ -48,9 +57,17 @@ class ShardedRouter(object):
             return specific_database
 
         if self.get_shard_group_if_sharded_or_none(model):
+            db = None
             instance = hints.get('instance')
+            shard_field_id = hints.get('_exact_lookups', {}).get(
+                getattr(model, 'django_sharding__sharded_by_field', None))
+
             if instance:
                 db = self.get_shard_for_instance(instance)
+            elif shard_field_id:
+                db = self.get_shard_for_id_field(model, shard_field_id)
+
+            if db:
                 db_config = settings.DATABASES[db]
                 return db_config.get('PRIMARY', db)
         return None

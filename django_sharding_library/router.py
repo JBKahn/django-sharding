@@ -40,7 +40,7 @@ class ShardedRouter(object):
                 getattr(model, 'django_sharding__sharded_by_field', None))
             if instance:
                 shard = self.get_shard_for_instance(instance)
-            elif shard_field_id:
+            if not shard and shard_field_id:
                 shard = self.get_shard_for_id_field(model, shard_field_id)
             if shard:
                 # TODO: remove the second, should not use the shard_group attribute anywhere anymore
@@ -57,19 +57,19 @@ class ShardedRouter(object):
             return specific_database
 
         if self.get_shard_group_if_sharded_or_none(model):
-            db = None
+            shard = None
             instance = hints.get('instance')
             shard_field_id = hints.get('_exact_lookups', {}).get(
                 getattr(model, 'django_sharding__sharded_by_field', None))
 
             if instance:
-                db = self.get_shard_for_instance(instance)
-            elif shard_field_id:
-                db = self.get_shard_for_id_field(model, shard_field_id)
+                shard = self.get_shard_for_instance(instance)
+            if not shard and shard_field_id:
+                shard = self.get_shard_for_id_field(model, shard_field_id)
 
-            if db:
-                db_config = settings.DATABASES[db]
-                return db_config.get('PRIMARY', db)
+            if shard:
+                db_config = settings.DATABASES[shard]
+                return db_config.get('PRIMARY', shard)
         return None
 
     def allow_relation(self, obj1, obj2, **hints):

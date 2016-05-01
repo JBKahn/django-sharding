@@ -58,17 +58,16 @@ class ShardManager(Manager):
 
         return ShardQuerySet(model=self.model)
 
+    def _wrap(func_name):
+        def wrapped(self, **kwargs):
+            # Should check for good kwarg here, need to grab it off the model
+            # self.get_query_set(key=int(key))
+            return getattr(self.get_query_set(), func_name)(**kwargs)
+
+        wrapped.__name__ = func_name
+        return wrapped
+
     filter = _wrap('filter')
     get = _wrap('get')
     create = _wrap('create')
     get_or_create = _wrap('get_or_create')
-
-
-def _wrap(func_name):
-    def wrapped(self, **kwargs):
-        # Should check for good kwarg here, need to grab it off the model
-        # self.get_query_set(key=int(key))
-        return getattr(self.get_query_set(), func_name)(**kwargs)
-
-    wrapped.__name__ = func_name
-    return wrapped

@@ -2,9 +2,10 @@ from django.conf import settings
 
 from django_sharding_library.exceptions import NonExistentDatabaseException, ShardedModelInitializationException
 from django_sharding_library.fields import ShardedIDFieldMixin
+from django_sharding_library.manager import ShardManager
 
 
-def model_config(shard_group=None, database=None):
+def model_config(shard_group=None, database=None, sharded_by_field=None):
     """
     A decorator for marking a model as being either sharded or stored on a
     particular database. When sharding, it does some verification to ensure
@@ -37,6 +38,16 @@ def model_config(shard_group=None, database=None):
 
             setattr(cls, 'django_sharding__shard_group', shard_group)
             setattr(cls, 'django_sharding__is_sharded', True)
+
+            # If the sharded by field is set, we will make our custom manager the default manager.
+            # todo: update docs to indicate that ShardManager should be used as the base class for any custom managers->
+            # for a model that defines a sharded by field
+            # todo: Update docs to include the sharded by field and the get_shard_from_id function
+            if sharded_by_field:
+                setattr(cls, 'django_sharding__sharded_by_field', sharded_by_field)
+                if not callable(getattr(cls, 'get_shard_from_id', None)):
+                    raise ShardedModelInitializationException('You must define a get_shard_from_id method on the sharded model if you define a "sharded_by_field".')
+                setattr(cls, 'objects', ShardManager())
 
         return cls
     return configure

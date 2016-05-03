@@ -202,7 +202,9 @@ class PostgresShardIdFieldTestCase(TestCase):
 
         # Lets produce an ID that would have been generated 10 seconds ago on shard id 0 and assuming the counter was
         # at 0 (basically, the ID should be higher than this at all times, since time is the main factor)
-        lowest_id = int(time.mktime(datetime.now().timetuple()) * 1000) - settings.SHARD_EPOCH - 10 << 23 + 0 << 10 + 0 << 0
+        lowest_id = int(time.mktime(datetime.now().timetuple()) * 1000) - settings.SHARD_EPOCH - 10000 << 23
+        lowest_id |= 0 << 10
+        lowest_id |= 0 << 1
         print("Generated and lowest ids:")
         print(generated_id)
         print(lowest_id)

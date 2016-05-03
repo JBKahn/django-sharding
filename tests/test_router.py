@@ -58,7 +58,7 @@ class RouterReadTestCase(TestCase):
     def test_router_gets_filter_hints(self):
         TestModel.objects.create(user_pk=self.user.pk)
 
-        lookups_to_find = {'exact_lookups': {'user_pk': 1}}
+        lookups_to_find = {'exact_lookups': {'user_pk': self.user.pk}}
 
         with patch.object(ShardedRouter, 'db_for_read') as read_route_function:
             read_route_function.return_value = 'app_shard_001'

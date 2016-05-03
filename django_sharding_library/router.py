@@ -36,8 +36,11 @@ class ShardedRouter(object):
         if self.get_shard_group_if_sharded_or_none(model):
             shard = None
             instance = hints.get('instance')
-            shard_field_id = hints.get('_exact_lookups', {}).get(
+            shard_field_id = hints.get('exact_lookups', {}).get(
                 getattr(model, 'django_sharding__sharded_by_field', None))
+            if not shard_field_id and instance:
+                shard_field_id = getattr(instance, getattr(model, 'django_sharding__sharded_by_field', None), None)
+
             if instance:
                 shard = self.get_shard_for_instance(instance)
             if not shard and shard_field_id:
@@ -59,8 +62,10 @@ class ShardedRouter(object):
         if self.get_shard_group_if_sharded_or_none(model):
             shard = None
             instance = hints.get('instance')
-            shard_field_id = hints.get('_exact_lookups', {}).get(
-                getattr(model, 'django_sharding__sharded_by_field', None))
+            shard_field_id = hints.get('exact_lookups', {}).get(
+                getattr(model, 'django_sharding__sharded_by_field', None), None)
+            if not shard_field_id and instance:
+                shard_field_id = getattr(instance, getattr(model, 'django_sharding__sharded_by_field', None), None)
 
             if instance:
                 shard = self.get_shard_for_instance(instance)

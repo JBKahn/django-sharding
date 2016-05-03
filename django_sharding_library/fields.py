@@ -3,6 +3,9 @@ from django.conf import settings
 from django.db.models import AutoField, CharField, ForeignKey
 
 from django_sharding_library.constants import Backends
+from django.db import connections, transaction, DatabaseError
+from django.db.backends.postgresql.base import DatabaseWrapper as PostgresDatabaseWrapper
+from django_sharding_library.utils import create_postgres_global_sequence, create_postgres_shard_id_function
 
 
 class BigAutoField(AutoField):
@@ -156,3 +159,30 @@ class ShardForeignKeyStorageField(ShardForeignKeyStorageFieldMixin, ForeignKey):
     the shard using a pre_save signal.
     """
     pass
+
+
+class PostgresShardGeneratedIDField(AutoField):
+    """
+    A field that uses a Postgres stored procedure to return an ID generated on the database.
+    """
+    def db_type(self, connection, *args, **kwargs):
+
+        if not hasattr(settings, 'SHARD_EPOCH'):
+            raise ValueError("PostgresShardGeneratedIDField requires a SHARD_EPOCH to be defined in your settings file.")
+
+        if connection.vendor == PostgresDatabaseWrapper.vendor:
+            return "bigint DEFAULT next_sharded_id()"
+        else:
+            return super(PostgresShardGeneratedIDField, self).db_type(connection)
+
+    @staticmethod
+    def migration_receiver(*args, **kwargs):
+        sequence_name = "global_id_sequence"
+        db_alias = kwargs.get('using')
+        if not db_alias:
+            raise EnvironmentError("A pre-migration receiver did not receive a database alias. "
+                                   "Perhaps your app is not registered correctly?")
+        if settings.DATABASES[db_alias]['backend'] == Backends.POSTGRES:
+            shard_id = settings.DATABASES[db_alias].get('SHARD_ID', 0)
+            create_postgres_global_sequence(sequence_name, db_alias, True)
+            create_postgres_shard_id_function(sequence_name, db_alias, shard_id)

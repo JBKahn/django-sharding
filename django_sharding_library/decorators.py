@@ -30,6 +30,7 @@ def model_config(shard_group=None, database=None):
 
         postgres_shard_id_fields = list(filter(lambda field: issubclass(type(field), PostgresShardGeneratedIDField), cls._meta.fields))
         if postgres_shard_id_fields:
+            print("Found PostgresShardGeneratedIDField on model %s. Hooking up pre-migration signal." % cls._meta.model_name)
             register_migration_signal_for_model_receiver(cls, PostgresShardGeneratedIDField.migration_receiver,
                                                          dispatch_uid=PRE_MIGRATION_DISPATCH_UID % cls._meta.model_name)
 

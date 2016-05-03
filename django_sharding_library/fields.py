@@ -177,12 +177,14 @@ class PostgresShardGeneratedIDField(AutoField):
 
     @staticmethod
     def migration_receiver(*args, **kwargs):
+        print("Received migration signal for PostgresShardGeneratedIDField.")
         sequence_name = "global_id_sequence"
         db_alias = kwargs.get('using')
         if not db_alias:
             raise EnvironmentError("A pre-migration receiver did not receive a database alias. "
                                    "Perhaps your app is not registered correctly?")
         if settings.DATABASES[db_alias]['backend'] == Backends.POSTGRES:
+            print("Running migration steps for PostgresShardGeneratedIDField.")
             shard_id = settings.DATABASES[db_alias].get('SHARD_ID', 0)
             create_postgres_global_sequence(sequence_name, db_alias, True)
             create_postgres_shard_id_function(sequence_name, db_alias, shard_id)

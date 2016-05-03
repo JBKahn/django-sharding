@@ -212,4 +212,10 @@ class PostgresShardIdFieldTestCase(TestCase):
     def test_check_shard_id_returns_with_model_save(self):
         created_model = PostgresCustomIDModel.objects.create(random_string='Test String', user_pk=1)
         self.assertTrue(getattr(created_model, 'id'))
-        self.assertGreater(created_model.id, 1)
+
+        # Same as above, lets create an id that would have been made 10 seconds ago and make sure the one that was
+        # created and returned is larger
+        lowest_id = int(time.mktime(datetime.now().timetuple()) * 1000) - settings.SHARD_EPOCH - 10000 << 23
+        lowest_id |= 0 << 10
+        lowest_id |= 1
+        self.assertGreater(created_model.id, lowest_id)

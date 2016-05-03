@@ -1,7 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django_sharding_library.decorators import model_config
-from django_sharding_library.fields import TableShardedIDField, ShardForeignKeyStorageField
+from django_sharding_library.fields import TableShardedIDField, ShardForeignKeyStorageField, PostgresShardGeneratedIDField
 from django_sharding_library.models import ShardedByMixin, ShardStorageModel, TableStrategyModel
 
 
@@ -67,3 +67,14 @@ class ShardedByForiegnKeyModel(models.Model):
 
     def get_shard_key(self):
         return self.test.user_pk
+
+
+@model_config(database='default')
+class PostgresCustomIDModel(models.Model):
+    id = PostgresShardGeneratedIDField(primary_key=True)
+    random_string = models.CharField(max_length=120)
+    user_pk = models.PositiveIntegerField()
+
+    def get_shard(self):
+        from django.contrib.auth import get_user_model
+        return get_user_model().objects.get(pk=self.user_pk).shard

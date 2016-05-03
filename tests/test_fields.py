@@ -1,14 +1,19 @@
 from mock import patch
+import unittest
 
 from django.conf import settings
 from django.db.utils import DataError, IntegrityError
 from django.test import TestCase
+from django.db import connections, transaction, DatabaseError
 from django.utils.six.moves import xrange
+
+import time
+from datetime import datetime
 
 from django_sharding_library.constants import Backends
 from django_sharding_library.fields import ShardedIDFieldMixin, ShardLocalStorageFieldMixin, ShardStorageFieldMixin, ShardForeignKeyStorageFieldMixin, ShardForeignKeyStorageField
 from django_sharding_library.id_generation_strategies import BaseIDGenerationStrategy
-from tests.models import ShardedModelIDs, ShardedTestModelIDs, TestModel, ShardStorageTable
+from tests.models import ShardedModelIDs, ShardedTestModelIDs, TestModel, ShardStorageTable, PostgresCustomIDModel
 
 
 class BigAutoFieldTestCase(TestCase):
@@ -184,3 +189,28 @@ class ShardForeignKeyStorageFieldTestCase(TestCase):
                 sut.pre_save(model_instance, False)
 
         mock_save_shard.assert_called_once_with(model_instance)
+
+
+class PostgresShardIdFieldTestCase(TestCase):
+
+    @unittest.skipIf(settings.DATABASES['default']['ENGINE'] not in [Backends.POSTGRES, ], "Not a postgres backend")
+    def test_check_shard_id_function(self):
+        cursor = connections[db_alias].cursor()
+        cursor.execute("SELECT next_sharded_id();")
+        generated_id = cursor.fetchone()
+        cursor.close()
+
+        # Lets produce an ID that would have been generated 10 seconds ago on shard id 0 and assuming the counter was
+        # at 0 (basically, the ID should be higher than this at all times, since time is the main factor)
+        lowest_id = int(time.mktime(datetime.now().timetuple()) * 1000) - settings.SHARD_EPOCH - 10 << 23 + 0 << 10 + 0 << 0
+        print("Generated and lowest ids:")
+        print(generated_id)
+        print(lowest_id)
+
+        self.assertGreater(generated_id[0], lowest_id)
+
+    @unittest.skipIf(settings.DATABASES['default']['ENGINE'] not in [Backends.POSTGRES, ], "Not a postgres backend")
+    def test_check_shard_id_returns_with_model_save(self):
+        created_model = PostgresCustomIDModel.objects.create(random_string='Test String', user_pk=1)
+        self.assertTrue(getattr(created_model, 'id'))
+        self.assertGreater(created_model.id, 1)

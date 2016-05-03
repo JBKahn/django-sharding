@@ -1,5 +1,7 @@
 import os
 import sys
+from datetime import datetime
+import time
 
 try:
     from django.conf import settings
@@ -59,6 +61,7 @@ try:
         ],
         SITE_ID=1,
         MIDDLEWARE_CLASSES=(),
+        SHARD_EPOCH=int(time.mktime(datetime(2016, 1, 1).timetuple()) * 1000)
     )
 
     try:

@@ -41,7 +41,7 @@ class FakeIDGenerationStrategy(BaseIDGenerationStrategy):
 
 class TableShardedIDFieldTestCase(TestCase):
     def test_largest_id(self):
-        if settings.DATABASES['app_shard_001']['ENGINE'] == Backends.POSTGRES:
+        if settings.DATABASES['app_shard_001']['ENGINE'] in [Backends.POSTGRES, Backends.SQLITE]:
             max_id = 9223372036854775807
         else:
             max_id = 18446744073709551615

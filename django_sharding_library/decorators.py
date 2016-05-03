@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.apps import apps
 
 from django_sharding_library.exceptions import NonExistentDatabaseException, ShardedModelInitializationException
 from django_sharding_library.fields import ShardedIDFieldMixin, PostgresShardGeneratedIDField
@@ -30,9 +31,9 @@ def model_config(shard_group=None, database=None):
 
         postgres_shard_id_fields = list(filter(lambda field: issubclass(type(field), PostgresShardGeneratedIDField), cls._meta.fields))
         if postgres_shard_id_fields:
-            print("Found PostgresShardGeneratedIDField on model %s. Hooking up pre-migration signal." % cls._meta.model_name)
-            register_migration_signal_for_model_receiver(cls, PostgresShardGeneratedIDField.migration_receiver,
-                                                         dispatch_uid=PRE_MIGRATION_DISPATCH_UID % cls._meta.model_name)
+            register_migration_signal_for_model_receiver(apps.get_app_config(cls._meta.app_label),
+                                                         PostgresShardGeneratedIDField.migration_receiver,
+                                                         dispatch_uid=PRE_MIGRATION_DISPATCH_UID % cls._meta.app_label)
 
         if shard_group:
             sharded_fields = list(filter(lambda field: issubclass(type(field), ShardedIDFieldMixin), cls._meta.fields))

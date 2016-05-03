@@ -195,7 +195,7 @@ class PostgresShardIdFieldTestCase(TestCase):
 
     @unittest.skipIf(settings.DATABASES['default']['ENGINE'] not in [Backends.POSTGRES, ], "Not a postgres backend")
     def test_check_shard_id_function(self):
-        cursor = connections[db_alias].cursor()
+        cursor = connections['default'].cursor()
         cursor.execute("SELECT next_sharded_id();")
         generated_id = cursor.fetchone()
         cursor.close()
@@ -205,9 +205,6 @@ class PostgresShardIdFieldTestCase(TestCase):
         lowest_id = int(time.mktime(datetime.now().timetuple()) * 1000) - settings.SHARD_EPOCH - 10000 << 23
         lowest_id |= 0 << 10
         lowest_id |= 1
-        print("Generated and lowest ids:")
-        print(generated_id)
-        print(lowest_id)
 
         self.assertGreater(generated_id[0], lowest_id)
 

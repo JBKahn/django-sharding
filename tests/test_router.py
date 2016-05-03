@@ -9,6 +9,8 @@ from django_sharding_library.exceptions import InvalidMigrationException
 from django_sharding_library.router import ShardedRouter
 from django_sharding_library.routing_read_strategies import BaseRoutingStrategy
 
+from django.db.models import Avg, Max, Min, Sum
+
 
 class FakeRoutingStrategy(BaseRoutingStrategy):
     """
@@ -53,6 +55,45 @@ class RouterReadTestCase(TestCase):
         from django.contrib.auth import get_user_model
         self.assertEqual(self.sut.db_for_read(model=get_user_model()), None)
 
+    def test_router_gets_filter_hints(self):
+        TestModel.objects.create(user_pk=self.user.pk)
+
+        lookups_to_find = {'exact_lookups': {'user_pk': 1}}
+
+        with patch.object(ShardedRouter, 'db_for_read') as read_route_function:
+            read_route_function.return_value = 'app_shard_001'
+            test_models = list(TestModel.objects.filter(user_pk=self.user.pk))
+            self.assertIn(lookups_to_find, read_route_function.call_args)
+
+    def test_queryset_router_filter_returns_existing_objects(self):
+        # Cant for sure know what order tests ran in, lets make sure the delete function works in this test
+        TestModel.objects.filter(user_pk=self.user.pk).delete()
+        for i in range(1, 11):
+            test_model_obj = TestModel.objects.create(user_pk=self.user.pk, random_string="%s" % i)
+            self.assertIn(test_model_obj._state.db, ['app_shard_001', 'app_shard_002'])
+
+        test_models = TestModel.objects.filter(user_pk=self.user.pk)
+        self.assertEqual(len(test_models), 10)
+
+        from django.contrib.auth import get_user_model
+        new_user = get_user_model().objects.create_user(username='username2', password='pwassword', email='test2@example.com')
+        for i in range(1, 21):
+            TestModel.objects.create(user_pk=new_user.pk, random_string="%s" % i)
+
+        test_models = TestModel.objects.filter(user_pk=new_user.pk)
+        self.assertEqual(len(test_models), 20)
+
+    def test_queryset_router_filter_with_aggregates(self):
+        # Cant for sure know what order tests ran in, lets make sure the delete function works in this test
+        TestModel.objects.filter(user_pk=self.user.pk).delete()
+        for i in range(1, 11):
+            TestModel.objects.create(user_pk=self.user.pk, random_string="%s" % i)
+        num_models = TestModel.objects.filter(user_pk=self.user.pk).count()
+        self.assertEqual(num_models, 10)
+
+        sum_model_pk = TestModel.objects.filter(user_pk=self.user.pk).aggregate(user_pk_sum=Sum('user_pk'))
+        self.assertEqual(sum_model_pk['user_pk_sum'], self.user.pk * 10)
+
 
 class RouterWriteTestCase(TestCase):
 
@@ -87,6 +128,10 @@ class RouterWriteTestCase(TestCase):
     def test_other(self):
         from django.contrib.auth import get_user_model
         self.assertEqual(self.sut.db_for_write(model=get_user_model()), None)
+
+    def test_create_sharded_object_without_using(self):
+        instance = TestModel.objects.create(user_pk=self.user.pk)
+        self.assertEqual(instance._state.db, self.user.shard)
 
 
 class RouterAllowRelationTestCase(TestCase):

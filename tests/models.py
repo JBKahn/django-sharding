@@ -2,7 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django_sharding_library.decorators import model_config
 from django_sharding_library.fields import TableShardedIDField, ShardForeignKeyStorageField
-from django_sharding_library.models import ShardedByMixin, ShardStorageModel, TableStrategyModel
+from django_sharding_library.models import ShardedByMixin, ShardStorageModel, TableStrategyModel, ShardModel
 
 
 # A model for use with a sharded model to generate pk's using
@@ -34,8 +34,8 @@ class ShardedTestModelIDs(TableStrategyModel):
 # generate uuid's for its instances.
 
 
-@model_config(shard_group='default')
-class TestModel(models.Model):
+@model_config(shard_group='default', sharded_by_field='user_pk')
+class TestModel(ShardModel):
     id = TableShardedIDField(primary_key=True, source_table=ShardedTestModelIDs)
     random_string = models.CharField(max_length=120)
     user_pk = models.PositiveIntegerField()
@@ -43,6 +43,11 @@ class TestModel(models.Model):
     def get_shard(self):
         from django.contrib.auth import get_user_model
         return get_user_model().objects.get(pk=self.user_pk).shard
+
+    @staticmethod
+    def get_shard_from_id(user_pk):
+        from django.contrib.auth import get_user_model
+        return get_user_model().objects.get(pk=user_pk).shard
 
 
 @model_config(database='default')

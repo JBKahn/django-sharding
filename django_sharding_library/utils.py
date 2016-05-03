@@ -35,6 +35,7 @@ def create_postgres_shard_id_function(sequence_name, db_alias, shard_id):
 
 
 def register_migration_signal_for_model_receiver(model, function, dispatch_uid=None):
+    print("Registered pre_migrate function %s for model %s" % (function, model))
     signals.pre_migrate.connect(function, sender=model, dispatch_uid=dispatch_uid)
 
 

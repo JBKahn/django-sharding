@@ -44,10 +44,14 @@ def model_config(shard_group=None, database=None, sharded_by_field=None):
             # for a model that defines a sharded by field
             # todo: Update docs to include the sharded by field and the get_shard_from_id function
             if sharded_by_field:
+                from django_sharding_library.models import ShardModel
+                if ShardModel not in cls.__bases__:
+                    raise ShardedModelInitializationException('You must inherit from the ``ShardModel`` class when you '
+                                                              'define a sharded_by_id')
                 setattr(cls, 'django_sharding__sharded_by_field', sharded_by_field)
                 if not callable(getattr(cls, 'get_shard_from_id', None)):
-                    raise ShardedModelInitializationException('You must define a get_shard_from_id method on the sharded model if you define a "sharded_by_field".')
-                setattr(cls, 'objects', ShardManager())
+                    raise ShardedModelInitializationException('You must define a get_shard_from_id method on the '
+                                                              'sharded model if you define a "sharded_by_field".')
 
         return cls
     return configure

@@ -2,7 +2,7 @@ from django.conf import settings
 from django.db import models
 
 from django_sharding_library.fields import BigAutoField
-
+from django_sharding_library.manager import ShardManager
 
 def _get_primary_shards():
     """
@@ -56,6 +56,14 @@ class ShardStorageModel(models.Model):
 
     shard = models.CharField(max_length=120, choices=SHARD_CHOICES)
     shard_key = models.CharField(primary_key=True, max_length=120)
+
+    class Meta:
+        abstract = True
+
+
+class ShardModel(models.Model):
+
+    objects = ShardManager()
 
     class Meta:
         abstract = True

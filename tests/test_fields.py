@@ -18,7 +18,7 @@ from tests.models import ShardedModelIDs, ShardedTestModelIDs, TestModel, ShardS
 
 class BigAutoFieldTestCase(TestCase):
     def test_largest_id(self):
-        if settings.DATABASES['default']['ENGINE'] in [Backends.POSTGRES, Backends.SQLITE]:
+        if settings.DATABASES['default']['ENGINE'] in Backends.POSTGRES + Backends.SQLITE:
             max_id = 9223372036854775807
         else:
             max_id = 18446744073709551615
@@ -46,7 +46,7 @@ class FakeIDGenerationStrategy(BaseIDGenerationStrategy):
 
 class TableShardedIDFieldTestCase(TestCase):
     def test_largest_id(self):
-        if settings.DATABASES['app_shard_001']['ENGINE'] in [Backends.POSTGRES, Backends.SQLITE]:
+        if settings.DATABASES['app_shard_001']['ENGINE'] in Backends.POSTGRES + Backends.SQLITE:
             max_id = 9223372036854775807
         else:
             max_id = 18446744073709551615
@@ -193,7 +193,7 @@ class ShardForeignKeyStorageFieldTestCase(TestCase):
 
 class PostgresShardIdFieldTestCase(TestCase):
 
-    @unittest.skipIf(settings.DATABASES['default']['ENGINE'] not in [Backends.POSTGRES, ], "Not a postgres backend")
+    @unittest.skipIf(settings.DATABASES['default']['ENGINE'] not in Backends.POSTGRES, "Not a postgres backend")
     def test_check_shard_id_function(self):
         cursor = connections['default'].cursor()
         cursor.execute("SELECT next_sharded_id();")
@@ -208,7 +208,7 @@ class PostgresShardIdFieldTestCase(TestCase):
 
         self.assertGreater(generated_id[0], lowest_id)
 
-    @unittest.skipIf(settings.DATABASES['default']['ENGINE'] not in [Backends.POSTGRES, ], "Not a postgres backend")
+    @unittest.skipIf(settings.DATABASES['default']['ENGINE'] not in Backends.POSTGRES, "Not a postgres backend")
     def test_check_shard_id_returns_with_model_save(self):
         created_model = PostgresCustomIDModel.objects.create(random_string='Test String', user_pk=1)
         self.assertTrue(getattr(created_model, 'id'))

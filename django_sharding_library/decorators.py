@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.apps import apps
+from django_sharding_library.constants import Backends
 
 from django_sharding_library.exceptions import NonExistentDatabaseException, ShardedModelInitializationException
 from django_sharding_library.fields import ShardedIDFieldMixin, PostgresShardGeneratedIDField
@@ -31,6 +32,18 @@ def model_config(shard_group=None, database=None):
 
         postgres_shard_id_fields = list(filter(lambda field: issubclass(type(field), PostgresShardGeneratedIDField), cls._meta.fields))
         if postgres_shard_id_fields:
+            # Make sure we are only using postgres
+            if database:
+                if settings.DATABASES[database]['ENGINE'] not in Backends.POSTGRES:
+                    raise ShardedModelInitializationException('You cannot use a PostgresShardGeneratedIDField on a '
+                                                              'non-Postgres database.')
+
+            if shard_group:
+                for db_key in settings.DATABASES.keys():
+                    if settings.DATABASES[db_key]['ENGINE'] not in Backends.POSTGRES:
+                        raise ShardedModelInitializationException('You cannot use a PostgresShardGeneratedIDField on a '
+                                                                  'non-Postgres database.')
+
             register_migration_signal_for_model_receiver(apps.get_app_config(cls._meta.app_label),
                                                          PostgresShardGeneratedIDField.migration_receiver,
                                                          dispatch_uid=PRE_MIGRATION_DISPATCH_UID % cls._meta.app_label)

@@ -1,8 +1,10 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.conf import settings
 from django_sharding_library.decorators import model_config
 from django_sharding_library.fields import TableShardedIDField, ShardForeignKeyStorageField, PostgresShardGeneratedIDField
 from django_sharding_library.models import ShardedByMixin, ShardStorageModel, TableStrategyModel
+from django_sharding_library.constants import Backends
 
 
 # A model for use with a sharded model to generate pk's using
@@ -71,7 +73,8 @@ class ShardedByForiegnKeyModel(models.Model):
 
 @model_config(database='default')
 class PostgresCustomIDModel(models.Model):
-    id = PostgresShardGeneratedIDField(primary_key=True)
+    if settings.DATABASES['default']['ENGINE'] in Backends.POSTGRES:
+        id = PostgresShardGeneratedIDField(primary_key=True)
     random_string = models.CharField(max_length=120)
     user_pk = models.PositiveIntegerField()
 

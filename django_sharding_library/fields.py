@@ -14,9 +14,9 @@ class BigAutoField(AutoField):
     9223372036854775807.
     """
     def db_type(self, connection):
-        if connection.settings_dict['ENGINE'] == Backends.MYSQL:
+        if connection.settings_dict['ENGINE'] in Backends.MYSQL:
             return 'serial'
-        if connection.settings_dict['ENGINE'] == Backends.POSTGRES:
+        if connection.settings_dict['ENGINE'] in Backends.POSTGRES:
             return 'bigserial'
         return super(BigAutoField, self).db_type(connection)
 
@@ -182,7 +182,6 @@ class PostgresShardGeneratedIDField(AutoField):
         if not db_alias:
             raise EnvironmentError("A pre-migration receiver did not receive a database alias. "
                                    "Perhaps your app is not registered correctly?")
-        if settings.DATABASES[db_alias]['ENGINE'] == Backends.POSTGRES:
-            shard_id = settings.DATABASES[db_alias].get('SHARD_ID', 0)
-            create_postgres_global_sequence(sequence_name, db_alias, True)
-            create_postgres_shard_id_function(sequence_name, db_alias, shard_id)
+        shard_id = settings.DATABASES[db_alias].get('SHARD_ID', 0)
+        create_postgres_global_sequence(sequence_name, db_alias, True)
+        create_postgres_shard_id_function(sequence_name, db_alias, shard_id)

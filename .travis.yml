@@ -46,3 +46,4 @@ script:
   - tox -e $TOX_ENV
 after_success:
   - coveralls
+  - cat .tox/$TOX_ENV/log/*.log

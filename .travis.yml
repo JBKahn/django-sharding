@@ -7,6 +7,7 @@ services:
 
 env:
   global:
+    - TRAVIS=true
     - DATABASE_URL="postgres://postgres:@localhost/default"
     - SHARD_001_DATABASE_URL="mysql://travis:@localhost/shard_001"
     - SHARD_002_DATABASE_URL="postgres://postgres:@localhost/shard_002"
@@ -30,15 +31,10 @@ matrix:
     - env: TOX_ENV=py35-djdev
 
 before_install:
-  - psql -c 'DROP DATABASE IF EXISTS "default";' -U postgres
   - psql -c 'CREATE DATABASE "default";' -U postgres
-  - mysql -e 'DROP DATABASE IF EXISTS shard_001;'
   - mysql -e 'CREATE DATABASE shard_001;'
-  - psql -c 'DROP DATABASE IF EXISTS "shard_001";' -U postgres
-  - psql -c 'CREATE DATABASE "shard_001";' -U postgres
-  - psql -c 'DROP DATABASE IF EXISTS "sharding_replica_001";' -U postgres
+  - psql -c 'CREATE DATABASE "shard_002";' -U postgres
   - psql -c 'CREATE DATABASE "sharding_replica_001";' -U postgres
-  - psql -c 'DROP DATABASE IF EXISTS "sharding_replica_002";' -U postgres
   - psql -c 'CREATE DATABASE "sharding_replica_002";' -U postgres
 install:
   - pip install --upgrade pip virtualenv tox coveralls --quiet

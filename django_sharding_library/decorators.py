@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.apps import apps
 from django_sharding_library.constants import Backends
+from django.utils.six import iteritems
 
 from django_sharding_library.exceptions import NonExistentDatabaseException, ShardedModelInitializationException
 from django_sharding_library.fields import ShardedIDFieldMixin, PostgresShardGeneratedIDField
@@ -32,17 +33,12 @@ def model_config(shard_group=None, database=None):
 
         postgres_shard_id_fields = list(filter(lambda field: issubclass(type(field), PostgresShardGeneratedIDField), cls._meta.fields))
         if postgres_shard_id_fields:
-            # Make sure we are only using postgres
-            if database:
-                if settings.DATABASES[database]['ENGINE'] not in Backends.POSTGRES:
-                    raise ShardedModelInitializationException('You cannot use a PostgresShardGeneratedIDField on a '
-                                                              'non-Postgres database.')
-
-            if shard_group:
-                for db_key in settings.DATABASES.keys():
-                    if settings.DATABASES[db_key]['ENGINE'] not in Backends.POSTGRES:
-                        raise ShardedModelInitializationException('You cannot use a PostgresShardGeneratedIDField on a '
-                                                                  'non-Postgres database.')
+            database_dicts = [settings.DATABASES[database]] if database else [db_settings for db, db_settings in
+                                                                              iteritems(settings.DATABASES) if
+                                                                              db_settings["SHARD_GROUP"] == shard_group]
+            if any([database_dict['ENGINE'] not in Backends.POSTGRES for database_dict in database_dicts]):
+                raise ShardedModelInitializationException(
+                    'You cannot use a PostgresShardGeneratedIDField on a non-Postgres database.')
 
             register_migration_signal_for_model_receiver(apps.get_app_config(cls._meta.app_label),
                                                          PostgresShardGeneratedIDField.migration_receiver,
@@ -51,10 +47,13 @@ def model_config(shard_group=None, database=None):
         if shard_group:
             sharded_fields = list(filter(lambda field: issubclass(type(field), ShardedIDFieldMixin), cls._meta.fields))
             if not sharded_fields and not postgres_shard_id_fields:
-                raise ShardedModelInitializationException('All sharded models require a ShardedIDFieldMixin.')
+                raise ShardedModelInitializationException('All sharded models require a ShardedIDFieldMixin or a '
+                                                          'PostgresShardGeneratedIDField.')
 
             if not list(filter(lambda field: field == cls._meta.pk, sharded_fields)) and not postgres_shard_id_fields:
-                raise ShardedModelInitializationException('All sharded models require the ShardedAutoIDField to be the primary key. Set primary_key=True on the field.')
+                raise ShardedModelInitializationException('All sharded models require the ShardedAutoIDField or '
+                                                          'PostgresShardGeneratedIDFieldto be the primary key. Set '
+                                                          'primary_key=True on the field.')
 
             if not callable(getattr(cls, 'get_shard', None)):
                 raise ShardedModelInitializationException('You must define a get_shard method on the sharded model.')

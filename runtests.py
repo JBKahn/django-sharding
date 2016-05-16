@@ -6,6 +6,11 @@ try:
     from django.test.utils import get_runner
     from django_sharding_library.settings_helpers import database_configs
 
+    from django.test import TestCase
+
+    TestCase.maxDiff = None
+    TestCase.multi_db = True
+
     CIRCLECI = os.getenv("CIRCLECI", False)
 
     DATABASES = database_configs(databases_dict={

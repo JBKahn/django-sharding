@@ -41,8 +41,8 @@ class ShardQuerySet(QuerySet):
 
     def create(self, **kwargs):
         """
-        Not sure if this is necessary anymore, it was in 1.4. Grabs the instance before its too late to pass it to the
-        router as a hint.
+        Grabs the instance before its too late to pass it to the router as a hint. Django (as of 1.9) does not keep
+        instances around in all cases, such as a create() call.
         """
         self._instance = self.model(**kwargs.copy())
         return super(ShardQuerySet, self).create(**kwargs)

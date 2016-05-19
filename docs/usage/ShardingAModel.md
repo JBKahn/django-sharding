@@ -115,3 +115,24 @@ CoolGuyShardedModel.objects.filter(user_pk=123, some_field='some_value')
 ```
 
 Once you've defined your model, we can move onto how to run migrations.
+
+### Using the PostgresShardGeneratedIDField
+
+If you would like to use the PostgresShardGeneratedIDField, there are a few subtle differences and caveats that you need to be aware of.
+
+1. If you define a PostgresShardGeneratedIDField, you should not use another shard ID generation strategy with that model. Additionally, the field should be marked as the primary key. An example of a model with a PostgresShardIDField:
+```python
+@model_config(shard_group='default')
+class CoolGuyShardedModel(models.Model):
+    id = PostgresShardGeneratedIDField(primary_key=True)
+    cool_guy_string = models.CharField(max_length=120)
+    user_pk = models.PositiveIntegerField()
+```
+2. You must define a "SHARD_EPOCH" variable in your Django settings file. This can be any epoch start time you want, but once chosen, should NEVER be changed. Here is an example of what it should look like (which will make your shard epoch Jan 1, 2016):
+```python
+import time
+from datetime import datetime
+# other settings go here...
+SHARD_EPOCH=int(time.mktime(datetime(2016, 1, 1).timetuple()) * 1000)
+```
+3. When you are editing your DATABASES settings, the order of the shards MUST be maintained. If you add a new shard, it needs to be added to the end of the list of databases, not to the beginning or middle.

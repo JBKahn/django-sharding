@@ -65,3 +65,14 @@ class Command(MigrationCommand):
 ```
 
 By using the included router, it's as simple as calling migrate on all the primary databases in the system and allowing the system to decide which databases to run the migration on. The above changes were made to make the interface more simple than having to specify all the relevant databases.
+
+### PostgresShardGeneratedIDField Migration Info
+
+This library hooks into the Django migrations and creates (or updates) the necessary stored procedures before every migration. We made it work this way for two reasons:
+
+1. Django does not have a good way to force a field-specific migration dependency without having to edit the migration files themselves after they are generated
+2. This allows unit tests to be run on any arbitrary (PostgreSQL) database without any administrative overhead.
+
+The migration hooks should not affect you in any way, but you should be aware that there is a little bit of "magic" going on to make this field work with Django's migrations, without actually being part of the migration file itself.
+
+If the Django team ever makes migrations easier to customize by adding dependency injection based on specific fields, we will update this and add the migration step to your migration files when they are generated!

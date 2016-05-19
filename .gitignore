@@ -30,3 +30,7 @@ _book
 
 # node
 node_modules
+
+# Local dev
+Dockerfile
+docker-compose.yml

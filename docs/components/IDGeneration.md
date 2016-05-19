@@ -2,7 +2,7 @@
 
 In order to shard your database, one of the first decisions to makee is how you assign identifiers to the sharded objects. While it is not required, it is highly recommended that you choose a unique identifier. The main reason here being that you may want to either move data across shards later or that you may choose to analyze data across various shards for analytics and you will have to differentiate those objects before moving them to another server.
 
-This repository is initially shipping with two strategies but you may impliment your own. The base requirement at the moment is that you define a class like this:
+This repository is initially shipping with three strategies but you may impliment your own. The base requirement for defining your own strategy at the moment is that you define a class like this:
 
 ```python
 class BaseIDGenerationStrategy(object):
@@ -22,6 +22,7 @@ The two included in the package are:
 
 1. Use an autoincrement field to mimic the way a default table handles the operation
 2. Assign each item a UUID with the shard name appended to the end.
+3. A postgres-specific field that works similarly to Django's auto field, but in a shard safe way (only works for Postgres, don't try it with anything else!)
 
 ##### The Autoincrement Method
 
@@ -32,6 +33,10 @@ Note: The MySQL implementation uses a single row to accomplish this task while P
 ##### The UUID Method
 
 While the odds of a UUID collision are very low, it is still possible and so we append the database shard name as a way to guarantee that they remain unique. The only drawback to this method is that the items cannot be moved across shards. However, it is the recommendation of the author that you refrain from shard rebalancing and instead focus on maintaining lots of shards rather than worry about balancing few large ones.
+
+##### The PostgresShardGeneratedIDField Method
+
+This strategy is an automated implementation of how Instagram does shard IDs. It uses built-in Postgres functionality to generate a shard-safe ID on the database server at the time of the insert. A stored procedure is created and uses a user-defined epoch time and a shard ID to make sure the IDs it generates are unique. This method (currently) supports up to 8191 shards and up to 1024 inserts per millisecond, which should be more than enough for most use cases, up to and including Instagram scale usage!
 
 ##### Pinterest
 

@@ -2,7 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django_sharding_library.decorators import model_config
 from django_sharding_library.fields import TableShardedIDField, ShardForeignKeyStorageField
-from django_sharding_library.models import ShardedByMixin, ShardStorageModel, TableStrategyModel, ShardModel
+from django_sharding_library.models import ShardedByMixin, ShardStorageModel, TableStrategyModel
 
 
 # A model for use with a sharded model to generate pk's using
@@ -35,7 +35,7 @@ class ShardedTestModelIDs(TableStrategyModel):
 
 
 @model_config(shard_group='default', sharded_by_field='user_pk')
-class TestModel(ShardModel):
+class TestModel(models.Model):
     id = TableShardedIDField(primary_key=True, source_table=ShardedTestModelIDs)
     random_string = models.CharField(max_length=120)
     user_pk = models.PositiveIntegerField()

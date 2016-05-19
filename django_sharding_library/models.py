@@ -59,11 +59,3 @@ class ShardStorageModel(models.Model):
 
     class Meta:
         abstract = True
-
-
-class ShardModel(models.Model):
-
-    objects = ShardManager()
-
-    class Meta:
-        abstract = True

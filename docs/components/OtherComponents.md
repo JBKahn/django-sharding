@@ -9,7 +9,7 @@ A quick run through of some of the other components shipped with the library.
 Provided in the library is a way to specify that a model is sharded or that a model is stored on a database other than the default database. A sharded model verifies that it's primary key inherits from a base mixin to ensure that the primary key has been chosen carefully and the developer is not accidentally using the deafult primary key field.
 
 ```python
-def model_config(shard_group=None, database=None):
+def model_config(shard_group=None, database=None, sharded_by_field=None):
     """
     A decorator for marking a model as being either sharded or stored on a
     particular database. When sharding, it does some verification to ensure

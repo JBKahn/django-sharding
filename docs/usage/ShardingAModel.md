@@ -75,7 +75,7 @@ class ShardedCoolGuyModelIDs(TableStrategyModel):
     pass
 
 
-@model_config(shard_group='default')
+@model_config(shard_group='default', sharded_by_field='user_pk')
 class CoolGuyShardedModel(models.Model):
     id = TableShardedIDField(primary_key=True, source_table=ShardedCoolGuyModelIDs)
     cool_guy_string = models.CharField(max_length=120)
@@ -84,22 +84,34 @@ class CoolGuyShardedModel(models.Model):
     def get_shard(self):
         from django.contrib.auth import get_user_model
         return get_user_model().objects.get(pk=self.user_pk).shard
+        
+    def get_shard(self):
+        from django.contrib.auth import get_user_model
+        return get_user_model().objects.get(pk=self.user_pk).shard
+        
+    @staticmethod
+    def get_shard_from_id(user_pk):
+        from django.contrib.auth import get_user_model
+        return get_user_model().objects.get(pk=user_pk).shard
 ```
 
 The above example illustrates the id generation strategy of using an unsharded table to generate unique IDs for each instance of the sharded model. The three important steps in defining a sharded model are:
 
-1. The model requires the use the decorator with a given `shard_group` to tell Django that the model is sharded.
+1. The model requires the use the decorator with a given `shard_group` and `sharded_by_field` to tell Django that the model is sharded and what field it is sharded by.
 2. The model requires a shard-aware primary field, even if it's going to use a simple `AutoIDField`.
 3. The model needs a `get_shard` function to instruct how to get a shard given an instance.
+4. The model needs a `get_shard_from_id` static method that will tell the router which shard to query against. The method must take an argument (which will be the `sharded_by_field` value you are querying against) and return the shard to query.
 
 #### Accessing Data on Sharded Models
 
-When you're not re-saving an instance of the model you've retrieved, you need to tell Django which database to read from and which to save on. This is done by using the `using` command:
+When you're not re-saving an instance of the model you've retrieved, you need to tell Django which database to read from and which to save on. This is done by using the `using` command, or by querying with the `shard_by_id` field in the filter(), create(), get(), or get_or_create() methods:
 
 ```python
 # You can use the method on the model or another one to get the shard
 shard = 'some_database'
-CoolGuyShardedModel.objects.using(shard).filer(some_field='some_value')
+CoolGuyShardedModel.objects.using(shard).filter(some_field='some_value')
+# Or, without the using() statement, if you query against the `sharded_by_field` in your filter()
+CoolGuyShardedModel.objects.filter(user_pk=123, some_field='some_value')
 ```
 
 Once you've defined your model, we can move onto how to run migrations.

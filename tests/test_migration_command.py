@@ -1,7 +1,8 @@
-from mock import patch
+from unittest import skip
 
 from django.core.management import call_command
 from django.test import TestCase
+from mock import patch
 
 from django_sharding_library.exceptions import InvalidMigrationException
 
@@ -39,6 +40,7 @@ class MigrationCommandTestCase(TestCase):
 
         self.assertEqual(databases_migrated, expected_migrated_databases)
 
+    @skip("skipped until fix https://code.djangoproject.com/ticket/26597")
     def test_passes_other_args(self, mock_migrate_command):
         call_command('migrate', database='app_shard_001', fake=True, verbosity=0, app_label='tests', migration_name='0001', noinput=True, fake_initial=True, interactive=False, list=True)
 

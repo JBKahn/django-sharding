@@ -53,7 +53,7 @@ def model_config(shard_group=None, database=None, sharded_by_field=None):
                                                                       '``ShardManager``')
                 except AttributeError as e:
                     if cls._meta.abstract:
-                        if not hasattr(cls, 'objects'):
+                        if not len(cls._meta.abstract_managers) > 0:
                             cls.add_to_class('objects', ShardManager())
                         elif not any([isinstance(x[2], ShardManager) for x in cls._meta.abstract_managers]):
                             raise ShardedModelInitializationException('Please either do not specify a manager in your '
@@ -61,11 +61,8 @@ def model_config(shard_group=None, database=None, sharded_by_field=None):
                                                                       'custom manager, your custom manager must '
                                                                       'inherit from ``ShardManager``' % cls.__name__)
                     else:
-                        raise ShardedModelInitializationException('An error occurred while trying to setup the manager '
-                                                                  'for your model %s. You should either specify a '
-                                                                  '``ShardManager`` as your manager, or leave the '
-                                                                  'manager blank and let Django assign a default.' %
-                                                                  cls.__name__)
+                        # If it gets to this point, the error is a Django error and not a library one. Pass it through.
+                        raise e
                 setattr(cls, 'django_sharding__sharded_by_field', sharded_by_field)
                 if not callable(getattr(cls, 'get_shard_from_id', None)):
                     raise ShardedModelInitializationException('You must define a get_shard_from_id method on the '

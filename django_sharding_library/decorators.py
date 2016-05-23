@@ -41,9 +41,6 @@ def model_config(shard_group=None, database=None, sharded_by_field=None):
             setattr(cls, 'django_sharding__is_sharded', True)
 
             # If the sharded by field is set, we will make our custom manager the default manager.
-            # todo: update docs to indicate that ShardManager should be used as the base class for any custom managers->
-            # for a model that defines a sharded by field
-            # todo: Update docs to include the sharded by field and the get_shard_from_id function
             if sharded_by_field:
                 try:
                     if not isinstance(cls.objects, ShardManager):

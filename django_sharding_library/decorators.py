@@ -3,6 +3,7 @@ from django.conf import settings
 from django_sharding_library.exceptions import NonExistentDatabaseException, ShardedModelInitializationException
 from django_sharding_library.fields import ShardedIDFieldMixin
 from django_sharding_library.manager import ShardManager
+from django.db.models import Manager
 
 
 def model_config(shard_group=None, database=None, sharded_by_field=None):
@@ -44,15 +45,30 @@ def model_config(shard_group=None, database=None, sharded_by_field=None):
             # for a model that defines a sharded by field
             # todo: Update docs to include the sharded by field and the get_shard_from_id function
             if sharded_by_field:
-                from django.db.models import Manager
-                if not isinstance(cls.objects, ShardManager):
-                    if type(cls.objects) == Manager:
-                        cls.add_to_class('objects', ShardManager())
-                        cls._base_manager = cls.objects
+                try:
+                    if not isinstance(cls.objects, ShardManager):
+                        if type(cls.objects) == Manager:
+                            cls.add_to_class('objects', ShardManager())
+                            cls._base_manager = cls.objects
+                        else:
+                            raise ShardedModelInitializationException('You must use the default Django model manager or'
+                                                                      ' your custom manager must inherit from '
+                                                                      '``ShardManager``')
+                except AttributeError as e:
+                    if cls._meta.abstract:
+                        if not hasattr(cls, 'objects'):
+                            cls.add_to_class('objects', ShardManager())
+                        elif not any([isinstance(x[2], ShardManager) for x in cls._meta.abstract_managers]):
+                            raise ShardedModelInitializationException('Please either do not specify a manager in your '
+                                                                      'abstract base class %s, or if you are using a '
+                                                                      'custom manager, your custom manager must '
+                                                                      'inherit from ``ShardManager``' % cls.__name__)
                     else:
-                        raise ShardedModelInitializationException('You must use the default Django model manager or '
-                                                                  'your custom manager must inherit from '
-                                                                  '``ShardManager``')
+                        raise ShardedModelInitializationException('An error occurred while trying to setup the manager '
+                                                                  'for your model %s. You should either specify a '
+                                                                  '``ShardManager`` as your manager, or leave the '
+                                                                  'manager blank and let Django assign a default.' %
+                                                                  cls.__name__)
                 setattr(cls, 'django_sharding__sharded_by_field', sharded_by_field)
                 if not callable(getattr(cls, 'get_shard_from_id', None)):
                     raise ShardedModelInitializationException('You must define a get_shard_from_id method on the '

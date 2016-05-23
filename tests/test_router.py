@@ -55,7 +55,7 @@ class RouterReadTestCase(TestCase):
         from django.contrib.auth import get_user_model
         self.assertEqual(self.sut.db_for_read(model=get_user_model()), None)
 
-    def test_router_gets_filter_hints(self):
+    def test_router_hints_receives_filter_kwargs(self):
         TestModel.objects.create(user_pk=self.user.pk)
 
         lookups_to_find = {'exact_lookups': {'user_pk': self.user.pk}}

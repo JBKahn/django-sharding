@@ -67,7 +67,7 @@ class RouterReadTestCase(TestCase):
 
     def test_queryset_router_filter_returns_existing_objects(self):
         # Cant for sure know what order tests ran in, lets make sure the delete function works in this test
-        TestModel.objects.filter(user_pk=self.user.pk).delete()
+        # TestModel.objects.filter(user_pk=self.user.pk).delete()
         for i in range(1, 11):
             test_model_obj = TestModel.objects.create(user_pk=self.user.pk, random_string="%s" % i)
             self.assertIn(test_model_obj._state.db, ['app_shard_001', 'app_shard_002'])
@@ -85,7 +85,7 @@ class RouterReadTestCase(TestCase):
 
     def test_queryset_router_filter_with_aggregates(self):
         # Cant for sure know what order tests ran in, lets make sure the delete function works in this test
-        TestModel.objects.filter(user_pk=self.user.pk).delete()
+        # TestModel.objects.filter(user_pk=self.user.pk).delete()
         for i in range(1, 11):
             TestModel.objects.create(user_pk=self.user.pk, random_string="%s" % i)
         num_models = TestModel.objects.filter(user_pk=self.user.pk).count()

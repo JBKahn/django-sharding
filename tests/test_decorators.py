@@ -143,3 +143,49 @@ class ModelConfigDecoratorTestCase(TestCase):
             @staticmethod
             def get_shard_from_id(id):
                 pass
+
+    def test_decorator_raises_exception_when_sharded_by_field_is_defined_with_no_get_shard_from_id_function(self):
+        with self.assertRaises(ShardedModelInitializationException):
+            @model_config(shard_group='default', sharded_by_field="user_pk")
+            class TestModelOne(models.Model):
+                id = TableShardedIDField(primary_key=True, source_table=self.id_table)
+                random_string = models.CharField(max_length=120)
+                user_pk = models.PositiveIntegerField()
+
+                def get_shard(self):
+                    pass
+
+    def test_decorator_raises_exception_when_using_sharded_by_field_and_custom_manager_is_not_shard_manager_instance(self):
+        class CustomManager(models.Manager):
+            pass
+
+        with self.assertRaises(ShardedModelInitializationException):
+            @model_config(shard_group='default', sharded_by_field="user_pk")
+            class TestModelOne(models.Model):
+                id = TableShardedIDField(primary_key=True, source_table=self.id_table)
+                random_string = models.CharField(max_length=120)
+                user_pk = models.PositiveIntegerField()
+
+                objects = CustomManager()
+
+                def get_shard(self):
+                    pass
+
+                @staticmethod
+                def get_shard_from_id(id):
+                    pass
+
+    def test_decorator_raises_exception_when_no_arguments_passed_in(self):
+        with self.assertRaises(ShardedModelInitializationException):
+            @model_config()
+            class TestModelOne(models.Model):
+                id = TableShardedIDField(primary_key=True, source_table=self.id_table)
+                random_string = models.CharField(max_length=120)
+                user_pk = models.PositiveIntegerField()
+
+                def get_shard(self):
+                    pass
+
+                @staticmethod
+                def get_shard_from_id(id):
+                    pass

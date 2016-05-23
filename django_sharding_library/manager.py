@@ -51,17 +51,12 @@ class ShardQuerySet(QuerySet):
 class ShardManager(Manager):
 
     def get_query_set(self, key=None):
-        # Should check to make sure the there is a good kwarg here
-
-        # assert key is not None, 'You must filter on %s before expanding a QuerySet on %s models.' % (
-        #     shards.key, self.model.__name__)
-
+        # todo: (eventually, not necessary now) Should check to make sure the there is a good kwarg OR an instance ->
+        # available here
         return ShardQuerySet(model=self.model)
 
     def _wrap(func_name):
         def wrapped(self, **kwargs):
-            # Should check for good kwarg here, need to grab it off the model
-            # self.get_query_set(key=int(key))
             return getattr(self.get_query_set(), func_name)(**kwargs)
 
         wrapped.__name__ = func_name

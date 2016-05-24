@@ -1,0 +1,2 @@
+django>=1.8
+-r _without_django.txt

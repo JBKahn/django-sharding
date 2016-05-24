@@ -66,7 +66,7 @@ settings.configure(
     ],
     SITE_ID=1,
     MIDDLEWARE_CLASSES=(),
-    SHARD_EPOCH=int(time.mktime(datetime(2016, 1, 1).timetuple()) * 1000)
+    SHARD_EPOCH=int(time.mktime(datetime(2016, 1, 1).timetuple()) * 1000),
 )
 django.setup()
 

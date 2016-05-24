@@ -4,8 +4,12 @@ from django.db.models import AutoField, CharField, ForeignKey
 
 from django_sharding_library.constants import Backends
 from django.db import connections, transaction, DatabaseError
-from django.db.backends.postgresql.base import DatabaseWrapper as PostgresDatabaseWrapper
 from django_sharding_library.utils import create_postgres_global_sequence, create_postgres_shard_id_function
+
+try:
+    from django.db.backends.postgresql.base import DatabaseWrapper as PostgresDatabaseWrapper
+except ImportError:
+    from django.db.backends.postgresql_psycopg2.base import DatabaseWrapper as PostgresDatabaseWrapper
 
 
 class BigAutoField(AutoField):

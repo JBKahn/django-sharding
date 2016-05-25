@@ -47,7 +47,7 @@ DATABASES = database_configs(databases_dict={
         },
     ]
 })
-print DATABASES
+print(DATABASES)
 settings.configure(
     DEBUG=True,
     USE_TZ=True,

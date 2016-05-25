@@ -77,7 +77,7 @@ def database_configs(databases_dict):
                 database['environment_variable'],
                 database['default_database_url'],
                 shard_group=(is_sharded and database.get('shard_group', 'default')) or None,
-                is_replica_of=None,
+                is_replica_of=None
             )
             if db_config:
                 configuration[database['name']] = db_config
@@ -93,7 +93,7 @@ def database_configs(databases_dict):
 
             # We assume the numeric shard ID is constant based on the entries in the configuration helper (we assume
             # they wont change order, and that new shards will be appended and not inserted randomly)
-            # todo: update docs to make sure this assumption is understood
+            # This is noted in the docs, leaving this comment for whomever may work on this in the future.
             if is_sharded:
                 shard_id = shard_id_hash.get(configuration[database['name']]['SHARD_GROUP'], 0)
                 configuration[database['name']]['SHARD_ID'] = shard_id

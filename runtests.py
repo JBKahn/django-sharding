@@ -14,8 +14,8 @@ except ImportError:
 
 
 TRAVISCI = os.environ.get('TRAVIS')
-TestCase.maxDiff = None
-TestCase.multi_db = True
+# TestCase.maxDiff = None
+# TestCase.multi_db = True
 
 DATABASES = database_configs(databases_dict={
     'unsharded_databases': [

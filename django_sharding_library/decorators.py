@@ -12,7 +12,6 @@ from django_sharding_library.utils import register_migration_signal_for_model_re
 PRE_MIGRATION_DISPATCH_UID = "PRE_MIGRATE_FOR_MODEL_%s"
 
 
-
 def model_config(shard_group=None, database=None, sharded_by_field=None):
     """
     A decorator for marking a model as being either sharded or stored on a

@@ -95,7 +95,7 @@ class CoolGuyShardedModel(models.Model):
         return get_user_model().objects.get(pk=user_pk).shard
 ```
 
-The above example illustrates the id generation strategy of using an unsharded table to generate unique IDs for each instance of the sharded model. The three important steps in defining a sharded model are:
+The above example illustrates the id generation strategy of using an unsharded table to generate unique IDs for each instance of the sharded model. The four important steps in defining a sharded model are:
 
 1. The model requires the use the decorator with a given `shard_group` and `sharded_by_field` to tell Django that the model is sharded and what field it is sharded by.
 2. The model requires a shard-aware primary field, even if it's going to use a simple `AutoIDField`.

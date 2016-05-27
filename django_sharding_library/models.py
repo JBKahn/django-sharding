@@ -2,7 +2,7 @@ from django.conf import settings
 from django.db import models
 
 from django_sharding_library.fields import BigAutoField
-from django_sharding_library.manager import ShardManager
+
 
 def _get_primary_shards():
     """

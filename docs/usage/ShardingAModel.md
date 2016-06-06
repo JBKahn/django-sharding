@@ -85,10 +85,6 @@ class CoolGuyShardedModel(models.Model):
         from django.contrib.auth import get_user_model
         return get_user_model().objects.get(pk=self.user_pk).shard
         
-    def get_shard(self):
-        from django.contrib.auth import get_user_model
-        return get_user_model().objects.get(pk=self.user_pk).shard
-        
     @staticmethod
     def get_shard_from_id(user_pk):
         from django.contrib.auth import get_user_model

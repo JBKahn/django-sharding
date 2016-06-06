@@ -36,7 +36,7 @@ class TableStrategy(BaseIDGenerationStrategy):
         """
         from django.conf import settings
         backing_table_db = getattr(self.backing_model, 'database', 'default')
-        if settings.DATABASES[backing_table_db]['ENGINE'] == Backends.MYSQL:
+        if settings.DATABASES[backing_table_db]['ENGINE'] in Backends.MYSQL:
             with transaction.atomic(backing_table_db):
                 cursor = connections[backing_table_db].cursor()
                 sql = "REPLACE INTO `{0}` (`stub`) VALUES ({1})".format(

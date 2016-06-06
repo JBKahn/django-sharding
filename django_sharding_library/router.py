@@ -21,25 +21,44 @@ class ShardedRouter(object):
     def get_shard_for_instance(self, instance):
         return instance._state.db or instance.get_shard()
 
+    def get_shard_for_id_field(self, model, sharded_by_field_id):
+        return model.get_shard_from_id(sharded_by_field_id)
+
     def get_read_db_routing_strategy(self, shard_group):
         app_config_app_label = getattr(settings, 'DJANGO_SHARDING_SETTINGS', {}).get('APP_CONFIG_APP', 'django_sharding')
         return apps.get_app_config(app_config_app_label).get_routing_strategy(shard_group)
+
+    def _get_shard(self, model, **hints):
+        if self.get_shard_group_if_sharded_or_none(model):
+            shard = None
+            instance = hints.get('instance')
+            shard_field_id = hints.get('exact_lookups', {}).get(
+                getattr(model, 'django_sharding__sharded_by_field', None), None)
+
+            if not shard_field_id and instance:
+                shard_field_id = getattr(instance, getattr(model, 'django_sharding__sharded_by_field', None), None)
+
+            if instance:
+                shard = self.get_shard_for_instance(instance)
+            if not shard and shard_field_id:
+                shard = self.get_shard_for_id_field(model, shard_field_id)
+
+            return shard
+        return None
 
     def db_for_read(self, model, **hints):
         specific_database = self.get_specific_database_or_none(model)
         if specific_database:
             return specific_database
 
-        if self.get_shard_group_if_sharded_or_none(model):
-            instance = hints.get('instance')
-            if instance:
-                shard = self.get_shard_for_instance(instance)
-                # TODO: remove the second, should not use the shard_group attribute anywhere anymore
-                shard_group = getattr(model, 'django_sharding__shard_group', getattr(model, 'shard_group', None))
-                if not shard_group:
-                    raise Exception('Unable to identify the shard_group for the {} model'.format(model))
-                routing_strategy = self.get_read_db_routing_strategy(shard_group)
-                return routing_strategy.pick_read_db(shard)
+        shard = self._get_shard(model, **hints)
+        if shard:
+            # TODO: remove the second, should not use the shard_group attribute anywhere anymore
+            shard_group = getattr(model, 'django_sharding__shard_group', getattr(model, 'shard_group', None))
+            if not shard_group:
+                raise Exception('Unable to identify the shard_group for the {} model'.format(model))
+            routing_strategy = self.get_read_db_routing_strategy(shard_group)
+            return routing_strategy.pick_read_db(shard)
         return None
 
     def db_for_write(self, model, **hints):
@@ -47,12 +66,10 @@ class ShardedRouter(object):
         if specific_database:
             return specific_database
 
-        if self.get_shard_group_if_sharded_or_none(model):
-            instance = hints.get('instance')
-            if instance:
-                db = self.get_shard_for_instance(instance)
-                db_config = settings.DATABASES[db]
-                return db_config.get('PRIMARY', db)
+        shard = self._get_shard(model, **hints)
+        if shard:
+            db_config = settings.DATABASES[shard]
+            return db_config.get('PRIMARY', shard)
         return None
 
     def allow_relation(self, obj1, obj2, **hints):

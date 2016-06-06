@@ -34,7 +34,7 @@ class ShardedTestModelIDs(TableStrategyModel):
 # generate uuid's for its instances.
 
 
-@model_config(shard_group='default')
+@model_config(shard_group='default', sharded_by_field='user_pk')
 class TestModel(models.Model):
     id = TableShardedIDField(primary_key=True, source_table=ShardedTestModelIDs)
     random_string = models.CharField(max_length=120)
@@ -43,6 +43,11 @@ class TestModel(models.Model):
     def get_shard(self):
         from django.contrib.auth import get_user_model
         return get_user_model().objects.get(pk=self.user_pk).shard
+
+    @staticmethod
+    def get_shard_from_id(user_pk):
+        from django.contrib.auth import get_user_model
+        return get_user_model().objects.get(pk=user_pk).shard
 
 
 @model_config(database='default')

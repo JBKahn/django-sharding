@@ -3,7 +3,6 @@ import sys
 
 try:
     import django
-    from django.test import TestCase
     from django.conf import settings
     from django.test.utils import get_runner
     from django_sharding_library.settings_helpers import database_configs
@@ -14,8 +13,6 @@ except ImportError:
 
 
 TRAVISCI = os.environ.get('TRAVIS')
-# TestCase.maxDiff = None
-# TestCase.multi_db = True
 
 DATABASES = database_configs(databases_dict={
     'unsharded_databases': [

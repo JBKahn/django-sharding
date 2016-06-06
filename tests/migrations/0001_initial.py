@@ -107,4 +107,12 @@ class Migration(migrations.Migration):
             name='test',
             field=models.ForeignKey(to='tests.UnshardedTestModel'),
         ),
+        migrations.CreateModel(
+            name='PostgresCustomIDModel',
+            fields=[
+                ('id', django_sharding_library.fields.PostgresShardGeneratedIDField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('random_string', models.CharField(max_length=120)),
+                ('user_pk', models.PositiveIntegerField()),
+            ],
+        ),
     ]

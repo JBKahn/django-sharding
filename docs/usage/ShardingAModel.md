@@ -131,4 +131,6 @@ from datetime import datetime
 # other settings go here...
 SHARD_EPOCH=int(time.mktime(datetime(2016, 1, 1).timetuple()) * 1000)
 ```
+
 3. When you are editing your DATABASES settings, the order of the shards MUST be maintained. If you add a new shard, it needs to be added to the end of the list of databases, not to the beginning or middle.
+4. There is a maximum number of logical shards supported by this field. You can only have up to 8191 logical shards: if you try to go beyond, you will get duplicate IDs between your shards. Do not try to add more than 8191 shards. If you need more than that, I recommend you choose one of the other ID generation strategies.

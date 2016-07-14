@@ -1,6 +1,6 @@
 from django.apps import apps
 from django.conf import settings
-from django.db.models import AutoField, CharField, ForeignKey
+from django.db.models import AutoField, CharField, ForeignKey, BigIntegerField
 
 from django_sharding_library.constants import Backends
 from django.db import connections, transaction, DatabaseError
@@ -23,6 +23,9 @@ class BigAutoField(AutoField):
         if connection.settings_dict['ENGINE'] in Backends.POSTGRES:
             return 'bigserial'
         return super(BigAutoField, self).db_type(connection)
+
+    def get_internal_type(self):
+        return "BigIntegerField"
 
 
 class ShardedIDFieldMixin(object):
@@ -179,6 +182,9 @@ class PostgresShardGeneratedIDField(AutoField):
         else:
             return super(PostgresShardGeneratedIDField, self).db_type(connection)
 
+    def get_internal_type(self):
+        return 'BigIntegerField'
+
     @staticmethod
     def migration_receiver(*args, **kwargs):
         sequence_name = "global_id_sequence"
@@ -190,3 +196,17 @@ class PostgresShardGeneratedIDField(AutoField):
             shard_id = settings.DATABASES[db_alias].get('SHARD_ID', 0)
             create_postgres_global_sequence(sequence_name, db_alias, True)
             create_postgres_shard_id_function(sequence_name, db_alias, shard_id)
+
+
+class PostgresShardForeignKey(ForeignKey):
+    def db_type(self, connection):
+        # The database column type of a ForeignKey is the column type
+        # of the field to which it points. An exception is if the ForeignKey
+        # points to an AutoField/PositiveIntegerField/PositiveSmallIntegerField,
+        # in which case the column type is simply that of an IntegerField.
+        # If the database needs similar types for key fields however, the only
+        # thing we can do is making AutoField an IntegerField.
+        rel_field = self.target_field
+        if rel_field.get_internal_type() is "BigIntegerField":
+            return BigIntegerField().db_type(connection=connection)
+        return super(PostgresShardForeignKey, self).db_type(connection)

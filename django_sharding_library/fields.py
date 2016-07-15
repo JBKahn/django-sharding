@@ -185,6 +185,9 @@ class PostgresShardGeneratedIDField(AutoField):
     def get_internal_type(self):
         return 'BigIntegerField'
 
+    def rel_db_type(self, connection):
+        return BigIntegerField().db_type(connection=connection)
+
     @staticmethod
     def migration_receiver(*args, **kwargs):
         sequence_name = "global_id_sequence"

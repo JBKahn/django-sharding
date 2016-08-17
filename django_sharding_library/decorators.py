@@ -1,3 +1,4 @@
+import django
 from django.conf import settings
 
 from django_sharding_library.exceptions import NonExistentDatabaseException, ShardedModelInitializationException
@@ -46,7 +47,10 @@ def model_config(shard_group=None, database=None, sharded_by_field=None):
                     if not isinstance(cls.objects, ShardManager):
                         if type(cls.objects) == Manager:
                             cls.add_to_class('objects', ShardManager())
-                            cls._base_manager = cls.objects
+                            if django.VERSION >= (1, 10):
+                                cls._meta.base_manager = cls.objects
+                            else:
+                                cls._base_manager = cls.objects
                         else:
                             raise ShardedModelInitializationException('You must use the default Django model manager or'
                                                                       ' your custom manager must inherit from '

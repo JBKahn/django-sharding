@@ -46,13 +46,8 @@ def model_config(shard_group=None, database=None, sharded_by_field=None):
                 try:
                     if not isinstance(cls.objects, ShardManager):
                         if type(cls.objects) == Manager:
-                            to_add = ShardManager()
-                            to_add.name = 'shard_manager'
-                            cls.add_to_class('objects', to_add)
-                            if django.VERSION >= (1, 10):
-                                cls._meta.base_manager = cls.objects
-                                cls._meta.add_manager(to_add)
-                            else:
+                            cls.add_to_class('objects', ShardManager())
+                            if django.VERSION < (1, 10):
                                 cls._base_manager = cls.objects
                         else:
                             raise ShardedModelInitializationException('You must use the default Django model manager or'

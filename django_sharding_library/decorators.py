@@ -55,10 +55,19 @@ def model_config(shard_group=None, database=None, sharded_by_field=None):
                                                                       '``ShardManager``')
                 except AttributeError as e:
                     if cls._meta.abstract:
-                        if not len(cls._meta.abstract_managers) > 0:
-                            cls.add_to_class('objects', ShardManager())
-                        elif not any([isinstance(x[2], ShardManager) for x in cls._meta.abstract_managers]):
-                            raise ShardedModelInitializationException('Please either do not specify a manager in your '
+                        if django.VERSION < (1, 10):
+                            if not len(cls._meta.abstract_managers) > 0:
+                                cls.add_to_class('objects', ShardManager())
+                            elif not any([isinstance(x[2], ShardManager) for x in cls._meta.abstract_managers]):
+                                raise ShardedModelInitializationException('Please either do not specify a manager in your '
+                                                                      'abstract base class %s, or if you are using a '
+                                                                      'custom manager, your custom manager must '
+                                                                      'inherit from ``ShardManager``' % cls.__name__)
+                        else:
+                            if all([isinstance(x, Manager) for x in cls._meta.managers]):
+                                cls.add_to_class('objects', ShardManager())
+                            elif not any([isinstance(x, ShardManager) for x in cls._meta.managers]):
+                                raise ShardedModelInitializationException('Please either do not specify a manager in your '
                                                                       'abstract base class %s, or if you are using a '
                                                                       'custom manager, your custom manager must '
                                                                       'inherit from ``ShardManager``' % cls.__name__)

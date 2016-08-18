@@ -50,6 +50,11 @@ class ShardQuerySet(QuerySet):
 
 class ShardManager(Manager):
 
+    def __init__(self, *args, **kwargs):
+        return_value = super(ShardManager, self).__init__(*args, **kwargs)
+        self.name = 'shard_manager'
+        return return_value
+
     def get_query_set(self, key=None):
         # todo: (eventually, not necessary now) Should check to make sure the there is a good kwarg OR an instance ->
         # available here

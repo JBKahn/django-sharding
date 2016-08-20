@@ -210,7 +210,7 @@ class PostgresShardForeignKey(ForeignKey):
         # If the database needs similar types for key fields however, the only
         # thing we can do is making AutoField an IntegerField.
         rel_field = self.target_field
-        if rel_field.get_internal_type() is "BigIntegerField":
+        if rel_field.get_internal_type() == "BigIntegerField":
             return BigIntegerField().db_type(connection=connection)
         return super(PostgresShardForeignKey, self).db_type(connection)
 
@@ -224,6 +224,6 @@ class PostgresShardOneToOne(OneToOneField):
         # If the database needs similar types for key fields however, the only
         # thing we can do is making AutoField an IntegerField.
         rel_field = self.target_field
-        if rel_field.get_internal_type() is "BigIntegerField":
+        if rel_field.get_internal_type() == "BigIntegerField":
             return BigIntegerField().db_type(connection=connection)
         return super(PostgresShardOneToOne, self).db_type(connection)

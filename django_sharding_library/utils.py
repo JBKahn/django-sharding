@@ -26,7 +26,27 @@ def create_postgres_shard_id_function(sequence_name, db_alias, shard_id):
     cursor.close()
 
 
+def verify_postres_id_field_setup_correctly(sequence_name, db_alias, function_name):
+    cursor = connections[db_alias].cursor()
+    cursor.execute(
+        "SELECT count(*) FROM pg_class c WHERE c.relkind = '%s' and c.relname = '%s';" % ('S', sequence_name)
+    )
+
+    if cursor.fetchone()[0] == 0:
+        cursor.close()
+        return False
+
+    cursor.execute(
+        "SELECT count(*) from pg_proc p where p.proname = '%s';" % (function_name,)
+    )
+
+    if cursor.fetchone()[0] == 0:
+        cursor.close()
+        return False
+
+    cursor.close()
+    return True
+
+
 def register_migration_signal_for_model_receiver(model, function, dispatch_uid=None):
     signals.pre_migrate.connect(function, sender=model, dispatch_uid=dispatch_uid)
-
-

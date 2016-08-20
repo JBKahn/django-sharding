@@ -3,7 +3,6 @@ from django.conf import settings
 from django.db.models import AutoField, CharField, ForeignKey, BigIntegerField, OneToOneField
 
 from django_sharding_library.constants import Backends
-from django.db import connections, transaction, DatabaseError
 from django_sharding_library.utils import create_postgres_global_sequence, create_postgres_shard_id_function
 
 try:

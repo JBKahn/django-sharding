@@ -2,18 +2,30 @@ from mock import patch
 import unittest
 
 from django.conf import settings
+from django.db import connections
 from django.db.utils import DataError, IntegrityError
 from django.test import TestCase
-from django.db import connections, transaction, DatabaseError
 from django.utils.six.moves import xrange
 
 import time
 from datetime import datetime
 
 from django_sharding_library.constants import Backends
-from django_sharding_library.fields import ShardedIDFieldMixin, ShardLocalStorageFieldMixin, ShardStorageFieldMixin, ShardForeignKeyStorageFieldMixin, ShardForeignKeyStorageField
+from django_sharding_library.fields import (
+    ShardedIDFieldMixin,
+    ShardLocalStorageFieldMixin,
+    ShardStorageFieldMixin,
+    ShardForeignKeyStorageFieldMixin,
+    ShardForeignKeyStorageField,
+)
 from django_sharding_library.id_generation_strategies import BaseIDGenerationStrategy
-from tests.models import ShardedModelIDs, ShardedTestModelIDs, TestModel, ShardStorageTable, PostgresCustomIDModel
+from tests.models import (
+    ShardedModelIDs,
+    ShardedTestModelIDs,
+    TestModel,
+    ShardStorageTable,
+    PostgresCustomIDModel
+)
 
 
 class BigAutoFieldTestCase(TestCase):
@@ -144,32 +156,6 @@ class ShardForeignKeyStorageFieldMixinTestCase(TestCase):
                 return self.shard_key
 
         sut = FakeField(to='tests.ShardStorageTable', shard_group='default')
-        model = FakeModel('testing_save_shard')
-        sut.save_shard(model)
-
-        latest_entry_in_storage_table = ShardStorageTable.objects.latest('pk')
-        self.assertEqual(model.shard_field, latest_entry_in_storage_table)
-        self.assertEqual(ShardStorageTable.objects.count(), initial_count + 1)
-        self.assertTrue(ShardStorageTable.objects.filter(shard_key='testing_save_shard'))
-        self.assertTrue(latest_entry_in_storage_table.shard in settings.DATABASES)
-    def test_save_shard_works(self):
-        initial_count = ShardStorageTable.objects.count()
-
-        class FakeField(ShardForeignKeyStorageFieldMixin):
-            def __init__(self, *args, **kwargs):
-                self.name = 'shard_field'
-                self.django_sharding__shard_storage_table = ShardStorageTable
-                self.django_sharding__shard_group = 'default'
-
-        class FakeModel(object):
-            def __init__(self, shard_key):
-                self.shard_key = shard_key
-                self.shard_field = None
-
-            def get_shard_key(self):
-                return self.shard_key
-
-        sut = FakeField(to=ShardStorageTable, shard_group='default')
         model = FakeModel('testing_save_shard')
         sut.save_shard(model)
 

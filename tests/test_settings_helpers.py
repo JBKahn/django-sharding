@@ -130,7 +130,7 @@ class DatabaseConfigsTestCase(TestCase):
         }
         result = database_configs(simple_config)
 
-        DB01 = {'SHARD_GROUP': 'default', 'TEST': {}}
+        DB01 = {'SHARD_GROUP': 'default', 'TEST': {}, 'SHARD_ID': 0}
         DB01.update(self.dj_database_config)
 
         self.assertEqual(result, {'DB01': DB01})
@@ -148,10 +148,65 @@ class DatabaseConfigsTestCase(TestCase):
         }
         result = database_configs(simple_config)
 
-        DB01 = {'SHARD_GROUP': 'testing', 'TEST': {}}
+        DB01 = {'SHARD_GROUP': 'testing', 'TEST': {}, 'SHARD_ID': 0}
         DB01.update(self.dj_database_config)
 
         self.assertEqual(result, {'DB01': DB01})
+
+    def test_sharded_databases_shard_id(self):
+        simple_config = {
+            'sharded_databases': [
+                {
+                    'name': 'DB01',
+                    'environment_variable': 'SOME_OTHER_USELESS_ENV',
+                    'default_database_url': self.default_database_url,
+                    'shard_group': 'testing'
+                },
+                {
+                    'name': 'DB02',
+                    'environment_variable': 'SOME_OTHER_USELESS_ENV',
+                    'default_database_url': self.default_database_url,
+                    'shard_group': 'testing'
+                },
+                {
+                    'name': 'DB03',
+                    'environment_variable': 'SOME_OTHER_USELESS_ENV',
+                    'default_database_url': self.default_database_url,
+                    'shard_group': 'default'
+                },
+                {
+                    'name': 'DB04',
+                    'environment_variable': 'SOME_OTHER_USELESS_ENV',
+                    'default_database_url': self.default_database_url,
+                    'shard_group': 'default'
+                },
+                {
+                    'name': 'DB05',
+                    'environment_variable': 'SOME_OTHER_USELESS_ENV',
+                    'default_database_url': self.default_database_url,
+                    'shard_group': 'default'
+                }
+            ]
+        }
+        result = database_configs(simple_config)
+
+        DB01 = {'SHARD_GROUP': 'testing', 'TEST': {}, 'SHARD_ID': 0}
+        DB02 = {'SHARD_GROUP': 'testing', 'TEST': {}, 'SHARD_ID': 1}
+        DB03 = {'SHARD_GROUP': 'default', 'TEST': {}, 'SHARD_ID': 0}
+        DB04 = {'SHARD_GROUP': 'default', 'TEST': {}, 'SHARD_ID': 1}
+        DB05 = {'SHARD_GROUP': 'default', 'TEST': {}, 'SHARD_ID': 2}
+        DB01.update(self.dj_database_config)
+        DB02.update(self.dj_database_config)
+        DB03.update(self.dj_database_config)
+        DB04.update(self.dj_database_config)
+        DB05.update(self.dj_database_config)
+
+        self.assertEqual(result['DB01'], DB01)
+        self.assertEqual(result['DB02'], DB02)
+        self.assertEqual(result['DB03'], DB03)
+        self.assertEqual(result['DB04'], DB04)
+        self.assertEqual(result['DB05'], DB05)
+
 
     def test_unsharded_replica_database(self):
         simple_config = {
@@ -195,7 +250,7 @@ class DatabaseConfigsTestCase(TestCase):
         }
         result = database_configs(simple_config)
 
-        DB01 = {'SHARD_GROUP': 'testing', 'TEST': {}}
+        DB01 = {'SHARD_GROUP': 'testing', 'TEST': {}, 'SHARD_ID': 0}
         DB01.update(self.dj_database_config)
         DB01_replica = {'SHARD_GROUP': 'testing', 'PRIMARY': 'DB01', 'TEST': {'MIRROR': 'DB01'}}
         DB01_replica.update(self.dj_database_config)

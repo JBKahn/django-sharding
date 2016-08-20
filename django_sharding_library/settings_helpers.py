@@ -70,8 +70,9 @@ def database_configs(databases_dict):
     }
     """
     configuration = {}
+    shard_id_hash = {}  # Keep track of the IDs of the shards currently. Used to help with migrations.
     for (databases, is_sharded) in [(databases_dict.get('unsharded_databases', []), False), (databases_dict.get('sharded_databases', []), True)]:
-        for database in databases:
+        for idx, database in enumerate(databases):
             db_config = database_config(
                 database['environment_variable'],
                 database['default_database_url'],
@@ -89,4 +90,13 @@ def database_configs(databases_dict):
                 )
                 if db_config:
                     configuration[replica['name']] = db_config
+
+            # We assume the numeric shard ID is constant based on the entries in the configuration helper (we assume
+            # they wont change order, and that new shards will be appended and not inserted randomly)
+            # This is noted in the docs, leaving this comment for whomever may work on this in the future.
+            if is_sharded:
+                shard_id = shard_id_hash.get(configuration[database['name']]['SHARD_GROUP'], 0)
+                configuration[database['name']]['SHARD_ID'] = shard_id
+                shard_id_hash[configuration[database['name']]['SHARD_GROUP']] = shard_id + 1
+
     return configuration

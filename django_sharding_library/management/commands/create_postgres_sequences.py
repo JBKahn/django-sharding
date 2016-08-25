@@ -15,12 +15,14 @@ class Command(BaseCommand):
             choices=['all'] + self.get_all_but_replica_dbs(),
         )
         parser.add_argument(
-            '-v', '--verbosity', action='store', dest='verbosity', default=1,
-            type=int, choices=[0, 1, 2, 3],
-            help='Verbosity level; 0=minimal output, 1=normal output, 2=verbose output, 3=very verbose output',
+            '--sequence-name',
+            action='store',
+            dest='sequence_name',
+            default='global_id_sequence',
+            help='The name of the sequence to create and verify exists.',
         )
         parser.add_argument(
-            '--reset-sequence-if-exists', action='store_true', dest='reset_sequence', default=False,
+            '--reset-sequence', action='store_true', dest='reset_sequence', default=False,
             help="Reset the sequence if it exists.",
         )
 
@@ -39,13 +41,13 @@ class Command(BaseCommand):
             databases = [options['database']]
 
         for database in databases:
-            if options['verbosity'] >= 1:
-                try:
-                    shard_id = settings.DATABASES[database].get('SHARD_ID', 0)
-                    create_postgres_global_sequence(sequence_name="global_id_sequence", db_alias=database, reset_sequence=options["reset_sequence"])
-                    create_postgres_shard_id_function(sequence_name="global_id_sequence", db_alias=database, shard_id=shard_id)
-                    if not verify_postres_id_field_setup_correctly(sequence_name="global_id_sequence", db_alias=database, function_name="next_sharded_id"):
-                        raise Exception("That didn't work.")
-                    self.stdout.write(getattr(self.style, "SUCCESS")("\nDatabase: {}\n").format(database))
-                except:
-                    self.stdout.write(getattr(self.style, "ERROR")("\nDatabase: {}\n").format(database))
+            sequence_name = options["sequence_name"]
+            try:
+                shard_id = settings.DATABASES[database].get('SHARD_ID', 0)
+                create_postgres_global_sequence(sequence_name=sequence_name, db_alias=database, reset_sequence=options["reset_sequence"])
+                create_postgres_shard_id_function(sequence_name=sequence_name, db_alias=database, shard_id=shard_id)
+                if not verify_postres_id_field_setup_correctly(sequence_name=sequence_name, db_alias=database, function_name="next_sharded_id"):
+                    raise Exception("That didn't work.")
+                self.stdout.write(getattr(self.style, "SUCCESS")("\nDatabase {} with shard id {}:sequence {} is present").format(database, shard_id, sequence_name))
+            except Exception as e:
+                self.stdout.write(getattr(self.style, "ERROR")("\nDatabase {}: Error occured: {}").format(database, str(e)))

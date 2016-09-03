@@ -57,7 +57,7 @@ class ShardedIDFieldMixin(object):
         return instance.pk
 
 
-class TableShardedIDField(ShardedIDFieldMixin, AutoField):
+class TableShardedIDField(ShardedIDFieldMixin, BigAutoField):
     """
     An autoincrimenting field which takes a `source_table` as an argument in
     order to generate unqiue ids for the sharded model.

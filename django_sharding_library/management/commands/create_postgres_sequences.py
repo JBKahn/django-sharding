@@ -25,6 +25,10 @@ class Command(BaseCommand):
             '--reset-sequence', action='store_true', dest='reset_sequence', default=False,
             help="Reset the sequence if it exists.",
         )
+        parser.add_argument(
+            '--dry-run', action='store_true', dest='dry_run', default=False,
+            help="Check they exist but make no changes to the database.",
+        )
 
     def get_all_but_replica_dbs(self):
         return list(filter(
@@ -36,18 +40,27 @@ class Command(BaseCommand):
         if not options['database'] or options['database'] == 'all':
             databases = self.get_all_but_replica_dbs()
         elif options['database'] not in self.get_all_but_replica_dbs():
-            raise CommandError('You must migrate an existing non-primary DB.')
+            raise CommandError('You must migrate an existing primary DB.')
         else:
             databases = [options['database']]
+
+        has_errors = False
 
         for database in databases:
             sequence_name = options["sequence_name"]
             try:
-                shard_id = settings.DATABASES[database].get('SHARD_ID', 0)
-                create_postgres_global_sequence(sequence_name=sequence_name, db_alias=database, reset_sequence=options["reset_sequence"])
-                create_postgres_shard_id_function(sequence_name=sequence_name, db_alias=database, shard_id=shard_id)
+                shard_id = settings.DATABASES[database].get('SHARD_ID', None)
+                if shard_id is None:
+                    continue
+                if not options["dry_run"]:
+                    create_postgres_global_sequence(sequence_name=sequence_name, db_alias=database, reset_sequence=options["reset_sequence"])
+                    create_postgres_shard_id_function(sequence_name=sequence_name, db_alias=database, shard_id=shard_id)
                 if not verify_postres_id_field_setup_correctly(sequence_name=sequence_name, db_alias=database, function_name="next_sharded_id"):
-                    raise Exception("That didn't work.")
+                    raise Exception("The sequence could not be found.")
                 self.stdout.write(getattr(self.style, "SUCCESS")("\nDatabase {} with shard id {}:sequence {} is present").format(database, shard_id, sequence_name))
             except Exception as e:
                 self.stdout.write(getattr(self.style, "ERROR")("\nDatabase {}: Error occured: {}").format(database, str(e)))
+                has_errors = True
+
+        if has_errors:
+            raise CommandError("Some databases do not have the sequence on them.")

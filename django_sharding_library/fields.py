@@ -10,21 +10,23 @@ try:
 except ImportError:
     from django.db.backends.postgresql_psycopg2.base import DatabaseWrapper as PostgresDatabaseWrapper
 
+try:
+    from django.db.models import BigAutoField
+except ImportError:
+    from django.utils.translation import ugettext_lazy as _
 
-class BigAutoField(AutoField):
-    """
-    An autoincrimenting field which can store an integer from 1 to
-    9223372036854775807.
-    """
-    def db_type(self, connection):
-        if connection.settings_dict['ENGINE'] in Backends.MYSQL:
-            return 'serial'
-        if connection.settings_dict['ENGINE'] in Backends.POSTGRES:
-            return 'bigserial'
-        return super(BigAutoField, self).db_type(connection)
+    class BigAutoField(AutoField):
+        description = _("Big (8 byte) integer")
 
-    def get_internal_type(self):
-        return "BigIntegerField"
+        def db_type(self, connection):
+            if connection.settings_dict['ENGINE'] in Backends.MYSQL:
+                return 'serial'
+            if connection.settings_dict['ENGINE'] in Backends.POSTGRES:
+                return 'bigserial'
+            return super(BigAutoField, self).db_type(connection)
+
+        def rel_db_type(self, connection):
+            return BigIntegerField().db_type(connection=connection)
 
 
 class ShardedIDFieldMixin(object):
@@ -55,7 +57,7 @@ class ShardedIDFieldMixin(object):
         return instance.pk
 
 
-class TableShardedIDField(ShardedIDFieldMixin, BigAutoField):
+class TableShardedIDField(ShardedIDFieldMixin, AutoField):
     """
     An autoincrimenting field which takes a `source_table` as an argument in
     order to generate unqiue ids for the sharded model.

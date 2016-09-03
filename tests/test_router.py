@@ -2,14 +2,14 @@ from mock import patch
 
 from django.conf import settings
 from django.contrib.auth.models import Group
-from django.test import TestCase
+from django.test import TransactionTestCase
 
 from tests.models import TestModel, ShardedTestModelIDs
 from django_sharding_library.exceptions import InvalidMigrationException
 from django_sharding_library.router import ShardedRouter
 from django_sharding_library.routing_read_strategies import BaseRoutingStrategy
 
-from django.db.models import Avg, Max, Min, Sum
+from django.db.models import Sum
 
 
 class FakeRoutingStrategy(BaseRoutingStrategy):
@@ -21,7 +21,7 @@ class FakeRoutingStrategy(BaseRoutingStrategy):
         return 'testing'
 
 
-class RouterReadTestCase(TestCase):
+class RouterReadTestCase(TransactionTestCase):
 
     def setUp(self):
         from django.contrib.auth import get_user_model
@@ -62,7 +62,8 @@ class RouterReadTestCase(TestCase):
 
         with patch.object(ShardedRouter, 'db_for_read') as read_route_function:
             read_route_function.return_value = 'app_shard_001'
-            test_models = list(TestModel.objects.filter(user_pk=self.user.pk))
+
+            list(TestModel.objects.filter(user_pk=self.user.pk))
             self.assertIn(lookups_to_find, read_route_function.call_args)
 
     def test_queryset_router_filter_returns_existing_objects(self):
@@ -91,7 +92,7 @@ class RouterReadTestCase(TestCase):
         self.assertEqual(sum_model_pk['user_pk_sum'], self.user.pk * 10)
 
 
-class RouterWriteTestCase(TestCase):
+class RouterWriteTestCase(TransactionTestCase):
 
     def setUp(self):
         from django.contrib.auth import get_user_model
@@ -131,7 +132,7 @@ class RouterWriteTestCase(TestCase):
         self.assertTrue(TestModel.objects.using(self.user.shard).get(id=instance.id))
 
 
-class RouterAllowRelationTestCase(TestCase):
+class RouterAllowRelationTestCase(TransactionTestCase):
 
     def setUp(self):
         from django.contrib.auth import get_user_model
@@ -178,7 +179,7 @@ class RouterAllowRelationTestCase(TestCase):
         self.assertTrue(self.sut.allow_relation(item_one, self.user))
 
 
-class RouterAllowMigrateTestCase(TestCase):
+class RouterAllowMigrateTestCase(TransactionTestCase):
 
     def setUp(self):
         self.sut = ShardedRouter()

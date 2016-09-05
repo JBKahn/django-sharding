@@ -1,6 +1,17 @@
 Changelog
 =========
 
+0.0.9 (unreleased)
+------------------
+
+### Django 1.10 compatibility and some additional library features!
+
+- Django 1.10 compatibility.
+- Added postgres specific ID generator
+- Some magic sharded field lookups (if you're so inclined)
+- more to come maybe?
+
+
 0.0.8 (Apr 20th 2016)
 ------------------
 

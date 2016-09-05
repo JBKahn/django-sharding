@@ -34,3 +34,5 @@ node_modules
 # Local dev
 Dockerfile
 docker-compose.yml
+
+tests/migrations/*

@@ -75,10 +75,13 @@ def run_tests(*test_args):
     if not test_args:
         test_args = ['tests']
 
+    from django.core.management import call_command
+
+    call_command('makemigrations', 'tests')
+
     # Run tests
     TestRunner = get_runner(settings)
     test_runner = TestRunner()
-    # from django.core.management import call_command; call_command('makemigrations', 'tests')
 
     failures = test_runner.run_tests(test_args, interactive=False)
 

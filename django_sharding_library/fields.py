@@ -3,7 +3,6 @@ from django.conf import settings
 from django.db.models import AutoField, CharField, ForeignKey, BigIntegerField, OneToOneField
 
 from django_sharding_library.constants import Backends
-from django.db import connections, transaction, DatabaseError
 from django_sharding_library.utils import create_postgres_global_sequence, create_postgres_shard_id_function
 
 try:
@@ -11,21 +10,23 @@ try:
 except ImportError:
     from django.db.backends.postgresql_psycopg2.base import DatabaseWrapper as PostgresDatabaseWrapper
 
+try:
+    from django.db.models import BigAutoField
+except ImportError:
+    from django.utils.translation import ugettext_lazy as _
 
-class BigAutoField(AutoField):
-    """
-    An autoincrimenting field which can store an integer from 1 to
-    9223372036854775807.
-    """
-    def db_type(self, connection):
-        if connection.settings_dict['ENGINE'] in Backends.MYSQL:
-            return 'serial'
-        if connection.settings_dict['ENGINE'] in Backends.POSTGRES:
-            return 'bigserial'
-        return super(BigAutoField, self).db_type(connection)
+    class BigAutoField(AutoField):
+        description = _("Big (8 byte) integer")
 
-    def get_internal_type(self):
-        return "BigIntegerField"
+        def db_type(self, connection):
+            if connection.settings_dict['ENGINE'] in Backends.MYSQL:
+                return 'serial'
+            if connection.settings_dict['ENGINE'] in Backends.POSTGRES:
+                return 'bigserial'
+            return super(BigAutoField, self).db_type(connection)
+
+        def rel_db_type(self, connection):
+            return BigIntegerField().db_type(connection=connection)
 
 
 class ShardedIDFieldMixin(object):
@@ -210,7 +211,7 @@ class PostgresShardForeignKey(ForeignKey):
         # If the database needs similar types for key fields however, the only
         # thing we can do is making AutoField an IntegerField.
         rel_field = self.target_field
-        if rel_field.get_internal_type() is "BigIntegerField":
+        if rel_field.get_internal_type() == "BigIntegerField":
             return BigIntegerField().db_type(connection=connection)
         return super(PostgresShardForeignKey, self).db_type(connection)
 
@@ -224,6 +225,6 @@ class PostgresShardOneToOne(OneToOneField):
         # If the database needs similar types for key fields however, the only
         # thing we can do is making AutoField an IntegerField.
         rel_field = self.target_field
-        if rel_field.get_internal_type() is "BigIntegerField":
+        if rel_field.get_internal_type() == "BigIntegerField":
             return BigIntegerField().db_type(connection=connection)
         return super(PostgresShardOneToOne, self).db_type(connection)

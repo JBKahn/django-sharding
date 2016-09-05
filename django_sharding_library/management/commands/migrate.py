@@ -17,7 +17,7 @@ class Command(MigrationCommand):
             options['database'] = database
             # Writen in green text to stand out from the surrouding headings
             if options['verbosity'] >= 1:
-                self.stdout.write(getattr(self.style, "MIGRATE_SUCCESS", getattr(self.style, "SUCCESS"))("\nDatabase: {}\n").format(database))
+                self.stdout.write(getattr(self.style, "MIGRATE_SUCCESS", getattr(self.style, "SUCCESS", lambda a: a))("\nDatabase: {}\n").format(database))
             super(Command, self).handle(*args, **options)
 
     def get_all_but_replica_dbs(self):

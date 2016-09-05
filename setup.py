@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-version = '0.0.8'
+version = '0.0.9'
 
 
 setup(
@@ -13,8 +13,8 @@ setup(
     url='https://github.com/JBKahn/django-sharding',
     packages=find_packages(),
     include_package_data=True,
-    install_requires=['Django>=1.8', 'dj-database-url==0.3.0'],
-    tests_require=['psycopg2==2.6.2', 'mysqlclient==1.3.7', 'mock==2.0.0', 'django_nose==1.4.4', 'tox==2.1.1'],
+    install_requires=['Django>=1.8', 'dj-database-url==0.4.1'],
+    tests_require=['psycopg2==2.6.2', 'mysqlclient==1.3.7', 'mock==2.0.0', 'django_nose==1.4.4', 'tox==2.3.1'],
     license="BSD",
     zip_safe=False,
     keywords='django shard sharding library',

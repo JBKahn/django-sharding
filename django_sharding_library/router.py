@@ -1,3 +1,5 @@
+import inspect
+
 from django.apps import apps
 from django.conf import settings
 
@@ -94,6 +96,12 @@ class ShardedRouter(object):
         model = hints.get('model')
         if model:
             model_name = model.__name__
+
+        # New versions of Django use the router to make migrations with no hints.....
+        making_migrations = any(['django/core/management/commands/makemigrations.py' in i[1] for i in inspect.stack()])
+        if making_migrations:
+            return True
+
         if not model_name:
             raise InvalidMigrationException(
                 'Model name not provided in migration, please pass a `model_name` or `model` with the hints passed into the migration.'

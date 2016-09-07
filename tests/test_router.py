@@ -55,13 +55,61 @@ class RouterReadTestCase(TransactionTestCase):
         from django.contrib.auth import get_user_model
         self.assertEqual(self.sut.db_for_read(model=get_user_model()), None)
 
+    def test_router_hints_receives_get_kwargs(self):
+        original_id = TestModel.objects.create(user_pk=self.user.pk).id
+
+        lookups_to_find = {'exact_lookups': {'user_pk': self.user.pk}}
+
+        with patch.object(ShardedRouter, 'db_for_read') as read_route_function:
+            read_route_function.return_value = self.user.shard
+
+            result = TestModel.objects.get(user_pk=self.user.pk)
+            self.assertEqual(result.id, original_id)
+            self.assertIn(lookups_to_find, read_route_function.call_args)
+
+    def test_router_hints_receives_get_kwargs_on_get_or_create(self):
+        original_id = TestModel.objects.get_or_create(user_pk=self.user.pk)[0].id
+
+        lookups_to_find = {'exact_lookups': {'user_pk': self.user.pk}}
+
+        with patch.object(ShardedRouter, 'db_for_read') as read_route_function:
+            read_route_function.return_value = self.user.shard
+
+            result = TestModel.objects.get(user_pk=self.user.pk)
+            self.assertEqual(result.id, original_id)
+            self.assertIn(lookups_to_find, read_route_function.call_args)
+
+    def test_router_hints_receives_filter_kwargs_on_count(self):
+        TestModel.objects.create(user_pk=self.user.pk)
+
+        lookups_to_find = {'exact_lookups': {'user_pk': self.user.pk}}
+
+        with patch.object(ShardedRouter, 'db_for_read') as read_route_function:
+            read_route_function.return_value = self.user.shard
+
+            result = TestModel.objects.filter(user_pk=self.user.pk).count()
+            self.assertEqual(result, 1)
+            self.assertIn(lookups_to_find, read_route_function.call_args)
+
+    def test_router_hints_receives_filter_kwargs_on_exists(self):
+        TestModel.objects.create(user_pk=self.user.pk)
+
+        lookups_to_find = {'exact_lookups': {'user_pk': self.user.pk}}
+
+        with patch.object(ShardedRouter, 'db_for_read') as read_route_function:
+            read_route_function.return_value = self.user.shard
+
+            result = TestModel.objects.filter(user_pk=self.user.pk).exists()
+            self.assertTrue(result)
+            self.assertIn(lookups_to_find, read_route_function.call_args)
+
     def test_router_hints_receives_filter_kwargs(self):
         TestModel.objects.create(user_pk=self.user.pk)
 
         lookups_to_find = {'exact_lookups': {'user_pk': self.user.pk}}
 
         with patch.object(ShardedRouter, 'db_for_read') as read_route_function:
-            read_route_function.return_value = 'app_shard_001'
+            read_route_function.return_value = self.user.shard
 
             list(TestModel.objects.filter(user_pk=self.user.pk))
             self.assertIn(lookups_to_find, read_route_function.call_args)

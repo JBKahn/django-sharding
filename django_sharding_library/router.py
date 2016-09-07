@@ -43,7 +43,10 @@ class ShardedRouter(object):
             if instance:
                 shard = self.get_shard_for_instance(instance)
             if not shard and shard_field_id:
-                shard = self.get_shard_for_id_field(model, shard_field_id)
+                try:
+                    shard = self.get_shard_for_id_field(model, shard_field_id)
+                except:
+                    shard = self.get_shard_for_id_field(model, shard_field_id)
 
             return shard
         return None
@@ -69,6 +72,7 @@ class ShardedRouter(object):
             return specific_database
 
         shard = self._get_shard(model, **hints)
+
         if shard:
             db_config = settings.DATABASES[shard]
             return db_config.get('PRIMARY', shard)

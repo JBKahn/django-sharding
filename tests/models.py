@@ -49,7 +49,8 @@ class TestModel(models.Model):
     @staticmethod
     def get_shard_from_id(user_pk):
         from django.contrib.auth import get_user_model
-        return get_user_model().objects.get(pk=user_pk).shard
+        user = get_user_model()
+        return user.objects.get(pk=user_pk).shard
 
 
 @model_config(database='default')

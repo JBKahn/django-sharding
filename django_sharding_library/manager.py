@@ -47,6 +47,28 @@ class ShardQuerySet(QuerySet):
         self._instance = self.model(**kwargs.copy())
         return super(ShardQuerySet, self).create(**kwargs)
 
+    def get_or_create(self, defaults=None, **kwargs):
+        """
+        Looks up an object with the given kwargs, creating one if necessary.
+        Returns a tuple of (object, created), where created is a boolean
+        specifying whether an object was created.
+        """
+        lookup, params = self._extract_model_params(defaults, **kwargs)
+        self._exact_lookups = lookup
+        return super(ShardQuerySet, self).get_or_create(defaults=defaults, **kwargs)
+
+    def update_or_create(self, defaults=None, **kwargs):
+        """
+        Looks up an object with the given kwargs, updating one with defaults
+        if it exists, otherwise creates a new one.
+        Returns a tuple (object, created), where created is a boolean
+        specifying whether an object was created.
+        """
+        defaults = defaults or {}
+        lookup, params = self._extract_model_params(defaults, **kwargs)
+        self._exact_lookups = lookup
+        return super(ShardQuerySet, self).update_or_create(defaults=defaults, **kwargs)
+
 
 class ShardManager(Manager):
 
@@ -71,3 +93,4 @@ class ShardManager(Manager):
     get = _wrap('get')
     create = _wrap('create')
     get_or_create = _wrap('get_or_create')
+    update_or_create = _wrap('update_or_create')

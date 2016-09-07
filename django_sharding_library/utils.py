@@ -10,7 +10,7 @@ def create_postgres_global_sequence(sequence_name, db_alias, reset_sequence=Fals
     create_sequence_if_not_exists_sql = """DO
 $$
 BEGIN
-        CREATE SEQUENCE myseq;
+        CREATE SEQUENCE %s;
 EXCEPTION WHEN duplicate_table THEN
         -- do nothing, it's already there
 END

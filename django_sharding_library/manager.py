@@ -71,3 +71,4 @@ class ShardManager(Manager):
     get = _wrap('get')
     create = _wrap('create')
     get_or_create = _wrap('get_or_create')
+    update_or_create = _wrap('update_or_create')

@@ -7,14 +7,22 @@ from django.db.models import signals
 def create_postgres_global_sequence(sequence_name, db_alias, reset_sequence=False):
     cursor = connections[db_alias].cursor()
     sid = transaction.savepoint(db_alias)
+    create_sequence_if_not_exists_sql = """DO
+$$
+BEGIN
+        CREATE SEQUENCE myseq;
+EXCEPTION WHEN duplicate_table THEN
+        -- do nothing, it's already there
+END
+$$ LANGUAGE plpgsql;"""
     try:
-        cursor.execute("CREATE SEQUENCE %s;" % sequence_name)
+        cursor.execute(create_sequence_if_not_exists_sql % sequence_name)
     except DatabaseError:
         transaction.savepoint_rollback(sid, using=db_alias)
-        if reset_sequence:
-            cursor.execute("SELECT setval('%s', 1, false)" % (sequence_name,))
     else:
         transaction.savepoint_commit(sid, using=db_alias)
+    if reset_sequence:
+        cursor.execute("SELECT setval('%s', 1, false)" % (sequence_name,))
     cursor.close()
 
 

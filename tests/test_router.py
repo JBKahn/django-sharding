@@ -1,6 +1,7 @@
-from mock import patch
+from mock import call, patch
 
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.test import TransactionTestCase
 
@@ -60,59 +61,139 @@ class RouterReadTestCase(TransactionTestCase):
 
         lookups_to_find = {'exact_lookups': {'user_pk': self.user.pk}}
 
-        with patch.object(ShardedRouter, 'db_for_read') as read_route_function:
-            read_route_function.return_value = self.user.shard
-
+        with patch.object(ShardedRouter, 'db_for_read', wraps=self.sut.db_for_read) as read_route_function:
             result = TestModel.objects.get(user_pk=self.user.pk)
-            self.assertEqual(result.id, original_id)
-            self.assertIn(lookups_to_find, read_route_function.call_args)
 
-    def test_router_hints_receives_get_kwargs_on_get_or_create(self):
-        original_id = TestModel.objects.get_or_create(user_pk=self.user.pk)[0].id
+        self.assertEqual(result.id, original_id)
+        self.assertEqual(
+            [call(TestModel, **lookups_to_find), call(get_user_model())],
+            read_route_function.mock_calls
+        )
+
+    def test_router_hints_receives_get_kwargs_on_get_or_create__get(self):
+        original_id = TestModel.objects.create(user_pk=self.user.pk).id
+
+        with patch.object(ShardedRouter, 'db_for_read', wraps=self.sut.db_for_read) as read_route_function:
+            result, created = TestModel.objects.get_or_create(user_pk=self.user.pk)
+
+        self.assertEqual(result.id, original_id)
+        self.assertFalse(created)
+        self.assertEqual(
+            [call(get_user_model())],
+            read_route_function.mock_calls
+        )
+
+    def test_router_hints_receives_get_kwargs_on_get_or_create__create(self):
+        lookups_to_find = {'exact_lookups': {'user_pk': self.user.pk}}
+
+        with patch.object(ShardedRouter, 'db_for_write', wraps=self.sut.db_for_write) as write_route_function:
+            with patch.object(ShardedRouter, 'db_for_read', wraps=self.sut.db_for_read) as read_route_function:
+
+                _, created = TestModel.objects.get_or_create(user_pk=self.user.pk)
+
+        self.assertTrue(created)
+        self.assertEqual(
+            [call(get_user_model()), call(get_user_model()), call(get_user_model())],
+            read_route_function.mock_calls
+        )
+
+        self.assertEqual(
+            [
+                call(TestModel, **lookups_to_find),
+                call(TestModel, **lookups_to_find),
+                call(TestModel, instance=write_route_function.mock_calls[2][2]["instance"], **lookups_to_find),  # no way to access that copy of the instance here, the one prior to saving.
+                call(ShardedTestModelIDs),
+            ],
+            write_route_function.mock_calls
+        )
+
+    def test_router_hints_receives_get_kwargs_on_update_or_create__get(self):
+        original_id = TestModel.objects.create(user_pk=self.user.pk).id
 
         lookups_to_find = {'exact_lookups': {'user_pk': self.user.pk}}
 
-        with patch.object(ShardedRouter, 'db_for_read') as read_route_function:
-            read_route_function.return_value = self.user.shard
+        with patch.object(ShardedRouter, 'db_for_read', wraps=self.sut.db_for_read) as read_route_function:
+            with patch.object(ShardedRouter, 'db_for_write', wraps=self.sut.db_for_write) as write_route_function:
 
-            result = TestModel.objects.get(user_pk=self.user.pk)
-            self.assertEqual(result.id, original_id)
-            self.assertIn(lookups_to_find, read_route_function.call_args)
+                result, created = TestModel.objects.update_or_create(user_pk=self.user.pk)
+
+        self.assertEqual(result.id, original_id)
+        self.assertFalse(created)
+        self.assertEqual(
+            [call(get_user_model()), call(get_user_model())],
+            read_route_function.mock_calls
+        )
+        self.assertEqual(
+            [call(TestModel, **lookups_to_find), call(TestModel, **lookups_to_find)],
+            write_route_function.mock_calls
+        )
+
+    def test_router_hints_receives_get_kwargs_on_update_or_create__create(self):
+        lookups_to_find = {'exact_lookups': {'user_pk': self.user.pk}}
+
+        with patch.object(ShardedRouter, 'db_for_read', wraps=self.sut.db_for_read) as read_route_function:
+            with patch.object(ShardedRouter, 'db_for_write', wraps=self.sut.db_for_write) as write_route_function:
+
+                instance, created = TestModel.objects.update_or_create(user_pk=self.user.pk)
+
+        self.assertTrue(created)
+        self.assertEqual(
+            [call(get_user_model()), call(get_user_model()), call(get_user_model())],
+            read_route_function.mock_calls
+        )
+
+        self.assertEqual(
+            [
+                call(TestModel, **lookups_to_find),
+                call(TestModel, **lookups_to_find),
+                call(TestModel, instance=write_route_function.mock_calls[2][2]["instance"], **lookups_to_find),  # no way to access that copy of the instance here, the one prior to saving.
+                call(ShardedTestModelIDs),
+            ],
+            write_route_function.mock_calls
+        )
 
     def test_router_hints_receives_filter_kwargs_on_count(self):
         TestModel.objects.create(user_pk=self.user.pk)
 
         lookups_to_find = {'exact_lookups': {'user_pk': self.user.pk}}
 
-        with patch.object(ShardedRouter, 'db_for_read') as read_route_function:
-            read_route_function.return_value = self.user.shard
-
+        with patch.object(ShardedRouter, 'db_for_read', wraps=self.sut.db_for_read) as read_route_function:
             result = TestModel.objects.filter(user_pk=self.user.pk).count()
-            self.assertEqual(result, 1)
-            self.assertIn(lookups_to_find, read_route_function.call_args)
+
+        self.assertEqual(result, 1)
+        self.assertEqual(
+            [call(TestModel, **lookups_to_find), call(get_user_model())],
+            read_route_function.mock_calls
+        )
 
     def test_router_hints_receives_filter_kwargs_on_exists(self):
         TestModel.objects.create(user_pk=self.user.pk)
 
         lookups_to_find = {'exact_lookups': {'user_pk': self.user.pk}}
 
-        with patch.object(ShardedRouter, 'db_for_read') as read_route_function:
-            read_route_function.return_value = self.user.shard
-
+        with patch.object(ShardedRouter, 'db_for_read', wraps=self.sut.db_for_read) as read_route_function:
             result = TestModel.objects.filter(user_pk=self.user.pk).exists()
-            self.assertTrue(result)
-            self.assertIn(lookups_to_find, read_route_function.call_args)
+
+        self.assertTrue(result)
+        self.assertEqual(
+            [call(TestModel, **lookups_to_find), call(get_user_model())],
+            read_route_function.mock_calls
+        )
 
     def test_router_hints_receives_filter_kwargs(self):
         TestModel.objects.create(user_pk=self.user.pk)
 
         lookups_to_find = {'exact_lookups': {'user_pk': self.user.pk}}
 
-        with patch.object(ShardedRouter, 'db_for_read') as read_route_function:
+        with patch.object(ShardedRouter, 'db_for_read', wraps=self.sut.db_for_read) as read_route_function:
             read_route_function.return_value = self.user.shard
 
             list(TestModel.objects.filter(user_pk=self.user.pk))
-            self.assertIn(lookups_to_find, read_route_function.call_args)
+
+        self.assertEqual(
+            [call(TestModel, **lookups_to_find)],
+            read_route_function.mock_calls
+        )
 
     def test_queryset_router_filter_returns_existing_objects(self):
         for i in range(1, 11):

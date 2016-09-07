@@ -134,14 +134,24 @@ class RouterReadTestCase(TransactionTestCase):
 
         self.assertEqual(result.id, original_id)
         self.assertFalse(created)
-        self.assertEqual(
-            [call(get_user_model()), call(get_user_model())],
-            read_route_function.mock_calls
-        )
-        self.assertEqual(
-            [call(TestModel, **lookups_to_find), call(TestModel, **lookups_to_find)],
-            write_route_function.mock_calls
-        )
+
+        # Django 1.10 dropped a query here :)
+        import django
+        if django.VERSION < (1, 10):
+            self.assertEqual(
+                [call(get_user_model()), call(get_user_model()), call(get_user_model())],
+                read_route_function.mock_calls
+            )
+        else:
+            self.assertEqual(
+                [call(get_user_model()), call(get_user_model())],
+                read_route_function.mock_calls
+            )
+
+            self.assertEqual(
+                [call(TestModel, **lookups_to_find), call(TestModel, **lookups_to_find)],
+                write_route_function.mock_calls
+            )
 
     def test_router_hints_receives_get_kwargs_on_update_or_create__create(self):
         lookups_to_find = {'exact_lookups': {'user_pk': self.user.pk}}

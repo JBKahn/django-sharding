@@ -61,26 +61,41 @@ class RouterReadTestCase(TransactionTestCase):
 
         lookups_to_find = {'exact_lookups': {'user_pk': self.user.pk}}
 
-        with patch.object(ShardedRouter, 'db_for_read', wraps=self.sut.db_for_read) as read_route_function:
-            result = TestModel.objects.get(user_pk=self.user.pk)
+        with patch.object(ShardedRouter, 'db_for_write', wraps=self.sut.db_for_write) as write_route_function:
+            with patch.object(ShardedRouter, 'db_for_read', wraps=self.sut.db_for_read) as read_route_function:
+                result = TestModel.objects.get(user_pk=self.user.pk)
 
         self.assertEqual(result.id, original_id)
         self.assertEqual(
             [call(TestModel, **lookups_to_find), call(get_user_model())],
             read_route_function.mock_calls
         )
+        self.assertEqual(
+            [],
+            write_route_function.mock_calls
+        )
 
     def test_router_hints_receives_get_kwargs_on_get_or_create__get(self):
         original_id = TestModel.objects.create(user_pk=self.user.pk).id
 
-        with patch.object(ShardedRouter, 'db_for_read', wraps=self.sut.db_for_read) as read_route_function:
-            result, created = TestModel.objects.get_or_create(user_pk=self.user.pk)
+        lookups_to_find = {'exact_lookups': {'user_pk': self.user.pk}}
+
+        with patch.object(ShardedRouter, 'db_for_write', wraps=self.sut.db_for_write) as write_route_function:
+            with patch.object(ShardedRouter, 'db_for_read', wraps=self.sut.db_for_read) as read_route_function:
+                result, created = TestModel.objects.get_or_create(user_pk=self.user.pk)
 
         self.assertEqual(result.id, original_id)
         self.assertFalse(created)
         self.assertEqual(
             [call(get_user_model())],
             read_route_function.mock_calls
+        )
+
+        self.assertEqual(
+            [
+                call(TestModel, **lookups_to_find),
+            ],
+            write_route_function.mock_calls
         )
 
     def test_router_hints_receives_get_kwargs_on_get_or_create__create(self):
@@ -157,13 +172,18 @@ class RouterReadTestCase(TransactionTestCase):
 
         lookups_to_find = {'exact_lookups': {'user_pk': self.user.pk}}
 
-        with patch.object(ShardedRouter, 'db_for_read', wraps=self.sut.db_for_read) as read_route_function:
-            result = TestModel.objects.filter(user_pk=self.user.pk).count()
+        with patch.object(ShardedRouter, 'db_for_write', wraps=self.sut.db_for_write) as write_route_function:
+            with patch.object(ShardedRouter, 'db_for_read', wraps=self.sut.db_for_read) as read_route_function:
+                result = TestModel.objects.filter(user_pk=self.user.pk).count()
 
         self.assertEqual(result, 1)
         self.assertEqual(
             [call(TestModel, **lookups_to_find), call(get_user_model())],
             read_route_function.mock_calls
+        )
+        self.assertEqual(
+            [],
+            write_route_function.mock_calls
         )
 
     def test_router_hints_receives_filter_kwargs_on_exists(self):
@@ -171,13 +191,18 @@ class RouterReadTestCase(TransactionTestCase):
 
         lookups_to_find = {'exact_lookups': {'user_pk': self.user.pk}}
 
-        with patch.object(ShardedRouter, 'db_for_read', wraps=self.sut.db_for_read) as read_route_function:
-            result = TestModel.objects.filter(user_pk=self.user.pk).exists()
+        with patch.object(ShardedRouter, 'db_for_write', wraps=self.sut.db_for_write) as write_route_function:
+            with patch.object(ShardedRouter, 'db_for_read', wraps=self.sut.db_for_read) as read_route_function:
+                result = TestModel.objects.filter(user_pk=self.user.pk).exists()
 
         self.assertTrue(result)
         self.assertEqual(
             [call(TestModel, **lookups_to_find), call(get_user_model())],
             read_route_function.mock_calls
+        )
+        self.assertEqual(
+            [],
+            write_route_function.mock_calls
         )
 
     def test_router_hints_receives_filter_kwargs(self):
@@ -185,14 +210,17 @@ class RouterReadTestCase(TransactionTestCase):
 
         lookups_to_find = {'exact_lookups': {'user_pk': self.user.pk}}
 
-        with patch.object(ShardedRouter, 'db_for_read', wraps=self.sut.db_for_read) as read_route_function:
-            read_route_function.return_value = self.user.shard
-
-            list(TestModel.objects.filter(user_pk=self.user.pk))
+        with patch.object(ShardedRouter, 'db_for_write', wraps=self.sut.db_for_write) as write_route_function:
+            with patch.object(ShardedRouter, 'db_for_read', wraps=self.sut.db_for_read) as read_route_function:
+                list(TestModel.objects.filter(user_pk=self.user.pk))
 
         self.assertEqual(
-            [call(TestModel, **lookups_to_find)],
+            [call(TestModel, **lookups_to_find), call(get_user_model())],
             read_route_function.mock_calls
+        )
+        self.assertEqual(
+            [],
+            write_route_function.mock_calls
         )
 
     def test_queryset_router_filter_returns_existing_objects(self):

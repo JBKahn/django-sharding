@@ -1,4 +1,3 @@
-from django.db import transaction, router, IntegrityError
 from django.db.models.manager import Manager
 from django.db.models.query import QuerySet
 
@@ -49,20 +48,16 @@ class ShardQuerySet(QuerySet):
 
     def get_or_create(self, defaults=None, **kwargs):
         """
-        Looks up an object with the given kwargs, creating one if necessary.
-        Returns a tuple of (object, created), where created is a boolean
-        specifying whether an object was created.
+        Add the lookups to the _exact_lookups and call super.
         """
+        defaults = defaults or {}
         lookup, params = self._extract_model_params(defaults, **kwargs)
         self._exact_lookups = lookup
         return super(ShardQuerySet, self).get_or_create(defaults=defaults, **kwargs)
 
     def update_or_create(self, defaults=None, **kwargs):
         """
-        Looks up an object with the given kwargs, updating one with defaults
-        if it exists, otherwise creates a new one.
-        Returns a tuple (object, created), where created is a boolean
-        specifying whether an object was created.
+        Add the lookups to the _exact_lookups and call super.
         """
         defaults = defaults or {}
         lookup, params = self._extract_model_params(defaults, **kwargs)

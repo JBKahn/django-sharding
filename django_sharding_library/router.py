@@ -105,9 +105,7 @@ class ShardedRouter(object):
         if model:
             model_name = model.__name__
 
-        # New versions of Django use the router to make migrations with no hints.....
-        making_migrations = any(['django/core/management/commands/makemigrations.py' in i[1] for i in inspect.stack()])
-        if making_migrations:
+        if hints.get("making_migrations", False):
             return True
 
         if not model_name:

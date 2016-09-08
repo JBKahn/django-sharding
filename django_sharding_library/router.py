@@ -4,6 +4,7 @@ from django.apps import apps
 from django.conf import settings
 
 from django_sharding_library.exceptions import InvalidMigrationException
+from django_sharding_library.fields import PostgresShardGeneratedIDField
 
 
 class ShardedRouter(object):
@@ -25,6 +26,16 @@ class ShardedRouter(object):
 
     def get_shard_for_id_field(self, model, sharded_by_field_id):
         return model.get_shard_from_id(sharded_by_field_id)
+
+    def get_shard_for_postgres_pk_field(self, model, pk_value):
+        group = getattr(model, 'django_sharding__shard_group', None)
+        shard_id_to_find = int(bin(pk_value)[-23:-10], 2)  # We know where the shard id is stored in the PK's bits.
+
+        # We can check the shard id from the PK against the shard ID in the databases config
+        for alias in settings.DATABASES.keys():
+            if settings.DATABASES[alias]["SHARD_GROUP"] == group and settings.DATABASES[alias]["SHARD_ID"] == shard_id_to_find:
+                return alias
+        return None
 
     def get_read_db_routing_strategy(self, shard_group):
         app_config_app_label = getattr(settings, 'DJANGO_SHARDING_SETTINGS', {}).get('APP_CONFIG_APP', 'django_sharding')
@@ -51,7 +62,11 @@ class ShardedRouter(object):
                     shard = self.get_shard_for_id_field(model, shard_field_id)
                 except:
                     shard = self.get_shard_for_id_field(model, shard_field_id)
-
+            if not shard and isinstance(getattr(model, 'pk'), PostgresShardGeneratedIDField) and \
+                    (hints.get('exact_lookups', {}).get('pk') is not None or hints.get('exact_lookups', {}).get('id') is not None):
+                shard = self.get_shard_for_postgres_pk_field(
+                    hints.get('exact_lookups', {}).get('pk') or hints.get('exact_lookups', {}).get('id')
+                )
             return shard
         return None
 

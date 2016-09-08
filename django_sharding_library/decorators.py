@@ -85,10 +85,12 @@ def model_config(shard_group=None, database=None, sharded_by_field=None):
                         if not len(managers) > 0:
                             cls.add_to_class('objects', ShardManager())
                         elif not any([isinstance(x, ShardManager) for x in managers]):
-                            raise ShardedModelInitializationException('Please either do not specify a manager in your '
-                                                                  'abstract base class %s, or if you are using a '
-                                                                  'custom manager, your custom manager must '
-                                                                  'inherit from ``ShardManager``' % cls.__name__)
+                            raise ShardedModelInitializationException(
+                                'Please either do not specify a manager in your '
+                                'abstract base class %s, or if you are using a '
+                                'custom manager, your custom manager must '
+                                'inherit from ``ShardManager``' % cls.__name__
+                            )
                     else:
                         # If it gets to this point, the error is a Django error and not a library one. Pass it through.
                         raise e

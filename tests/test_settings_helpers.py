@@ -207,7 +207,6 @@ class DatabaseConfigsTestCase(TestCase):
         self.assertEqual(result['DB04'], DB04)
         self.assertEqual(result['DB05'], DB05)
 
-
     def test_unsharded_replica_database(self):
         simple_config = {
             'unsharded_databases': [

@@ -455,7 +455,7 @@ class RouterForPostgresIDFieldTest(TransactionTestCase):
 
     @unittest.skipIf(settings.DATABASES['default']['ENGINE'] not in Backends.POSTGRES, "Not a postgres backend")
     def test_postgres_sharded_id_can_be_queried_without_using_and_without_sharded_by(self):
-        created_model = PostgresCustomIDModel.objects.create(random_string='Test String', user_pk=1)
+        created_model = PostgresCustomIDModel.objects.create(random_string='Test String', user_pk=self.user.id)
         self.assertTrue(getattr(created_model, 'id'))
 
         self.assertTrue(isinstance(PostgresCustomIDModel._meta.pk, PostgresShardGeneratedIDField))

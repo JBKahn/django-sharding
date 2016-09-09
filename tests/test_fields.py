@@ -179,6 +179,10 @@ class ShardForeignKeyStorageFieldTestCase(TestCase):
 
 class PostgresShardIdFieldTestCase(TestCase):
 
+    def setUp(self):
+        from django.contrib.auth import get_user_model
+        self.user = get_user_model().objects.create_user(username='username', password='pwassword', email='test@example.com')
+
     @unittest.skipIf(settings.DATABASES['default']['ENGINE'] not in Backends.POSTGRES, "Not a postgres backend")
     def test_check_shard_id_function(self):
         cursor = connections['default'].cursor()
@@ -196,7 +200,7 @@ class PostgresShardIdFieldTestCase(TestCase):
 
     @unittest.skipIf(settings.DATABASES['default']['ENGINE'] not in Backends.POSTGRES, "Not a postgres backend")
     def test_check_shard_id_returns_with_model_save(self):
-        created_model = PostgresCustomIDModel.objects.create(random_string='Test String', user_pk=1)
+        created_model = PostgresCustomIDModel.objects.create(random_string='Test String', user_pk=self.user.id)
         self.assertTrue(getattr(created_model, 'id'))
 
         # Same as above, lets create an id that would have been made 10 seconds ago and make sure the one that was

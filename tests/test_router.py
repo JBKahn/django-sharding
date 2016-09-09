@@ -80,7 +80,7 @@ class RouterReadTestCase(TransactionTestCase):
 
         with patch.object(ShardedRouter, 'db_for_write', wraps=self.sut.db_for_write) as write_route_function:
             with patch.object(ShardedRouter, 'db_for_read', wraps=self.sut.db_for_read) as read_route_function:
-                list(TestModel.objects.get(id=original_id))
+                TestModel.objects.get(id=original_id)
         lookups_to_find = {'exact_lookups': {'id': original_id}}
         self.assertEqual(
             [call(TestModel, **lookups_to_find), call(get_user_model())],
@@ -93,7 +93,7 @@ class RouterReadTestCase(TransactionTestCase):
 
         with patch.object(ShardedRouter, 'db_for_write', wraps=self.sut.db_for_write) as write_route_function:
             with patch.object(ShardedRouter, 'db_for_read', wraps=self.sut.db_for_read) as read_route_function:
-                list(TestModel.objects.get(pk=original_id))
+                TestModel.objects.get(pk=original_id)
         lookups_to_find = {'exact_lookups': {'pk': original_id}}
         self.assertEqual(
             [call(TestModel, **lookups_to_find), call(get_user_model())],

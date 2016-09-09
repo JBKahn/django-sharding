@@ -51,13 +51,13 @@ DATABASES = database_configs(databases_dict={
             'name': 'app_shard_003',
             'shard_group': 'postgres',
             'environment_variable': 'SHARD_003_DATABASE_URL',
-            'default_database_url': 'postgres://postgres:@localhost/sharding_003' if TRAVISCI else 'sqlite://testing128'
+            'default_database_url': 'postgres://postgres:@localhost/shard_003' if TRAVISCI else 'sqlite://testing128'
         },
         {
             'name': 'app_shard_004',
             'shard_group': 'postgres',
             'environment_variable': 'SHARD_004_DATABASE_URL',
-            'default_database_url': 'postgres://postgres:@localhost/sharding_004' if TRAVISCI else 'sqlite://testing129'
+            'default_database_url': 'postgres://postgres:@localhost/shard_004' if TRAVISCI else 'sqlite://testing129'
         },
     ]
 })

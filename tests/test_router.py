@@ -12,6 +12,7 @@ from django_sharding_library.router import ShardedRouter
 from django_sharding_library.routing_read_strategies import BaseRoutingStrategy
 from django_sharding_library.fields import PostgresShardGeneratedIDField
 from django_sharding_library.constants import Backends
+from django_sharding_library.manager import ShardManager
 
 from django.db.models import Sum
 
@@ -459,6 +460,8 @@ class RouterForPostgresIDFieldTest(TransactionTestCase):
         self.assertTrue(getattr(created_model, 'id'))
 
         self.assertTrue(isinstance(PostgresCustomIDModel._meta.pk, PostgresShardGeneratedIDField))
+
+        self.assertTrue(isinstance(PostgresCustomIDModel.objects, ShardManager))
 
         instance = PostgresCustomIDModel.objects.get(id=created_model.id)
         self.assertEqual(created_model._state.db, instance._state.db)

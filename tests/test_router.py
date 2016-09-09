@@ -479,7 +479,7 @@ class RouterForPostgresIDFieldTest(TransactionTestCase):
         created_model = PostgresCustomIDModel.objects.create(random_string='Test String', user_pk=1)
         self.assertTrue(getattr(created_model, 'id'))
 
-        self.assertTrue(isinstance(PostgresCustomIDModel.pk, PostgresShardGeneratedIDField))
+        self.assertTrue(isinstance(PostgresCustomIDModel._meta.pk, PostgresShardGeneratedIDField))
 
         instance = PostgresCustomIDModel.objects.get(id=created_model.id)
         self.assertEqual(created_model._state.db, instance._state.db)

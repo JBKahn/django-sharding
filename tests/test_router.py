@@ -10,6 +10,8 @@ from tests.models import TestModel, ShardedTestModelIDs, PostgresCustomIDModel
 from django_sharding_library.exceptions import InvalidMigrationException
 from django_sharding_library.router import ShardedRouter
 from django_sharding_library.routing_read_strategies import BaseRoutingStrategy
+from django_sharding_library.fields import PostgresShardGeneratedIDField
+from django_sharding_library.constants import Backends
 
 from django.db.models import Sum
 
@@ -477,6 +479,10 @@ class RouterForPostgresIDFieldTest(TransactionTestCase):
         created_model = PostgresCustomIDModel.objects.create(random_string='Test String', user_pk=1)
         self.assertTrue(getattr(created_model, 'id'))
 
+        self.assertTrue(isinstance(PostgresCustomIDModel.pk, PostgresShardGeneratedIDField))
+
         instance = PostgresCustomIDModel.objects.get(id=created_model.id)
+        self.assertEqual(created_model._state.db, instance._state.db)
 
         instance = PostgresCustomIDModel.objects.get(pk=created_model.id)
+        self.assertEqual(created_model._state.db, instance._state.db)

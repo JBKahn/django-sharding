@@ -65,6 +65,7 @@ class ShardedRouter(object):
             if not shard and isinstance(getattr(model._meta, 'pk'), PostgresShardGeneratedIDField) and \
                     (hints.get('exact_lookups', {}).get('pk') is not None or hints.get('exact_lookups', {}).get('id') is not None):
                 shard = self.get_shard_for_postgres_pk_field(
+                    model,
                     hints.get('exact_lookups', {}).get('pk') or hints.get('exact_lookups', {}).get('id')
                 )
             return shard

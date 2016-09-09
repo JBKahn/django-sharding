@@ -78,32 +78,6 @@ class RouterReadTestCase(TransactionTestCase):
             write_route_function.mock_calls
         )
 
-        with patch.object(ShardedRouter, 'db_for_write', wraps=self.sut.db_for_write) as write_route_function:
-            with patch.object(ShardedRouter, 'db_for_read', wraps=self.sut.db_for_read) as read_route_function:
-                TestModel.objects.get(id=original_id)
-        lookups_to_find = {'exact_lookups': {'id': original_id}}
-        self.assertEqual(
-            [call(TestModel, **lookups_to_find), call(get_user_model())],
-            read_route_function.mock_calls
-        )
-        self.assertEqual(
-            [],
-            write_route_function.mock_calls
-        )
-
-        with patch.object(ShardedRouter, 'db_for_write', wraps=self.sut.db_for_write) as write_route_function:
-            with patch.object(ShardedRouter, 'db_for_read', wraps=self.sut.db_for_read) as read_route_function:
-                TestModel.objects.get(pk=original_id)
-        lookups_to_find = {'exact_lookups': {'pk': original_id}}
-        self.assertEqual(
-            [call(TestModel, **lookups_to_find), call(get_user_model())],
-            read_route_function.mock_calls
-        )
-        self.assertEqual(
-            [],
-            write_route_function.mock_calls
-        )
-
     def test_router_hints_receives_get_kwargs_on_get_or_create__get(self):
         original_id = TestModel.objects.create(user_pk=self.user.pk).id
 

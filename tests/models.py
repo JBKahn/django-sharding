@@ -77,7 +77,7 @@ class ShardedByForiegnKeyModel(models.Model):
         return self.test.user_pk
 
 
-@model_config(database='default')
+@model_config(shard_group="postgres", sharded_by_field="user_pk")
 class PostgresCustomIDModel(models.Model):
     if settings.DATABASES['default']['ENGINE'] in Backends.POSTGRES:
         id = PostgresShardGeneratedIDField(primary_key=True)

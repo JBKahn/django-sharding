@@ -87,3 +87,9 @@ class PostgresCustomIDModel(models.Model):
     def get_shard(self):
         from django.contrib.auth import get_user_model
         return get_user_model().objects.get(pk=self.user_pk).shard
+
+    @staticmethod
+    def get_shard_from_id(user_pk):
+        from django.contrib.auth import get_user_model
+        user = get_user_model()
+        return user.objects.get(pk=user_pk).shard

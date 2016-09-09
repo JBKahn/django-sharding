@@ -474,6 +474,11 @@ class RouterAllowMigrateTestCase(TransactionTestCase):
 
 class RouterForPostgresIDFieldTest(TransactionTestCase):
 
+    def setUp(self):
+        from django.contrib.auth import get_user_model
+        self.sut = ShardedRouter()
+        self.user = get_user_model().objects.create_user(username='username', password='pwassword', email='test@example.com')
+
     @unittest.skipIf(settings.DATABASES['default']['ENGINE'] not in Backends.POSTGRES, "Not a postgres backend")
     def test_postgres_sharded_id_can_be_queried_without_using_and_without_sharded_by(self):
         created_model = PostgresCustomIDModel.objects.create(random_string='Test String', user_pk=1)
@@ -486,3 +491,8 @@ class RouterForPostgresIDFieldTest(TransactionTestCase):
 
         instance = PostgresCustomIDModel.objects.get(pk=created_model.id)
         self.assertEqual(created_model._state.db, instance._state.db)
+
+    @unittest.skipIf(settings.DATABASES['default']['ENGINE'] not in Backends.POSTGRES, "Not a postgres backend")
+    def test_shard_extracted_correctly(self):
+        created_model = PostgresCustomIDModel.objects.create(random_string='Test String', user_pk=self.user.pk)
+        self.assertEqual(self.user.shard, self.sut.get_shard_for_postgres_pk_field(PostgresCustomIDModel, created_model.id))

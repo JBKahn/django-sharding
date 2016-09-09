@@ -6,7 +6,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.test import TransactionTestCase
 
-from tests.models import TestModel, ShardedTestModelIDs, PostgresCustomIDModel
+from tests.models import TestModel, ShardedTestModelIDs, PostgresCustomIDModel, PostgresShardUser
 from django_sharding_library.exceptions import InvalidMigrationException
 from django_sharding_library.router import ShardedRouter
 from django_sharding_library.routing_read_strategies import BaseRoutingStrategy
@@ -451,7 +451,7 @@ class RouterForPostgresIDFieldTest(TransactionTestCase):
     def setUp(self):
         from django.contrib.auth import get_user_model
         self.sut = ShardedRouter()
-        self.user = get_user_model().objects.create_user(username='username', password='pwassword', email='test@example.com')
+        self.user = PostgresShardUser.objects.create_user(username='username', password='pwassword', email='test@example.com')
 
     @unittest.skipIf(settings.DATABASES['default']['ENGINE'] not in Backends.POSTGRES, "Not a postgres backend")
     def test_postgres_sharded_id_can_be_queried_without_using_and_without_sharded_by(self):

@@ -24,7 +24,8 @@ from tests.models import (
     ShardedTestModelIDs,
     TestModel,
     ShardStorageTable,
-    PostgresCustomIDModel
+    PostgresCustomIDModel,
+    PostgresShardUser
 )
 
 
@@ -181,7 +182,7 @@ class PostgresShardIdFieldTestCase(TestCase):
 
     def setUp(self):
         from django.contrib.auth import get_user_model
-        self.user = get_user_model().objects.create_user(username='username', password='pwassword', email='test@example.com')
+        self.user = PostgresShardUser.objects.create_user(username='username', password='pwassword', email='test@example.com')
 
     @unittest.skipIf(settings.DATABASES['default']['ENGINE'] not in Backends.POSTGRES, "Not a postgres backend")
     def test_check_shard_id_function(self):

@@ -22,10 +22,16 @@ class ShardedRouter(object):
         return getattr(model, 'django_sharding__database', None)
 
     def get_shard_for_instance(self, instance):
-        return instance._state.db or instance.get_shard()
+        try:
+            return instance._state.db or instance.get_shard()
+        except:
+            return None
 
     def get_shard_for_id_field(self, model, sharded_by_field_id):
-        return model.get_shard_from_id(sharded_by_field_id)
+        try:
+            return model.get_shard_from_id(sharded_by_field_id)
+        except:
+            return None
 
     def get_shard_for_postgres_pk_field(self, model, pk_value):
         group = getattr(model, 'django_sharding__shard_group', None)
@@ -58,10 +64,8 @@ class ShardedRouter(object):
             if instance:
                 shard = self.get_shard_for_instance(instance)
             if not shard and model_has_sharded_id_field and shard_field_id:
-                try:
-                    shard = self.get_shard_for_id_field(model, shard_field_id)
-                except:
-                    shard = self.get_shard_for_id_field(model, shard_field_id)
+                # todo: think of why this could fail
+                shard = self.get_shard_for_id_field(model, shard_field_id)
             if not shard and isinstance(getattr(model._meta, 'pk'), PostgresShardGeneratedIDField) and \
                     (hints.get('exact_lookups', {}).get('pk') is not None or hints.get('exact_lookups', {}).get('id') is not None):
                 shard = self.get_shard_for_postgres_pk_field(

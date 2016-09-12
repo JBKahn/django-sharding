@@ -450,7 +450,6 @@ class RouterAllowMigrateTestCase(TransactionTestCase):
 class RouterForPostgresIDFieldTest(TransactionTestCase):
 
     def setUp(self):
-        from django.contrib.auth import get_user_model
         self.sut = ShardedRouter()
         self.user = PostgresShardUser.objects.create_user(username='username', password='pwassword', email='test@example.com')
 

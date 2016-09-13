@@ -78,8 +78,8 @@ class ShardManager(Manager):
         return ShardQuerySet(model=self.model)
 
     def _wrap(func_name):
-        def wrapped(self, **kwargs):
-            return getattr(self.get_queryset(), func_name)(**kwargs)
+        def wrapped(self, *args, **kwargs):
+            return getattr(self.get_queryset(), func_name)(*args, **kwargs)
 
         wrapped.__name__ = func_name
         return wrapped

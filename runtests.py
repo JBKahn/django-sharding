@@ -81,10 +81,14 @@ def run_tests(*test_args):
     TestRunner = get_runner(settings)
     test_runner = TestRunner()
 
+    location = (os.environ.get('TRAVIS') and "postgres and mysql") or "sqlite"
+    print("I am running tests on {}".format(location))
+
     failures = test_runner.run_tests(test_args, interactive=False)
 
     if failures:
         sys.exit(bool(failures))
+
     sys.exit(0)
 
 

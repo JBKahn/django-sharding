@@ -38,7 +38,7 @@ class Migration(migrations.Migration):
     ]
 ```
 
-### case 2: `model_name` as a hints
+### case 2: `model_name` passed in hints
 
 The following code will execute on each database that has the `User` model on it.
 
@@ -72,7 +72,7 @@ class Migration(migrations.Migration):
 ```
 
 
-### case 3: `force_migrate_on_databases` as a hints
+### case 3: `force_migrate_on_databases` passed in hints
 
 In order to allow for custom behaviour as there is no way to force `Django` to migrate on
 a specific set of databases during `migrate`. It will noop on databases which it *things* do not

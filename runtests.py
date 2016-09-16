@@ -14,8 +14,6 @@ except ImportError:
     raise ImportError("To fix this error, run: pip install -r requirements-test.txt")
 
 
-TRAVISCI = os.environ.get('TRAVIS')
-
 DATABASES = database_configs(databases_dict={
     'unsharded_databases': [
         {

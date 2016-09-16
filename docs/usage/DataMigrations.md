@@ -6,6 +6,7 @@ on what hints (if any) are passed by `RunPython`.
 ### case 1: No hints
 
 The following code will execute on each database that has at least one model in the app where the migration is stored.
+You will need to take this into account when writing your python code, as int he example below.
 
 ```python
 from __future__ import unicode_literals
@@ -13,10 +14,15 @@ from __future__ import unicode_literals
 from django.conf import settings
 from django.db import migrations
 
+from django_sharding_library.utils import is_model_class_on_database
+
 
 def do_the_stuff(apps, schema_editor):
-    User = apps.get_model("auth", "User")
-    # Do things.
+  User = apps.get_model("auth", "User")
+  current_database = schema_editor.connection.alias
+
+  if is_model_class_on_database(model=User, database=database):
+      User.objects.using(database).update(password="*******")
 
 
 class Migration(migrations.Migration):
@@ -47,7 +53,9 @@ from django.db import migrations
 
 def do_the_stuff(apps, schema_editor):
     User = apps.get_model("auth", "User")
-    # Do things.
+    current_database = schema_editor.connection.alias
+
+    User.objects.using(database).update(password="*******")
 
 
 class Migration(migrations.Migration):
@@ -71,6 +79,7 @@ a specific set of databases during `migrate`. It will noop on databases which it
 need the migration. This is a way around that.
 
 The following code will execute on each database in the `force_migrate_on_databases` list.
+You will need to take this into account when writing your python code, as in the example below.
 
 ```python
 from __future__ import unicode_literals
@@ -78,10 +87,15 @@ from __future__ import unicode_literals
 from django.conf import settings
 from django.db import migrations
 
+from django_sharding_library.utils import is_model_class_on_database
+
 
 def do_the_stuff(apps, schema_editor):
-    User = apps.get_model("auth", "User")
-    # Do things.
+  User = apps.get_model("auth", "User")
+  current_database = schema_editor.connection.alias
+
+  if is_model_class_on_database(model=User, database=database):
+      User.objects.using(database).update(password="*******")
 
 
 class Migration(migrations.Migration):

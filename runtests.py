@@ -14,38 +14,36 @@ except ImportError:
     raise ImportError("To fix this error, run: pip install -r requirements-test.txt")
 
 
-TRAVISCI = os.environ.get('TRAVIS')
-
 DATABASES = database_configs(databases_dict={
     'unsharded_databases': [
         {
             'name': 'default',
             'environment_variable': 'DATABASE_URL',
-            'default_database_url': 'postgres://postgres:@localhost/default' if TRAVISCI else 'sqlite://testing123'
+            'default_database_url': 'sqlite://testing123'
         }
     ],
     'sharded_databases': [
         {
             'name': 'app_shard_001',
             'environment_variable': 'SHARD_001_DATABASE_URL',
-            'default_database_url': 'postgres://postgres:@localhost/sharding_001' if TRAVISCI else 'sqlite://testing124',
+            'default_database_url': 'sqlite://testing124',
             'replicas': [
                 {
                     'name': 'app_shard_001_replica_001',
                     'environment_variable': 'REPLICA_001_DATABASE_URL',
-                    'default_database_url': 'postgres://postgres:@localhost/sharding_replica_001' if TRAVISCI else 'sqlite://testing125'
+                    'default_database_url': 'sqlite://testing125'
                 },
                 {
                     'name': 'app_shard_001_replica_002',
                     'environment_variable': 'REPLICA_002_DATABASE_URL',
-                    'default_database_url': 'postgres://postgres:@localhost/sharding_replica_002' if TRAVISCI else 'sqlite://testing126'
+                    'default_database_url': 'sqlite://testing126'
                 },
             ]
         },
         {
             'name': 'app_shard_002',
             'environment_variable': 'SHARD_002_DATABASE_URL',
-            'default_database_url': 'mysql://travis:@localhost/sharding_002' if TRAVISCI else 'sqlite://testing127'
+            'default_database_url': 'sqlite://testing127'
         },
         {
             'name': 'app_shard_003',
@@ -95,10 +93,14 @@ def run_tests(*test_args):
     TestRunner = get_runner(settings)
     test_runner = TestRunner()
 
+    location = (os.environ.get('TRAVIS') and "postgres and mysql") or "sqlite"
+    print("I am running tests on {}".format(location))
+
     failures = test_runner.run_tests(test_args, interactive=False)
 
     if failures:
         sys.exit(bool(failures))
+
     sys.exit(0)
 
 

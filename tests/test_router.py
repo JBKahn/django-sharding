@@ -58,7 +58,7 @@ class RouterReadTestCase(TransactionTestCase):
 
     def test_other(self):
         from django.contrib.auth import get_user_model
-        self.assertEqual(self.sut.db_for_read(model=get_user_model()), None)
+        self.assertEqual(self.sut.db_for_read(model=get_user_model()), "default")
 
     def test_router_hints_receives_get_kwargs(self):
         original_id = TestModel.objects.create(user_pk=self.user.pk).id
@@ -300,7 +300,7 @@ class RouterWriteTestCase(TransactionTestCase):
 
     def test_other(self):
         from django.contrib.auth import get_user_model
-        self.assertEqual(self.sut.db_for_write(model=get_user_model()), None)
+        self.assertEqual(self.sut.db_for_write(model=get_user_model()), "default")
 
     def test_create_sharded_object_without_using(self):
         instance = TestModel.objects.create(user_pk=self.user.pk)
@@ -320,13 +320,6 @@ class RouterAllowRelationTestCase(TransactionTestCase):
         item_two = ShardedTestModelIDs.objects.create(stub=None)
         self.assertTrue(self.sut.allow_relation(item_one, item_two))
 
-    def test_not_allow_relation_two_items_on_the_different_non_default_database(self):
-        class FakeModel(object):
-            database = 'one'
-        item_one = ShardedTestModelIDs.objects.create(stub=None)
-
-        self.assertFalse(self.sut.allow_relation(item_one, FakeModel()))
-
     def test_do_not_allow_relation_of_item_on_specific_database__and_non_sharded_non_specific_database_instances(self):
         item_one = ShardedTestModelIDs.objects.create(stub=None)
         self.assertFalse(self.sut.allow_relation(item_one, self.user))
@@ -341,8 +334,13 @@ class RouterAllowRelationTestCase(TransactionTestCase):
         item_two = TestModel.objects.using('app_shard_001').create(random_string=2, user_pk=self.user.pk)
         self.assertTrue(self.sut.allow_relation(item_one, item_two))
 
-    def test_do_not_allow_relation_of_sharded_instance_and_item_on_specific_db(self):
+    def test_allow_relation_of_sharded_instance_and_item_on_specific_db(self):
         item_one = TestModel.objects.using('app_shard_001').create(random_string=2, user_pk=self.user.pk)
+        item_two = ShardedTestModelIDs.objects.create(stub=None)
+        self.assertTrue(self.sut.allow_relation(item_one, item_two))
+
+    def test_do_not_allow_relation_of_sharded_instance_and_item_on_specific_db_when_on_different_dbs(self):
+        item_one = TestModel.objects.using('app_shard_002').create(random_string=2, user_pk=self.user.pk)
         item_two = ShardedTestModelIDs.objects.create(stub=None)
         self.assertFalse(self.sut.allow_relation(item_one, item_two))
 
@@ -379,21 +377,46 @@ class RouterAllowMigrateTestCase(TransactionTestCase):
         if migratable_db:
             self.assertTrue(self.sut.allow_migrate(db=migratable_db, app_label=app_label, model_name=model_name))
 
-    def test_requires_model_name_to_be_passed_in(self):
-        with self.assertRaises(InvalidMigrationException):
-            self.sut.allow_migrate(db='default', app_label='tests')
+    def test_model_name_passed_in(self):
+        self.assertTrue(self.sut.allow_migrate(db='default', app_label='tests', model_name="User"))
+        self.assertFalse(self.sut.allow_migrate(db='app_shard_001', app_label='tests', model_name="User"))
+        self.assertFalse(self.sut.allow_migrate(db='app_shard_002', app_label='tests', model_name="User"))
+        self.assertFalse(self.sut.allow_migrate(db='app_shard_001_replica_001', app_label='tests', model_name="User"))
+        self.assertFalse(self.sut.allow_migrate(db='app_shard_001_replica_002', app_label='tests', model_name="User"))
 
-        self.sut.allow_migrate(db='default', app_label='tests', model_name='User')
-        hints = {'model_name': 'User'}
-        self.sut.allow_migrate(db='default', app_label='tests', **hints)
-
-    def test_requires_model_to_be_passed_in(self):
+    def test_model_passed_in(self):
         from django.contrib.auth import get_user_model
-        with self.assertRaises(InvalidMigrationException):
-            self.sut.allow_migrate(db='default', app_label='tests')
 
         hints = {'model': get_user_model()}
-        self.sut.allow_migrate(db='default', app_label='tests', model_name=None, **hints)
+
+        self.assertTrue(self.sut.allow_migrate(db='default', app_label='tests', model_name=None, **hints))
+        self.assertFalse(self.sut.allow_migrate(db='app_shard_001', app_label='tests', model_name=None, **hints))
+        self.assertFalse(self.sut.allow_migrate(db='app_shard_002', app_label='tests', model_name=None, **hints))
+        self.assertFalse(self.sut.allow_migrate(db='app_shard_001_replica_001', app_label='tests', model_name=None, **hints))
+        self.assertFalse(self.sut.allow_migrate(db='app_shard_001_replica_002', app_label='tests', model_name=None, **hints))
+
+    def test_app_passed_in(self):
+        self.assertTrue(self.sut.allow_migrate(db='default', app_label='tests'))
+        self.assertTrue(self.sut.allow_migrate(db='app_shard_001', app_label='tests'))
+        self.assertTrue(self.sut.allow_migrate(db='app_shard_002', app_label='tests'))
+        self.assertFalse(self.sut.allow_migrate(db='app_shard_001_replica_001', app_label='tests'))
+        self.assertFalse(self.sut.allow_migrate(db='app_shard_001_replica_002', app_label='tests'))
+
+    def test_force_migrate_on_databases(self):
+        hints = {"force_migrate_on_databases": ["app_shard_001"]}
+        self.assertFalse(self.sut.allow_migrate(db='default', app_label='tests', **hints))
+        self.assertTrue(self.sut.allow_migrate(db='app_shard_001', app_label='tests', **hints))
+        self.assertFalse(self.sut.allow_migrate(db='app_shard_002', app_label='tests', **hints))
+        self.assertFalse(self.sut.allow_migrate(db='app_shard_001_replica_001', app_label='tests', **hints))
+        self.assertFalse(self.sut.allow_migrate(db='app_shard_001_replica_002', app_label='tests', **hints))
+
+    def test_force_migrate_on_databases_ignores_secondary(self):
+        hints = {"force_migrate_on_databases": ["app_shard_001_replica_001"]}
+        self.assertFalse(self.sut.allow_migrate(db='default', app_label='tests', **hints))
+        self.assertFalse(self.sut.allow_migrate(db='app_shard_001', app_label='tests', **hints))
+        self.assertFalse(self.sut.allow_migrate(db='app_shard_002', app_label='tests', **hints))
+        self.assertFalse(self.sut.allow_migrate(db='app_shard_001_replica_001', app_label='tests', **hints))
+        self.assertFalse(self.sut.allow_migrate(db='app_shard_001_replica_002', app_label='tests', **hints))
 
     def test_migrate_replica_will_not_work(self):
         self.assertFalse(self.sut.allow_migrate(db='app_shard_001_replica_001', app_label='tests', model_name='TestModel'))
@@ -401,16 +424,20 @@ class RouterAllowMigrateTestCase(TransactionTestCase):
 
     def test_migrate_sharded_model_with_specific_database_will_not_work(self):
         sut = ShardedRouter()
-        sut.get_specific_database_or_none = lambda self: 'default'
-        sut.get_shard_group_if_sharded_or_none = lambda self: 'default'
-        with self.assertRaises(InvalidMigrationException):
-            sut.allow_migrate(db='default', app_label='tests', model_name='TestModel')
 
-        sut.get_specific_database_or_none = lambda self: None
-        sut.allow_migrate(db='default', app_label='tests', model_name='TestModel')
+        with patch.object(TestModel, "django_sharding__database", 'blah', create=True):
+            with patch.object(TestModel, "django_sharding__is_sharded", True, create=True):
+                with self.assertRaises(InvalidMigrationException):
+                    sut.allow_migrate(db='default', app_label='tests', model_name='TestModel')
 
-        sut.get_specific_database_or_none = lambda self: 'default'
-        sut.get_shard_group_if_sharded_or_none = lambda self: None
+        with patch.object(TestModel, "django_sharding__database", 'blah', create=True):
+            with patch.object(TestModel, "django_sharding__is_sharded", False, create=True):
+                sut.allow_migrate(db='default', app_label='tests', model_name='TestModel')
+
+        with patch.object(TestModel, "django_sharding__database", None, create=True):
+            with patch.object(TestModel, "django_sharding__is_sharded", True, create=True):
+                sut.allow_migrate(db='default', app_label='tests', model_name='TestModel')
+
         sut.allow_migrate(db='default', app_label='tests', model_name='TestModel')
 
     def test_django_model_only_allows_on_default(self):

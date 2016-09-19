@@ -17,7 +17,6 @@ class ShardedModelIDs(TableStrategyModel):
 # An implimentation of the extension of a the Django user to add
 # the mixin provided in order to save the shard on the user.
 class User(AbstractUser, ShardedByMixin):
-    shard_group = 'default'
     django_sharding__shard_group = 'default'
 
 

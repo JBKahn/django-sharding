@@ -1,10 +1,13 @@
-import inspect
-
 from django.apps import apps
 from django.conf import settings
 
-from django_sharding_library.exceptions import InvalidMigrationException
 from django_sharding_library.fields import PostgresShardGeneratedIDField
+from django_sharding_library.exceptions import DjangoShardingException, InvalidMigrationException
+from django_sharding_library.utils import (
+    is_model_class_on_database,
+    get_database_for_model_instance,
+    get_possible_databases_for_model,
+)
 
 
 class ShardedRouter(object):
@@ -13,24 +16,14 @@ class ShardedRouter(object):
     the wrong database as well as infer, when possible, which database to
     read or write from.
     """
-    def get_shard_group_if_sharded_or_none(self, model):
-        if getattr(model, 'django_sharding__is_sharded', False):
-            return getattr(model, 'django_sharding__shard_group', None)
-        return None
-
-    def get_specific_database_or_none(self, model):
-        return getattr(model, 'django_sharding__database', None)
-
-    def get_shard_for_instance(self, instance):
-        try:
-            return instance._state.db or instance.get_shard()
-        except:
-            return None
 
     def get_shard_for_id_field(self, model, sharded_by_field_id):
         try:
             return model.get_shard_from_id(sharded_by_field_id)
-        except:
+        except Exception:
+            # This is overly broad on purpose: we dont know what a user might try to do to get a shard from an ID (our
+            # example is a .get(), but someone could do anything) and if it excepts, we want to fall back to the next
+            # attempt at grabbing a shard based on other potential filters
             return None
 
     def get_shard_for_postgres_pk_field(self, model, pk_value):
@@ -41,59 +34,63 @@ class ShardedRouter(object):
         for alias in settings.DATABASES.keys():
             if settings.DATABASES[alias]["SHARD_GROUP"] == group and settings.DATABASES[alias]["SHARD_ID"] == shard_id_to_find:
                 return alias
-        return None
+        return None  # Return None if we could not determine the shard so we can fall through to the next shard grab attempt
 
     def get_read_db_routing_strategy(self, shard_group):
         app_config_app_label = getattr(settings, 'DJANGO_SHARDING_SETTINGS', {}).get('APP_CONFIG_APP', 'django_sharding')
         return apps.get_app_config(app_config_app_label).get_routing_strategy(shard_group)
 
     def _get_shard(self, model, **hints):
-        if self.get_shard_group_if_sharded_or_none(model):
-            shard = None
-            instance = hints.get('instance')
-            model_has_sharded_id_field = getattr(model, 'django_sharding__sharded_by_field', None) is not None
+        shard = None
 
-            if model_has_sharded_id_field:
-                shard_field_id = hints.get('exact_lookups', {}).get(
-                    getattr(model, 'django_sharding__sharded_by_field'), None
-                )
+        model_has_sharded_id_field = getattr(model, 'django_sharding__sharded_by_field', None) is not None
 
-                if not shard_field_id and instance:
-                    shard_field_id = getattr(instance, getattr(model, 'django_sharding__sharded_by_field'), None)
-
-            if instance:
-                shard = self.get_shard_for_instance(instance)
-            if not shard and model_has_sharded_id_field and shard_field_id:
-                # todo: think of why this could fail
-                shard = self.get_shard_for_id_field(model, shard_field_id)
-            if not shard and isinstance(getattr(model._meta, 'pk'), PostgresShardGeneratedIDField) and \
+        #####
+        #
+        # This is setup as multiple IF statements on purpose. If any attempt to get a shard fails, the function that
+        # tried to get the shard should return None that way the NEXT possible attempt to grab a shard can be run.
+        # In this way, future ways to automatically get the correct shard can be added, and at any point in the logic,
+        # and the first one to pick a valid shard will return the valid shard.
+        #
+        # Always return None if no valid shard was found so the default Django router will use the using() database if
+        # these all fail.
+        #
+        #####
+        if hints.get("instance", None):
+            shard = get_database_for_model_instance(instance=hints["instance"])
+        if shard is None and model_has_sharded_id_field:
+            sharded_by_field_id = hints.get('exact_lookups', {}).get(
+                getattr(model, 'django_sharding__sharded_by_field'), None
+            )
+            if sharded_by_field_id:
+                shard = model.get_shard_from_id(sharded_by_field_id)
+        if shard is None and isinstance(getattr(model._meta, 'pk'), PostgresShardGeneratedIDField) and \
                     (hints.get('exact_lookups', {}).get('pk') is not None or hints.get('exact_lookups', {}).get('id') is not None):
-                shard = self.get_shard_for_postgres_pk_field(
+                return self.get_shard_for_postgres_pk_field(
                     model,
                     hints.get('exact_lookups', {}).get('pk') or hints.get('exact_lookups', {}).get('id')
                 )
-            return shard
-        return None
+
+        return shard
 
     def db_for_read(self, model, **hints):
-        specific_database = self.get_specific_database_or_none(model)
-        if specific_database:
-            return specific_database
+        possible_databases = get_possible_databases_for_model(model=model)
+        if len(possible_databases) == 1:
+            return possible_databases[0]
 
         shard = self._get_shard(model, **hints)
         if shard:
-            # TODO: remove the second, should not use the shard_group attribute anywhere anymore
-            shard_group = getattr(model, 'django_sharding__shard_group', getattr(model, 'shard_group', None))
+            shard_group = getattr(model, 'django_sharding__shard_group', None)
             if not shard_group:
-                raise Exception('Unable to identify the shard_group for the {} model'.format(model))
+                raise DjangoShardingException('Unable to identify the shard_group for the {} model'.format(model))
             routing_strategy = self.get_read_db_routing_strategy(shard_group)
             return routing_strategy.pick_read_db(shard)
         return None
 
     def db_for_write(self, model, **hints):
-        specific_database = self.get_specific_database_or_none(model)
-        if specific_database:
-            return specific_database
+        possible_databases = get_possible_databases_for_model(model=model)
+        if len(possible_databases) == 1:
+            return possible_databases[0]
 
         shard = self._get_shard(model, **hints)
 
@@ -107,33 +104,36 @@ class ShardedRouter(object):
         Only allow relationships between two items which are both on only one database or
         between sharded items on the same shard.
         """
-        if self.get_specific_database_or_none(obj1) != self.get_specific_database_or_none(obj2):
-            return False
-        elif self.get_specific_database_or_none(obj1):
+
+        object1_databases = get_possible_databases_for_model(model=obj1._meta.model)
+        object2_databases = get_possible_databases_for_model(model=obj2._meta.model)
+
+        if (len(object1_databases) == len(object2_databases) == 1) and (object1_databases == object2_databases):
             return True
-        if self.get_shard_group_if_sharded_or_none(type(obj1)) != self.get_shard_group_if_sharded_or_none(type(obj2)):
-            return False
-        elif self.get_shard_group_if_sharded_or_none(type(obj1)):
-            return self.get_shard_for_instance(obj1) == self.get_shard_for_instance(obj2)
-        return True
+        return self.get_shard_for_instance(obj1) == self.get_shard_for_instance(obj2)
 
     def allow_migrate(self, db, app_label, model_name=None, **hints):
         if settings.DATABASES[db].get('PRIMARY', None):
             return False
+
+        # Since the API for this function is limiting in a sharded environemnt,
+        # we provide an override to specify which databases to run the migrations
+        # on.
+        if hints.get("force_migrate_on_databases", None):
+            return db in hints["force_migrate_on_databases"]
+
         model_name = model_name or hints.get('model_name')
         model = hints.get('model')
         if model:
             model_name = model.__name__
 
-        # New versions of Django use the router to make migrations with no hints.....
-        making_migrations = any(['django/core/management/commands/makemigrations.py' in i[1] for i in inspect.stack()])
-        if making_migrations:
-            return True
-
+        # Return true if any model in the app is on this database.
         if not model_name:
-            raise InvalidMigrationException(
-                'Model name not provided in migration, please pass a `model_name` or `model` with the hints passed into the migration.'
-            )
+            app = apps.get_app_config(app_label)
+            for model in app.get_models():
+                if is_model_class_on_database(model=model, database=db):
+                    return True
+            return False
 
         # Sometimes, when extending models from another app i.e. the User Model, the app label
         # is the app label of the app where the change is defined but to app with the model is
@@ -146,14 +146,9 @@ class ShardedRouter(object):
             app = apps.get_app_config(app_label)
             model = app.get_model(model_name[len(app_label) + 1:])
 
-        single_database = self.get_specific_database_or_none(model)
-        shard_group = self.get_shard_group_if_sharded_or_none(model)
-        if shard_group and single_database:
+        try:
+            return is_model_class_on_database(model=model, database=db)
+        except DjangoShardingException as e:
             raise InvalidMigrationException(
-                'Model marked as both sharded and on a single database, unable to determine where to run migrations for {}.'.format(model_name)
+                e.args[0]
             )
-        if single_database:
-            return db == single_database
-        if shard_group:
-            return settings.DATABASES[db]['SHARD_GROUP'] == shard_group
-        return db == 'default'

@@ -14,7 +14,7 @@ from django_sharding_library.fields import PostgresShardGeneratedIDField
 from django_sharding_library.constants import Backends
 from django_sharding_library.manager import ShardManager
 
-from django.db.models import Sum
+from django.db.models import Sum, Q
 
 
 class FakeRoutingStrategy(BaseRoutingStrategy):
@@ -232,6 +232,42 @@ class RouterReadTestCase(TransactionTestCase):
         with patch.object(ShardedRouter, 'db_for_write', wraps=self.sut.db_for_write) as write_route_function:
             with patch.object(ShardedRouter, 'db_for_read', wraps=self.sut.db_for_read) as read_route_function:
                 list(TestModel.objects.filter(user_pk=self.user.pk))
+
+        self.assertEqual(
+            [call(TestModel, **lookups_to_find), call(get_user_model())],
+            read_route_function.mock_calls
+        )
+        self.assertEqual(
+            [],
+            write_route_function.mock_calls
+        )
+
+    def test_router_gets_hints_correctly_with_positional_arguments_like_Q_in_filter(self):
+        TestModel.objects.create(user_pk=self.user.pk, random_string="test")
+
+        lookups_to_find = {'exact_lookups': {'user_pk': self.user.pk}}
+
+        with patch.object(ShardedRouter, 'db_for_write', wraps=self.sut.db_for_write) as write_route_function:
+            with patch.object(ShardedRouter, 'db_for_read', wraps=self.sut.db_for_read) as read_route_function:
+                list(TestModel.objects.filter(Q(test_string="test") | Q(test_string__isnull=True), user_pk=self.user.pk))
+
+        self.assertEqual(
+            [call(TestModel, **lookups_to_find), call(get_user_model())],
+            read_route_function.mock_calls
+        )
+        self.assertEqual(
+            [],
+            write_route_function.mock_calls
+        )
+
+    def test_router_gets_hints_correctly_with_positional_arguments_like_Q_in_get(self):
+        TestModel.objects.create(user_pk=self.user.pk, random_string="test")
+
+        lookups_to_find = {'exact_lookups': {'user_pk': self.user.pk}}
+
+        with patch.object(ShardedRouter, 'db_for_write', wraps=self.sut.db_for_write) as write_route_function:
+            with patch.object(ShardedRouter, 'db_for_read', wraps=self.sut.db_for_read) as read_route_function:
+                list(TestModel.objects.get(Q(test_string="test") | Q(test_string__isnull=True), user_pk=self.user.pk))
 
         self.assertEqual(
             [call(TestModel, **lookups_to_find), call(get_user_model())],

@@ -63,7 +63,7 @@ class ShardedRouter(object):
                 getattr(model, 'django_sharding__sharded_by_field'), None
             )
             if sharded_by_field_id:
-                shard = model.get_shard_from_id(sharded_by_field_id)
+                shard = self.get_shard_for_id_field(model, sharded_by_field_id)
         if shard is None and isinstance(getattr(model._meta, 'pk'), PostgresShardGeneratedIDField) and \
                     (hints.get('exact_lookups', {}).get('pk') is not None or hints.get('exact_lookups', {}).get('id') is not None):
                 return self.get_shard_for_postgres_pk_field(

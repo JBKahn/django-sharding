@@ -17,6 +17,9 @@ class ShardedRouter(object):
     read or write from.
     """
 
+    def get_shard_for_instance(self, instance):
+        return instance._state.db or instance.get_shard()
+
     def get_shard_for_id_field(self, model, sharded_by_field_id):
         try:
             return model.get_shard_from_id(sharded_by_field_id)
@@ -31,9 +34,10 @@ class ShardedRouter(object):
         shard_id_to_find = int(bin(pk_value)[-23:-10], 2)  # We know where the shard id is stored in the PK's bits.
 
         # We can check the shard id from the PK against the shard ID in the databases config
-        for alias in settings.DATABASES.keys():
-            if settings.DATABASES[alias]["SHARD_GROUP"] == group and settings.DATABASES[alias]["SHARD_ID"] == shard_id_to_find:
+        for alias, db_settings in settings.DATABASES.items():
+            if db_settings["SHARD_GROUP"] == group and db_settings["SHARD_ID"] == shard_id_to_find:
                 return alias
+
         return None  # Return None if we could not determine the shard so we can fall through to the next shard grab attempt
 
     def get_read_db_routing_strategy(self, shard_group):
@@ -64,12 +68,12 @@ class ShardedRouter(object):
             )
             if sharded_by_field_id:
                 shard = self.get_shard_for_id_field(model, sharded_by_field_id)
-        if shard is None and isinstance(getattr(model._meta, 'pk'), PostgresShardGeneratedIDField) and \
-                    (hints.get('exact_lookups', {}).get('pk') is not None or hints.get('exact_lookups', {}).get('id') is not None):
-                return self.get_shard_for_postgres_pk_field(
-                    model,
-                    hints.get('exact_lookups', {}).get('pk') or hints.get('exact_lookups', {}).get('id')
-                )
+
+        is_pk_postgres_generated_id_field = isinstance(getattr(model._meta, 'pk'), PostgresShardGeneratedIDField)
+        lookup_pk = hints.get('exact_lookups', {}).get('pk') or hints.get('exact_lookups', {}).get('id')
+
+        if shard is None and is_pk_postgres_generated_id_field and lookup_pk is not None:
+            return self.get_shard_for_postgres_pk_field(model, lookup_pk)
 
         return shard
 

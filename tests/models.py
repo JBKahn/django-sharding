@@ -83,10 +83,17 @@ class ShardedByForiegnKeyModel(models.Model):
         return self.test.user_pk
 
 
+@model_config(database='app_shard_001')
+class PostgresCustomIDModelBackupField(TableStrategyModel):
+    pass
+
+
 @model_config(shard_group="postgres", sharded_by_field="user_pk")
 class PostgresCustomIDModel(models.Model):
     if settings.DATABASES['default']['ENGINE'] in Backends.POSTGRES:
         id = PostgresShardGeneratedIDField(primary_key=True)
+    else:
+        id = TableShardedIDField(primary_key=True, source_table=PostgresCustomIDModelBackupField)
     random_string = models.CharField(max_length=120)
     user_pk = models.PositiveIntegerField()
 

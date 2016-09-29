@@ -17,6 +17,9 @@ class ShardedRouter(object):
     read or write from.
     """
 
+    def get_shard_for_instance(self, instance):
+        return instance._state.db or instance.get_shard()
+
     def get_shard_for_id_field(self, model, sharded_by_field_id):
         try:
             return model.get_shard_from_id(sharded_by_field_id)

@@ -1,16 +1,20 @@
 from mock import call, patch
+import unittest
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.test import TransactionTestCase
 
-from tests.models import TestModel, ShardedTestModelIDs
+from tests.models import TestModel, ShardedTestModelIDs, PostgresCustomIDModel, PostgresShardUser
 from django_sharding_library.exceptions import InvalidMigrationException
 from django_sharding_library.router import ShardedRouter
 from django_sharding_library.routing_read_strategies import BaseRoutingStrategy
+from django_sharding_library.fields import PostgresShardGeneratedIDField
+from django_sharding_library.constants import Backends
+from django_sharding_library.manager import ShardManager
 
-from django.db.models import Sum
+from django.db.models import Sum, Q
 
 
 class FakeRoutingStrategy(BaseRoutingStrategy):
@@ -228,6 +232,42 @@ class RouterReadTestCase(TransactionTestCase):
         with patch.object(ShardedRouter, 'db_for_write', wraps=self.sut.db_for_write) as write_route_function:
             with patch.object(ShardedRouter, 'db_for_read', wraps=self.sut.db_for_read) as read_route_function:
                 list(TestModel.objects.filter(user_pk=self.user.pk))
+
+        self.assertEqual(
+            [call(TestModel, **lookups_to_find), call(get_user_model())],
+            read_route_function.mock_calls
+        )
+        self.assertEqual(
+            [],
+            write_route_function.mock_calls
+        )
+
+    def test_router_gets_hints_correctly_with_positional_arguments_like_Q_in_filter(self):
+        TestModel.objects.create(user_pk=self.user.pk, random_string="test")
+
+        lookups_to_find = {'exact_lookups': {'user_pk': self.user.pk}}
+
+        with patch.object(ShardedRouter, 'db_for_write', wraps=self.sut.db_for_write) as write_route_function:
+            with patch.object(ShardedRouter, 'db_for_read', wraps=self.sut.db_for_read) as read_route_function:
+                list(TestModel.objects.filter(Q(test_string="test") | Q(test_string__isnull=True), user_pk=self.user.pk))
+
+        self.assertEqual(
+            [call(TestModel, **lookups_to_find), call(get_user_model())],
+            read_route_function.mock_calls
+        )
+        self.assertEqual(
+            [],
+            write_route_function.mock_calls
+        )
+
+    def test_router_gets_hints_correctly_with_positional_arguments_like_Q_in_get(self):
+        TestModel.objects.create(user_pk=self.user.pk, random_string="test")
+
+        lookups_to_find = {'exact_lookups': {'user_pk': self.user.pk}}
+
+        with patch.object(ShardedRouter, 'db_for_write', wraps=self.sut.db_for_write) as write_route_function:
+            with patch.object(ShardedRouter, 'db_for_read', wraps=self.sut.db_for_read) as read_route_function:
+                list(TestModel.objects.get(Q(test_string="test") | Q(test_string__isnull=True), user_pk=self.user.pk))
 
         self.assertEqual(
             [call(TestModel, **lookups_to_find), call(get_user_model())],
@@ -468,3 +508,30 @@ class RouterAllowMigrateTestCase(TransactionTestCase):
             can_migrate_default=True,
             can_migrate_shard=False,
         )
+
+
+class RouterForPostgresIDFieldTest(TransactionTestCase):
+
+    def setUp(self):
+        self.sut = ShardedRouter()
+        self.user = PostgresShardUser.objects.create_user(username='username', password='pwassword', email='test@example.com')
+
+    @unittest.skipIf(settings.DATABASES['default']['ENGINE'] not in Backends.POSTGRES, "Not a postgres backend")
+    def test_postgres_sharded_id_can_be_queried_without_using_and_without_sharded_by(self):
+        created_model = PostgresCustomIDModel.objects.create(random_string='Test String', user_pk=self.user.id)
+        self.assertTrue(getattr(created_model, 'id'))
+
+        self.assertTrue(isinstance(PostgresCustomIDModel._meta.pk, PostgresShardGeneratedIDField))
+
+        self.assertTrue(isinstance(PostgresCustomIDModel.objects, ShardManager))
+
+        instance = PostgresCustomIDModel.objects.get(id=created_model.id)
+        self.assertEqual(created_model._state.db, instance._state.db)
+
+        instance = PostgresCustomIDModel.objects.get(pk=created_model.id)
+        self.assertEqual(created_model._state.db, instance._state.db)
+
+    @unittest.skipIf(settings.DATABASES['default']['ENGINE'] not in Backends.POSTGRES, "Not a postgres backend")
+    def test_shard_extracted_correctly(self):
+        created_model = PostgresCustomIDModel.objects.create(random_string='Test String', user_pk=self.user.pk)
+        self.assertEqual(self.user.shard, self.sut.get_shard_for_postgres_pk_field(PostgresCustomIDModel, created_model.id))

@@ -72,14 +72,14 @@ class ShardManager(Manager):
         self.name = 'shard_manager'
         return return_value
 
-    def get_query_set(self, key=None):
+    def get_queryset(self, key=None):
         # todo: (eventually, not necessary now) Should check to make sure the there is a good kwarg OR an instance ->
         # available here
         return ShardQuerySet(model=self.model)
 
     def _wrap(func_name):
-        def wrapped(self, **kwargs):
-            return getattr(self.get_query_set(), func_name)(**kwargs)
+        def wrapped(self, *args, **kwargs):
+            return getattr(self.get_queryset(), func_name)(*args, **kwargs)
 
         wrapped.__name__ = func_name
         return wrapped

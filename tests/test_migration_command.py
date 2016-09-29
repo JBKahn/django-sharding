@@ -13,14 +13,14 @@ class MigrationCommandTestCase(TestCase):
     def test_defauls_migrates_all_primary_dbs(self, mock_migrate_command):
         call_command('migrate', verbosity=0)
         databases_migrated = [call[1].get('database') for call in mock_migrate_command.call_args_list]
-        expected_migrated_databases = ['app_shard_001', 'app_shard_002', 'default']
+        expected_migrated_databases = ['app_shard_001', 'app_shard_002', 'app_shard_003', 'app_shard_004', 'default']
 
         self.assertEqual(sorted(databases_migrated), expected_migrated_databases)
 
     def test_all_option_added_to_databases(self, mock_migrate_command):
         call_command('migrate', database='all', verbosity=0)
         databases_migrated = [call[1].get('database') for call in mock_migrate_command.call_args_list]
-        expected_migrated_databases = ['app_shard_001', 'app_shard_002', 'default']
+        expected_migrated_databases = ['app_shard_001', 'app_shard_002', 'app_shard_003', 'app_shard_004', 'default']
 
         self.assertEqual(sorted(databases_migrated), expected_migrated_databases)
 

@@ -1,8 +1,13 @@
 from django.apps import apps
 from django.conf import settings
 
+from django_sharding_library.fields import PostgresShardGeneratedIDField
 from django_sharding_library.exceptions import DjangoShardingException, InvalidMigrationException
-from django_sharding_library.utils import is_model_class_on_database, get_database_for_model_instance, get_possible_databases_for_model
+from django_sharding_library.utils import (
+    is_model_class_on_database,
+    get_database_for_model_instance,
+    get_possible_databases_for_model,
+)
 
 
 class ShardedRouter(object):
@@ -11,27 +16,62 @@ class ShardedRouter(object):
     the wrong database as well as infer, when possible, which database to
     read or write from.
     """
-    def get_shard_for_instance(self, instance):
-        return instance._state.db or instance.get_shard()
+
+    def get_shard_for_id_field(self, model, sharded_by_field_id):
+        try:
+            return model.get_shard_from_id(sharded_by_field_id)
+        except Exception:
+            # This is overly broad on purpose: we dont know what a user might try to do to get a shard from an ID (our
+            # example is a .get(), but someone could do anything) and if it excepts, we want to fall back to the next
+            # attempt at grabbing a shard based on other potential filters
+            return None
+
+    def get_shard_for_postgres_pk_field(self, model, pk_value):
+        group = getattr(model, 'django_sharding__shard_group', None)
+        shard_id_to_find = int(bin(pk_value)[-23:-10], 2)  # We know where the shard id is stored in the PK's bits.
+
+        # We can check the shard id from the PK against the shard ID in the databases config
+        for alias in settings.DATABASES.keys():
+            if settings.DATABASES[alias]["SHARD_GROUP"] == group and settings.DATABASES[alias]["SHARD_ID"] == shard_id_to_find:
+                return alias
+        return None  # Return None if we could not determine the shard so we can fall through to the next shard grab attempt
 
     def get_read_db_routing_strategy(self, shard_group):
         app_config_app_label = getattr(settings, 'DJANGO_SHARDING_SETTINGS', {}).get('APP_CONFIG_APP', 'django_sharding')
         return apps.get_app_config(app_config_app_label).get_routing_strategy(shard_group)
 
     def _get_shard(self, model, **hints):
+        shard = None
+
         model_has_sharded_id_field = getattr(model, 'django_sharding__sharded_by_field', None) is not None
 
-        if model_has_sharded_id_field:
+        #####
+        #
+        # This is setup as multiple IF statements on purpose. If any attempt to get a shard fails, the function that
+        # tried to get the shard should return None that way the NEXT possible attempt to grab a shard can be run.
+        # In this way, future ways to automatically get the correct shard can be added, and at any point in the logic,
+        # and the first one to pick a valid shard will return the valid shard.
+        #
+        # Always return None if no valid shard was found so the default Django router will use the using() database if
+        # these all fail.
+        #
+        #####
+        if hints.get("instance", None):
+            shard = get_database_for_model_instance(instance=hints["instance"])
+        if shard is None and model_has_sharded_id_field:
             sharded_by_field_id = hints.get('exact_lookups', {}).get(
                 getattr(model, 'django_sharding__sharded_by_field'), None
             )
             if sharded_by_field_id:
-                return model.get_shard_from_id(sharded_by_field_id)
+                shard = self.get_shard_for_id_field(model, sharded_by_field_id)
+        if shard is None and isinstance(getattr(model._meta, 'pk'), PostgresShardGeneratedIDField) and \
+                    (hints.get('exact_lookups', {}).get('pk') is not None or hints.get('exact_lookups', {}).get('id') is not None):
+                return self.get_shard_for_postgres_pk_field(
+                    model,
+                    hints.get('exact_lookups', {}).get('pk') or hints.get('exact_lookups', {}).get('id')
+                )
 
-        if hints.get("instance", None):
-            return get_database_for_model_instance(instance=hints["instance"])
-
-        return None
+        return shard
 
     def db_for_read(self, model, **hints):
         possible_databases = get_possible_databases_for_model(model=model)

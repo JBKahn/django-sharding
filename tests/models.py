@@ -20,6 +20,13 @@ class User(AbstractUser, ShardedByMixin):
     django_sharding__shard_group = 'default'
 
 
+# An implimentation of the extension of a the Django user to add
+# the mixin provided in order to save the shard on the user.
+class PostgresShardUser(AbstractUser, ShardedByMixin):
+    shard_group = 'postgres'
+    django_sharding__shard_group = 'postgres'
+
+
 # A model for use with a sharded model to generate pk's using
 # an autoincrement field on the backing TableStrategyModel.
 # This one is initialized for use with TestModel and is stored
@@ -76,7 +83,7 @@ class ShardedByForiegnKeyModel(models.Model):
         return self.test.user_pk
 
 
-@model_config(database='default')
+@model_config(shard_group="postgres", sharded_by_field="user_pk")
 class PostgresCustomIDModel(models.Model):
     if settings.DATABASES['default']['ENGINE'] in Backends.POSTGRES:
         id = PostgresShardGeneratedIDField(primary_key=True)
@@ -84,5 +91,8 @@ class PostgresCustomIDModel(models.Model):
     user_pk = models.PositiveIntegerField()
 
     def get_shard(self):
-        from django.contrib.auth import get_user_model
-        return get_user_model().objects.get(pk=self.user_pk).shard
+        return PostgresShardUser.objects.get(pk=self.user_pk).shard
+
+    @staticmethod
+    def get_shard_from_id(user_pk):
+        return PostgresShardUser.objects.get(pk=user_pk).shard

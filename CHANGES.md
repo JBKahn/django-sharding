@@ -1,7 +1,7 @@
 Changelog
 =========
 
-0.0.9 (unreleased)
+0.1.0 (unreleased)
 ------------------
 
 ### Django 1.10 compatibility and some additional library features!
@@ -9,7 +9,7 @@ Changelog
 - Django 1.10 compatibility.
 - Added postgres specific ID generator
 - Some magic sharded field lookups (if you're so inclined)
-- more to come maybe?
+- The above fields have the additional functionality to automatically lookup the shard when part of the save/update/filter clauses contain the information required to get the shard
 
 
 0.0.8 (Apr 20th 2016)

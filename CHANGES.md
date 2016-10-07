@@ -1,7 +1,7 @@
 Changelog
 =========
 
-0.1.0 (unreleased)
+0.1.0 (Oct 7th 2015)
 ------------------
 
 ### Django 1.10 compatibility and some additional library features!
@@ -10,6 +10,7 @@ Changelog
 - Added postgres specific ID generator
 - Some magic sharded field lookups (if you're so inclined)
 - The above fields have the additional functionality to automatically lookup the shard when part of the save/update/filter clauses contain the information required to get the shard
+- Alters the way data migrations run as far as which databases are acted upon as well as provides an override, see the docs for more details. This brings the package more inline with Django.
 
 
 0.0.8 (Apr 20th 2016)

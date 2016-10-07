@@ -1,0 +1,569 @@
+
+<!DOCTYPE HTML>
+<html lang="" >
+    <head>
+        <meta charset="UTF-8">
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <title>Replication Lag · GitBook</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="description" content="">
+        <meta name="generator" content="GitBook 3.2.2">
+        
+        
+        
+    
+    <link rel="stylesheet" href="../../gitbook/style.css">
+
+    
+            
+                
+                <link rel="stylesheet" href="../../gitbook/gitbook-plugin-search/search.css">
+                
+            
+                
+                <link rel="stylesheet" href="../../gitbook/gitbook-plugin-highlight/website.css">
+                
+            
+                
+                <link rel="stylesheet" href="../../gitbook/gitbook-plugin-fontsettings/website.css">
+                
+            
+        
+
+    
+
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+        
+    
+    
+    <meta name="HandheldFriendly" content="true"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="../../gitbook/images/apple-touch-icon-precomposed-152.png">
+    <link rel="shortcut icon" href="../../gitbook/images/favicon.ico" type="image/x-icon">
+
+    
+    <link rel="next" href="Rebalancing.html" />
+    
+    
+    <link rel="prev" href="./" />
+    
+
+    </head>
+    <body>
+        
+<div class="book">
+    <div class="book-summary">
+        
+            
+<div id="book-search-input" role="search">
+    <input type="text" placeholder="Type to search" />
+</div>
+
+            
+                <nav role="navigation">
+                
+
+
+<ul class="summary">
+    
+    
+
+    
+
+    
+        
+        <li class="header">Table of Contents</li>
+        
+        
+    
+        <li class="chapter " data-level="1.1" data-path="../../">
+            
+                <a href="../../">
+            
+                    
+                    Read Me
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2" data-path="../components/">
+            
+                <a href="../components/">
+            
+                    
+                    Components
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.2.1" data-path="../components/IDGeneration.html">
+            
+                <a href="../components/IDGeneration.html">
+            
+                    
+                    ID Generation
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.2" data-path="../components/ShardingFunctions.html">
+            
+                <a href="../components/ShardingFunctions.html">
+            
+                    
+                    Sharding Functions
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.3" data-path="../components/ReadStrategies.html">
+            
+                <a href="../components/ReadStrategies.html">
+            
+                    
+                    Read Strategies
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.4" data-path="../components/Router.html">
+            
+                <a href="../components/Router.html">
+            
+                    
+                    The Router
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.5" data-path="../components/OtherComponents.html">
+            
+                <a href="../components/OtherComponents.html">
+            
+                    
+                    Other Components
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3" data-path="../installation/">
+            
+                <a href="../installation/">
+            
+                    
+                    Installation
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.3.1" data-path="../installation/HowToShard.html">
+            
+                <a href="../installation/HowToShard.html">
+            
+                    
+                    Choosing How To Shard
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.2" data-path="../installation/Settings.html">
+            
+                <a href="../installation/Settings.html">
+            
+                    
+                    Settings
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4" data-path="../usage/">
+            
+                <a href="../usage/">
+            
+                    
+                    Usage
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.4.1" data-path="../usage/AnotherDB.html">
+            
+                <a href="../usage/AnotherDB.html">
+            
+                    
+                    Store Models on Another DB
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.2" data-path="../usage/ShardingAModel.html">
+            
+                <a href="../usage/ShardingAModel.html">
+            
+                    
+                    Sharding A Model
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.3" data-path="../usage/Migrations.html">
+            
+                <a href="../usage/Migrations.html">
+            
+                    
+                    Model Migration
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.4" data-path="../usage/DataMigrations.html">
+            
+                <a href="../usage/DataMigrations.html">
+            
+                    
+                    Data Migrations
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5" data-path="./">
+            
+                <a href="./">
+            
+                    
+                    Advanced Topics
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter active" data-level="1.5.1" data-path="ReplicationLag.html">
+            
+                <a href="ReplicationLag.html">
+            
+                    
+                    Replication Lag
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5.2" data-path="Rebalancing.html">
+            
+                <a href="Rebalancing.html">
+            
+                    
+                    Shard Rebalancing
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.6" data-path="../../CHANGES.md">
+            
+                <span>
+            
+                    
+                    Change Log
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+    
+
+    <li class="divider"></li>
+
+    <li>
+        <a href="https://www.gitbook.com" target="blank" class="gitbook-link">
+            Published with GitBook
+        </a>
+    </li>
+</ul>
+
+
+                </nav>
+            
+        
+    </div>
+
+    <div class="book-body">
+        
+            <div class="body-inner">
+                
+                    
+
+<div class="book-header" role="navigation">
+    
+
+    <!-- Title -->
+    <h1>
+        <i class="fa fa-circle-o-notch fa-spin"></i>
+        <a href="../.." >Replication Lag</a>
+    </h1>
+</div>
+
+
+
+
+                    <div class="page-wrapper" tabindex="-1" role="main">
+                        <div class="page-inner">
+                            
+<div id="book-search-results">
+    <div class="search-noresults">
+    
+                                <section class="normal markdown-section">
+                                
+                                <h1 id="replication-lag-time">Replication Lag Time</h1>
+<h4 id="why-this-is-difficult">Why This Is Difficult</h4>
+<p>As mentioned earlier in the documentation, when using replication drives you may get stale data if you read from one of these drives before the data has propagated from the primary drive. This is a difficult problem to solve due to the way routing works in Django.</p>
+<p>For example, the following call:</p>
+<pre><code class="lang-python">CoolGuyModel.objects.using(<span class="hljs-string">&apos;some_database&apos;</span>).create(user_id=<span class="hljs-number">1</span>, some_cool_guy_string=<span class="hljs-string">&quot;123&quot;</span>)
+</code></pre>
+<p>Will result in the router receiving the information that we want to create an instance of <code>CoolGuyModel</code>. The router is not given the value of any field or details about the instance. As such, it&apos;s really hard to mark something as &quot;dirty&quot; such that it can only be read from the primary database. </p>
+<p>The <a href="https://github.com/jbalogh/django-multidb-router" target="_blank">Django Multi DB Router</a>, which is made to be used for replication database, uses a cookie-based strategy. It adds a cookie every time a user calls a function which modifies data and that entire require reads only from primary database. There are two flaws with this method that prevent it from being included here:</p>
+<p>The first is that this does not handle the case of stale data being read in from non-request and non-response sources. For example: Celery Tasks, Management Commands and anything else that writes then reads data (or reads while a user is modifying it) could real stale data.</p>
+<p>The second is that a second user requesting the same data will get stale data. This does not invalidate the data but instead works on invalidating just the user who wrote the changes.</p>
+<p>As of yet, I have yet to come up with a better way of handling replication lag time.</p>
+<h4 id="a-possible-implementation">A Possible Implementation</h4>
+<p>To integrate <a href="https://github.com/jbalogh/django-multidb-router" target="_blank">Django Multi DB Router</a> version 0.6 (latest at the time of writing this) with this library, you can do the following:</p>
+<ol>
+<li>pip install the <code>django-multidb-router</code> package and add it to your requirements:</li>
+</ol>
+<p><code>pip install django-multidb-router</code></p>
+<ol>
+<li>Subclass the router I&apos;ve provided:</li>
+</ol>
+<pre><code class="lang-python"><span class="hljs-keyword">from</span> django.conf <span class="hljs-keyword">import</span> settings
+
+<span class="hljs-keyword">from</span> multidb.pinning <span class="hljs-keyword">import</span> this_thread_is_pinned
+
+<span class="hljs-keyword">from</span> django_sharding_library.router <span class="hljs-keyword">import</span> ShardedRouter
+
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ShardedRouterWithReplicationLagTimeSupport</span><span class="hljs-params">(ShardedRouter)</span>:</span>
+    <span class="hljs-string">&quot;&quot;&quot;
+    A router that is shard-aware and supports replication lag time.
+    &quot;&quot;&quot;</span>
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">get_replica_primary_mapping</span><span class="hljs-params">(self, databases)</span>:</span>
+        <span class="hljs-string">&quot;&quot;&quot;
+        Creates a dictionary that maps a replica drive name to its
+        primary database.
+        &quot;&quot;&quot;</span>
+        mapping = getattr(self, <span class="hljs-string">&apos;primary_replica_mapping&apos;</span>, {})
+        <span class="hljs-keyword">if</span> mapping:
+            <span class="hljs-keyword">return</span> mapping
+        <span class="hljs-keyword">for</span> name, config <span class="hljs-keyword">in</span> databases.items():
+            <span class="hljs-comment"># map primary drives to themselves to make the code simpler</span>
+            primary = config.get(<span class="hljs-string">&apos;PRIMARY&apos;</span>, name)
+            mapping[name].append(primary)
+        setattr(self, <span class="hljs-string">&apos;primary_replica_mapping&apos;</span>, mapping)
+        <span class="hljs-keyword">return</span> mapping
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">db_for_read</span><span class="hljs-params">(self, model, **hints)</span>:</span>
+        database = super(ShardedRouterWithReplicationLagTimeSupport, self).db_for_read(
+            model, **hints
+        )
+        <span class="hljs-keyword">if</span> database <span class="hljs-keyword">is</span> <span class="hljs-keyword">not</span> <span class="hljs-keyword">None</span>:
+            primary_replica_mapping = self.get_replica_primary_mapping(
+                settings.DATABASES
+            )
+            primary_db = primary_replica_mapping[database]
+            <span class="hljs-keyword">return</span> primary_db <span class="hljs-keyword">if</span> this_thread_is_pinned() <span class="hljs-keyword">else</span> database
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">None</span>
+</code></pre>
+<ol>
+<li>Set that router as your database router in your settings file:</li>
+</ol>
+<pre><code class="lang-python">DATABASE_ROUTERS=[<span class="hljs-string">&apos;&lt;path_to_router&gt;.ShardedRouterWithReplicationLagTimeSupport&apos;</span>],
+`
+</code></pre>
+<ol>
+<li>Add the middleware</li>
+</ol>
+<pre><code class="lang-python">MIDDLEWARE_CLASSES = (
+    <span class="hljs-string">&apos;multidb.middleware.PinningRouterMiddleware&apos;</span>,
+    <span class="hljs-comment"># ...more middleware here...</span>
+)
+</code></pre>
+<ol>
+<li>Adjust the replication lag time and the cookie name:</li>
+</ol>
+<pre><code class="lang-python">MULTIDB_PINNING_SECONDS = <span class="hljs-number">15</span>
+MULTIDB_PINNING_COOKIE = <span class="hljs-string">&apos;multidb_pin_writes&apos;</span>
+</code></pre>
+<p>Note: This has not been extensively tested by the author.</p>
+
+                                
+                                </section>
+                            
+    </div>
+    <div class="search-results">
+        <div class="has-results">
+            
+            <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+            <ul class="search-results-list"></ul>
+            
+        </div>
+        <div class="no-results">
+            
+            <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+            
+        </div>
+    </div>
+</div>
+
+                        </div>
+                    </div>
+                
+            </div>
+
+            
+                
+                <a href="./" class="navigation navigation-prev " aria-label="Previous page: Advanced Topics">
+                    <i class="fa fa-angle-left"></i>
+                </a>
+                
+                
+                <a href="Rebalancing.html" class="navigation navigation-next " aria-label="Next page: Shard Rebalancing">
+                    <i class="fa fa-angle-right"></i>
+                </a>
+                
+            
+        
+    </div>
+
+    <script>
+        var gitbook = gitbook || [];
+        gitbook.push(function() {
+            gitbook.page.hasChanged({"page":{"title":"Replication Lag","level":"1.5.1","depth":2,"next":{"title":"Shard Rebalancing","level":"1.5.2","depth":2,"path":"docs/advanced/Rebalancing.md","ref":"docs/advanced/Rebalancing.md","articles":[]},"previous":{"title":"Advanced Topics","level":"1.5","depth":1,"path":"docs/advanced/README.md","ref":"docs/advanced/README.md","articles":[{"title":"Replication Lag","level":"1.5.1","depth":2,"path":"docs/advanced/ReplicationLag.md","ref":"docs/advanced/ReplicationLag.md","articles":[]},{"title":"Shard Rebalancing","level":"1.5.2","depth":2,"path":"docs/advanced/Rebalancing.md","ref":"docs/advanced/Rebalancing.md","articles":[]}]},"dir":"ltr"},"config":{"plugins":["search"],"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"search":{},"highlight":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"links":{},"gitbook":"3.x.x"},"file":{"path":"docs/advanced/ReplicationLag.md","mtime":"2016-10-07T21:49:12.000Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2016-10-07T22:10:52.928Z"},"basePath":"../..","book":{"language":""}});
+        });
+    </script>
+</div>
+
+        
+    <script src="../../gitbook/gitbook.js"></script>
+    <script src="../../gitbook/theme.js"></script>
+    
+        
+        <script src="../../gitbook/gitbook-plugin-search/search-engine.js"></script>
+        
+    
+        
+        <script src="../../gitbook/gitbook-plugin-search/search.js"></script>
+        
+    
+        
+        <script src="../../gitbook/gitbook-plugin-lunr/lunr.min.js"></script>
+        
+    
+        
+        <script src="../../gitbook/gitbook-plugin-lunr/search-lunr.js"></script>
+        
+    
+        
+        <script src="../../gitbook/gitbook-plugin-sharing/buttons.js"></script>
+        
+    
+        
+        <script src="../../gitbook/gitbook-plugin-fontsettings/fontsettings.js"></script>
+        
+    
+
+    </body>
+</html>
+

@@ -1,0 +1,594 @@
+
+<!DOCTYPE HTML>
+<html lang="" >
+    <head>
+        <meta charset="UTF-8">
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <title>The Router · GitBook</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="description" content="">
+        <meta name="generator" content="GitBook 3.2.2">
+        
+        
+        
+    
+    <link rel="stylesheet" href="../../gitbook/style.css">
+
+    
+            
+                
+                <link rel="stylesheet" href="../../gitbook/gitbook-plugin-search/search.css">
+                
+            
+                
+                <link rel="stylesheet" href="../../gitbook/gitbook-plugin-highlight/website.css">
+                
+            
+                
+                <link rel="stylesheet" href="../../gitbook/gitbook-plugin-fontsettings/website.css">
+                
+            
+        
+
+    
+
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+        
+    
+    
+    <meta name="HandheldFriendly" content="true"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="../../gitbook/images/apple-touch-icon-precomposed-152.png">
+    <link rel="shortcut icon" href="../../gitbook/images/favicon.ico" type="image/x-icon">
+
+    
+    <link rel="next" href="OtherComponents.html" />
+    
+    
+    <link rel="prev" href="ReadStrategies.html" />
+    
+
+    </head>
+    <body>
+        
+<div class="book">
+    <div class="book-summary">
+        
+            
+<div id="book-search-input" role="search">
+    <input type="text" placeholder="Type to search" />
+</div>
+
+            
+                <nav role="navigation">
+                
+
+
+<ul class="summary">
+    
+    
+
+    
+
+    
+        
+        <li class="header">Table of Contents</li>
+        
+        
+    
+        <li class="chapter " data-level="1.1" data-path="../../">
+            
+                <a href="../../">
+            
+                    
+                    Read Me
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2" data-path="./">
+            
+                <a href="./">
+            
+                    
+                    Components
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.2.1" data-path="IDGeneration.html">
+            
+                <a href="IDGeneration.html">
+            
+                    
+                    ID Generation
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.2" data-path="ShardingFunctions.html">
+            
+                <a href="ShardingFunctions.html">
+            
+                    
+                    Sharding Functions
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.3" data-path="ReadStrategies.html">
+            
+                <a href="ReadStrategies.html">
+            
+                    
+                    Read Strategies
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter active" data-level="1.2.4" data-path="Router.html">
+            
+                <a href="Router.html">
+            
+                    
+                    The Router
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.5" data-path="OtherComponents.html">
+            
+                <a href="OtherComponents.html">
+            
+                    
+                    Other Components
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3" data-path="../installation/">
+            
+                <a href="../installation/">
+            
+                    
+                    Installation
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.3.1" data-path="../installation/HowToShard.html">
+            
+                <a href="../installation/HowToShard.html">
+            
+                    
+                    Choosing How To Shard
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.2" data-path="../installation/Settings.html">
+            
+                <a href="../installation/Settings.html">
+            
+                    
+                    Settings
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4" data-path="../usage/">
+            
+                <a href="../usage/">
+            
+                    
+                    Usage
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.4.1" data-path="../usage/AnotherDB.html">
+            
+                <a href="../usage/AnotherDB.html">
+            
+                    
+                    Store Models on Another DB
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.2" data-path="../usage/ShardingAModel.html">
+            
+                <a href="../usage/ShardingAModel.html">
+            
+                    
+                    Sharding A Model
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.3" data-path="../usage/Migrations.html">
+            
+                <a href="../usage/Migrations.html">
+            
+                    
+                    Model Migration
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.4" data-path="../usage/DataMigrations.html">
+            
+                <a href="../usage/DataMigrations.html">
+            
+                    
+                    Data Migrations
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5" data-path="../advanced/">
+            
+                <a href="../advanced/">
+            
+                    
+                    Advanced Topics
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.5.1" data-path="../advanced/ReplicationLag.html">
+            
+                <a href="../advanced/ReplicationLag.html">
+            
+                    
+                    Replication Lag
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5.2" data-path="../advanced/Rebalancing.html">
+            
+                <a href="../advanced/Rebalancing.html">
+            
+                    
+                    Shard Rebalancing
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.6" data-path="../../CHANGES.md">
+            
+                <span>
+            
+                    
+                    Change Log
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+    
+
+    <li class="divider"></li>
+
+    <li>
+        <a href="https://www.gitbook.com" target="blank" class="gitbook-link">
+            Published with GitBook
+        </a>
+    </li>
+</ul>
+
+
+                </nav>
+            
+        
+    </div>
+
+    <div class="book-body">
+        
+            <div class="body-inner">
+                
+                    
+
+<div class="book-header" role="navigation">
+    
+
+    <!-- Title -->
+    <h1>
+        <i class="fa fa-circle-o-notch fa-spin"></i>
+        <a href="../.." >The Router</a>
+    </h1>
+</div>
+
+
+
+
+                    <div class="page-wrapper" tabindex="-1" role="main">
+                        <div class="page-inner">
+                            
+<div id="book-search-results">
+    <div class="search-noresults">
+    
+                                <section class="normal markdown-section">
+                                
+                                <h1 id="the-router">The Router</h1>
+<p>In this library I&apos;ve included a single router, which uses the previous components. Here we will go through the various elements of the router.</p>
+<h4 id="choosing-a-database-to-read-from">Choosing a Database to Read From</h4>
+<p>The first thing that it checks for is whether or not that database is non-sharded but routed to a database that is not <code>default</code>. If that is the case, then we know to send you to that database.</p>
+<p>On the other hard, if the model is sharded then we attempt to choose a shard for the model if we are provided an instance. In that case, we either have already chosen a shard (for example, we read this previously and are attempting a refresh) or we need to ask the instance how to get it&apos;s shard. For now, you can ignore the use of a shard group as that will come up later in the guide.</p>
+<p>If neither of these two cases are known, we return <code>None</code> lettings Django know that our router has no opinion on what to do.</p>
+<p>Note that the <code>self.get_read_db_routing_strategy</code> is not included here as that will be addressed in another section.</p>
+<pre><code class="lang-python">    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">get_shard_for_instance</span><span class="hljs-params">(self, instance)</span>:</span>
+        <span class="hljs-keyword">return</span> instance._state.db <span class="hljs-keyword">or</span> instance.get_shard()
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">db_for_read</span><span class="hljs-params">(self, model, **hints)</span>:</span>
+        specific_database = self.get_specific_database_or_none(model)
+        <span class="hljs-keyword">if</span> specific_database:
+            <span class="hljs-keyword">return</span> specific_database
+
+        <span class="hljs-keyword">if</span> self.get_shard_group_if_sharded_or_none(model):
+            instance = hints.get(<span class="hljs-string">&apos;instance&apos;</span>)
+            <span class="hljs-keyword">if</span> instance:
+                shard = self.get_shard_for_instance(instance)
+                shard_group = getattr(model, <span class="hljs-string">&apos;django_sharding__shard_group&apos;</span>, <span class="hljs-keyword">None</span>)
+                <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> shard_group:
+                    <span class="hljs-keyword">raise</span> Exception(
+                        <span class="hljs-string">&apos;Unable to identify the shard_group for a {} model&apos;</span>.format(model)
+                    )
+                routing_strategy = self.get_read_db_routing_strategy(shard_group)
+                <span class="hljs-keyword">return</span> routing_strategy.pick_read_db(shard)
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">None</span>
+</code></pre>
+<h4 id="choosing-a-database-to-write-to">Choosing a Database to Write To</h4>
+<p>This works similarly to reading as we need to identify which database to read from. However, the code is simpler as we never want to read from a replica so always write to the primary database.</p>
+<pre><code class="lang-python">    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">db_for_write</span><span class="hljs-params">(self, model, **hints)</span>:</span>
+        specific_database = self.get_specific_database_or_none(model)
+        <span class="hljs-keyword">if</span> specific_database:
+            <span class="hljs-keyword">return</span> specific_database
+
+        <span class="hljs-keyword">if</span> self.get_shard_group_if_sharded_or_none(model):
+            instance = hints.get(<span class="hljs-string">&apos;instance&apos;</span>)
+            <span class="hljs-keyword">if</span> instance:
+                db = self.get_shard_for_instance(instance)
+                db_config = settings.DATABASES[db]
+                <span class="hljs-keyword">return</span> db_config.get(<span class="hljs-string">&apos;PRIMARY&apos;</span>, db)
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">None</span>
+</code></pre>
+<h4 id="can-items-be-related">Can Items Be Related?</h4>
+<p>Typically, we can only allow relations between items on the same database as you cannot have a foreign key across a database. As such, we have to check that both objects are stored on the same database.</p>
+<p>First we check if it&apos;s non-sharded but stored on a single database other than <code>default</code>. If they both are, then we only allow the relation is they are stored on the same database. Similarly, the second check looks at the shard status of both items and whether they would be on the same shard or not. If non of these checks are true, then the items are assumed to both be on the default database and the relation is allowed.</p>
+<pre><code class="lang-python">    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">allow_relation</span><span class="hljs-params">(self, obj1, obj2, **hints)</span>:</span>
+        <span class="hljs-string">&quot;&quot;&quot;
+        Only allow relationships between two items which are both on only one database or
+        between sharded items on the same shard.
+        &quot;&quot;&quot;</span>
+        specific_database_for_object_one = self.get_specific_database_or_none(obj1)
+        specific_database_for_object_two = self.get_specific_database_or_none(obj2)
+
+        <span class="hljs-keyword">if</span> specific_database_for_object_one != specific_database_for_object_two:
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">False</span>
+        <span class="hljs-keyword">elif</span> specific_database_for_object_one:
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">True</span>
+
+        shard_group_for_object_one = self.get_shard_group_if_sharded_or_none(obj1)
+        shard_group_for_object_two = self.get_shard_group_if_sharded_or_none(obj2)
+
+        <span class="hljs-keyword">if</span> shard_group_for_object_one != shard_group_for_object_two:
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">False</span>
+        <span class="hljs-keyword">elif</span> self.shard_group_for_object_one:
+            <span class="hljs-keyword">return</span> self.get_shard_for_instance(obj1) == self.get_shard_for_instance(obj2)
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">True</span>
+</code></pre>
+<h4 id="can-i-be-migrated">Can I Be Migrated?</h4>
+<p>When running your migrations, the app needs to be able to determine which databases require the migration in order to same developers from having to do this work manually.</p>
+<p>As such, we restrict migrations to only those which provide the model they are migrating as well as migrations to primary databases. In the event that a model is on a sepcific database or sharded then we also restrict the migration to those sets of databases. By using the module loading system in Django, we can determine the shard status of a model instance in order to make an informed decision.</p>
+<pre><code class="lang-python">    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">allow_migrate</span><span class="hljs-params">(self, db, app_label, model_name=None, **hints)</span>:</span>
+        <span class="hljs-keyword">if</span> settings.DATABASES[db].get(<span class="hljs-string">&apos;PRIMARY&apos;</span>, <span class="hljs-keyword">None</span>):
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">False</span>
+        model_name = model_name <span class="hljs-keyword">or</span> hints.get(<span class="hljs-string">&apos;model_name&apos;</span>)
+        <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> model_name:
+            <span class="hljs-keyword">raise</span> InvalidMigrationException(
+                <span class="hljs-string">&apos;Model name not provided in migration,&apos;</span>
+                <span class="hljs-string">&apos;please pass a `model_name` with the hints passed into the migration.&apos;</span>
+            )
+
+        <span class="hljs-comment"># Sometimes, when extending models from another app i.e. the User Model, the app</span>
+        <span class="hljs-comment"># label is the app label of the app where the change is defined but to app with</span>
+        <span class="hljs-comment"># the model is passed in with the model name.</span>
+        <span class="hljs-keyword">try</span>:
+            app = apps.get_app_config(app_label)
+            model = app.get_model(model_name)
+        <span class="hljs-keyword">except</span> LookupError:
+            app_label = model_name.split(<span class="hljs-string">&apos;.&apos;</span>)[<span class="hljs-number">0</span>]
+            app = apps.get_app_config(app_label)
+            model = app.get_model(model_name[len(app_label) + <span class="hljs-number">1</span>:])
+
+        single_database = self.get_specific_database_or_none(model)
+        shard_group = self.get_shard_group_if_sharded_or_none(model)
+        <span class="hljs-keyword">if</span> shard_group <span class="hljs-keyword">and</span> single_database:
+            <span class="hljs-keyword">raise</span> InvalidMigrationException(
+                <span class="hljs-string">&apos;Model marked as both sharded and on a single database, &apos;</span>
+                <span class="hljs-string">&apos;unable to determine where to run migrations for {}.&apos;</span>.format(model_name)
+            )
+        <span class="hljs-keyword">if</span> single_database:
+            <span class="hljs-keyword">return</span> db == single_database
+        <span class="hljs-keyword">if</span> shard_group:
+            <span class="hljs-keyword">return</span> settings.DATABASES[db][<span class="hljs-string">&apos;SHARD_GROUP&apos;</span>] == shard_group
+        <span class="hljs-keyword">return</span> db == <span class="hljs-string">&apos;default&apos;</span>
+</code></pre>
+
+                                
+                                </section>
+                            
+    </div>
+    <div class="search-results">
+        <div class="has-results">
+            
+            <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+            <ul class="search-results-list"></ul>
+            
+        </div>
+        <div class="no-results">
+            
+            <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+            
+        </div>
+    </div>
+</div>
+
+                        </div>
+                    </div>
+                
+            </div>
+
+            
+                
+                <a href="ReadStrategies.html" class="navigation navigation-prev " aria-label="Previous page: Read Strategies">
+                    <i class="fa fa-angle-left"></i>
+                </a>
+                
+                
+                <a href="OtherComponents.html" class="navigation navigation-next " aria-label="Next page: Other Components">
+                    <i class="fa fa-angle-right"></i>
+                </a>
+                
+            
+        
+    </div>
+
+    <script>
+        var gitbook = gitbook || [];
+        gitbook.push(function() {
+            gitbook.page.hasChanged({"page":{"title":"The Router","level":"1.2.4","depth":2,"next":{"title":"Other Components","level":"1.2.5","depth":2,"path":"docs/components/OtherComponents.md","ref":"docs/components/OtherComponents.md","articles":[]},"previous":{"title":"Read Strategies","level":"1.2.3","depth":2,"path":"docs/components/ReadStrategies.md","ref":"docs/components/ReadStrategies.md","articles":[]},"dir":"ltr"},"config":{"plugins":["search"],"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"search":{},"highlight":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"links":{},"gitbook":"3.x.x"},"file":{"path":"docs/components/Router.md","mtime":"2016-10-07T21:49:12.000Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2016-10-07T22:10:52.928Z"},"basePath":"../..","book":{"language":""}});
+        });
+    </script>
+</div>
+
+        
+    <script src="../../gitbook/gitbook.js"></script>
+    <script src="../../gitbook/theme.js"></script>
+    
+        
+        <script src="../../gitbook/gitbook-plugin-search/search-engine.js"></script>
+        
+    
+        
+        <script src="../../gitbook/gitbook-plugin-search/search.js"></script>
+        
+    
+        
+        <script src="../../gitbook/gitbook-plugin-lunr/lunr.min.js"></script>
+        
+    
+        
+        <script src="../../gitbook/gitbook-plugin-lunr/search-lunr.js"></script>
+        
+    
+        
+        <script src="../../gitbook/gitbook-plugin-sharing/buttons.js"></script>
+        
+    
+        
+        <script src="../../gitbook/gitbook-plugin-fontsettings/fontsettings.js"></script>
+        
+    
+
+    </body>
+</html>
+

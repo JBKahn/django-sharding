@@ -1,0 +1,592 @@
+
+<!DOCTYPE HTML>
+<html lang="" >
+    <head>
+        <meta charset="UTF-8">
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <title>Sharding Functions · GitBook</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="description" content="">
+        <meta name="generator" content="GitBook 3.2.2">
+        
+        
+        
+    
+    <link rel="stylesheet" href="../../gitbook/style.css">
+
+    
+            
+                
+                <link rel="stylesheet" href="../../gitbook/gitbook-plugin-search/search.css">
+                
+            
+                
+                <link rel="stylesheet" href="../../gitbook/gitbook-plugin-highlight/website.css">
+                
+            
+                
+                <link rel="stylesheet" href="../../gitbook/gitbook-plugin-fontsettings/website.css">
+                
+            
+        
+
+    
+
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+        
+    
+    
+    <meta name="HandheldFriendly" content="true"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="../../gitbook/images/apple-touch-icon-precomposed-152.png">
+    <link rel="shortcut icon" href="../../gitbook/images/favicon.ico" type="image/x-icon">
+
+    
+    <link rel="next" href="ReadStrategies.html" />
+    
+    
+    <link rel="prev" href="IDGeneration.html" />
+    
+
+    </head>
+    <body>
+        
+<div class="book">
+    <div class="book-summary">
+        
+            
+<div id="book-search-input" role="search">
+    <input type="text" placeholder="Type to search" />
+</div>
+
+            
+                <nav role="navigation">
+                
+
+
+<ul class="summary">
+    
+    
+
+    
+
+    
+        
+        <li class="header">Table of Contents</li>
+        
+        
+    
+        <li class="chapter " data-level="1.1" data-path="../../">
+            
+                <a href="../../">
+            
+                    
+                    Read Me
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2" data-path="./">
+            
+                <a href="./">
+            
+                    
+                    Components
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.2.1" data-path="IDGeneration.html">
+            
+                <a href="IDGeneration.html">
+            
+                    
+                    ID Generation
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter active" data-level="1.2.2" data-path="ShardingFunctions.html">
+            
+                <a href="ShardingFunctions.html">
+            
+                    
+                    Sharding Functions
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.3" data-path="ReadStrategies.html">
+            
+                <a href="ReadStrategies.html">
+            
+                    
+                    Read Strategies
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.4" data-path="Router.html">
+            
+                <a href="Router.html">
+            
+                    
+                    The Router
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.5" data-path="OtherComponents.html">
+            
+                <a href="OtherComponents.html">
+            
+                    
+                    Other Components
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3" data-path="../installation/">
+            
+                <a href="../installation/">
+            
+                    
+                    Installation
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.3.1" data-path="../installation/HowToShard.html">
+            
+                <a href="../installation/HowToShard.html">
+            
+                    
+                    Choosing How To Shard
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.2" data-path="../installation/Settings.html">
+            
+                <a href="../installation/Settings.html">
+            
+                    
+                    Settings
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4" data-path="../usage/">
+            
+                <a href="../usage/">
+            
+                    
+                    Usage
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.4.1" data-path="../usage/AnotherDB.html">
+            
+                <a href="../usage/AnotherDB.html">
+            
+                    
+                    Store Models on Another DB
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.2" data-path="../usage/ShardingAModel.html">
+            
+                <a href="../usage/ShardingAModel.html">
+            
+                    
+                    Sharding A Model
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.3" data-path="../usage/Migrations.html">
+            
+                <a href="../usage/Migrations.html">
+            
+                    
+                    Model Migration
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.4" data-path="../usage/DataMigrations.html">
+            
+                <a href="../usage/DataMigrations.html">
+            
+                    
+                    Data Migrations
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5" data-path="../advanced/">
+            
+                <a href="../advanced/">
+            
+                    
+                    Advanced Topics
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.5.1" data-path="../advanced/ReplicationLag.html">
+            
+                <a href="../advanced/ReplicationLag.html">
+            
+                    
+                    Replication Lag
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5.2" data-path="../advanced/Rebalancing.html">
+            
+                <a href="../advanced/Rebalancing.html">
+            
+                    
+                    Shard Rebalancing
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.6" data-path="../../CHANGES.md">
+            
+                <span>
+            
+                    
+                    Change Log
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+    
+
+    <li class="divider"></li>
+
+    <li>
+        <a href="https://www.gitbook.com" target="blank" class="gitbook-link">
+            Published with GitBook
+        </a>
+    </li>
+</ul>
+
+
+                </nav>
+            
+        
+    </div>
+
+    <div class="book-body">
+        
+            <div class="body-inner">
+                
+                    
+
+<div class="book-header" role="navigation">
+    
+
+    <!-- Title -->
+    <h1>
+        <i class="fa fa-circle-o-notch fa-spin"></i>
+        <a href="../.." >Sharding Functions</a>
+    </h1>
+</div>
+
+
+
+
+                    <div class="page-wrapper" tabindex="-1" role="main">
+                        <div class="page-inner">
+                            
+<div id="book-search-results">
+    <div class="search-noresults">
+    
+                                <section class="normal markdown-section">
+                                
+                                <h1 id="sharding-functions">Sharding Functions</h1>
+<p>A sharding function is a function that is used to choose a shard for a group of objects. This is composed of two core functions that decide how to pick a shard in the case where we haven&apos;t previously chosen one and how to retrieve a previously chosen shard. This is split into the two functions <code>pick_shard</code> and <code>get_shard</code>. There are times when those two functions do the same thing, but in many cases the choice to pick a shard is non-deterministic and so you&apos;ll need to read from a stored value in <code>get_shard</code>.</p>
+<p>Note: This library does support Functional Sharding, which allows you to have multiple groups of shards or <code>sharding_group</code>s. This would allow you to store all of the objects of type A on one set of shards and all of the items of type B on another set of shards. However, the author does not suggest having multiple sharding functions and splitting data for one related item across multiple shards. Doing so prevents you from doing database joins on those items and typically the desire to split data in this way suggests that the whole system should be split. It is much easier and simpler to store all related data on a single shard.</p>
+<p>An interface for a sharding strategy looks as follows:</p>
+<pre><code class="lang-python"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">BaseBucketingStrategy</span><span class="hljs-params">(object)</span>:</span>
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__init__</span><span class="hljs-params">(self, shard_group=<span class="hljs-string">&apos;default&apos;</span>)</span>:</span>
+        self.shard_group = shard_group
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">get_shards</span><span class="hljs-params">(self, databases)</span>:</span>
+        <span class="hljs-keyword">return</span> [
+            name <span class="hljs-keyword">for</span>( name, config) <span class="hljs-keyword">in</span> databases
+            <span class="hljs-keyword">if</span> (
+                config.get(<span class="hljs-string">&apos;SHARD_GROUP&apos;</span>) == self.shard_group <span class="hljs-keyword">and</span>
+                <span class="hljs-keyword">not</span> config.get(<span class="hljs-string">&apos;PRIMARY&apos;</span>)
+            )
+        ]
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">pick_shard</span><span class="hljs-params">(self, model_sharded_by)</span>:</span>
+        <span class="hljs-string">&quot;&quot;&quot;
+        Returns the shard for the model which has not previously been bucketed
+        into a shard.
+        &quot;&quot;&quot;</span>
+        <span class="hljs-keyword">raise</span> <span class="hljs-built_in">NotImplemented</span>
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">get_shard</span><span class="hljs-params">(self, model_sharded_by)</span>:</span>
+        <span class="hljs-string">&quot;&quot;&quot;
+        Returns the shard for a model which has already been assigned a shard.
+        &quot;&quot;&quot;</span>
+        <span class="hljs-keyword">raise</span> <span class="hljs-built_in">NotImplemented</span>
+</code></pre>
+<p>There are multiple ways to implement the above code and I will provide, as an example, the functions that are shipped with this packages. There are two types of strategies that you may wish to use. The first kind, deterministic functions, will always return the same bucket and storage of the chosen shard is optional. The second kind, non-deterministic functions, require the shard to be stored as there is no way to derive the shard that belongs to a group of objects</p>
+<h4 id="deterministic-functions">Deterministic Functions</h4>
+<p>I have not shipped this package with any truly deterministic functions as all the ones that I&apos;ve implemented either use randomness, order or depend on the number of shards in the system as the time that the shard is picked. This is not highly recommended and is a considerably harder method but could still be implemented. For example, if the number of shards were never going to change, you could do something like this:</p>
+<pre><code class="lang-python"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ModBucketingStrategy</span><span class="hljs-params">(BaseBucketingStrategy)</span>:</span>
+    <span class="hljs-string">&quot;&quot;&quot;
+    A shard selection strategy that assigns shards based on the mod of the
+    models pk.
+    &quot;&quot;&quot;</span>
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__init__</span><span class="hljs-params">(self, shard_group, databases)</span>:</span>
+        super(RoundRobinBucketingStrategy, self).__init__(shard_group)
+        self.shards = self.get_shards(databases)
+        self.shards.sort()
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">pick_shard</span><span class="hljs-params">(self, model_sharded_by)</span>:</span>
+        <span class="hljs-keyword">return</span> self.shards[hash(str(model_sharded_by.pk)) % len(self.shards)]
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">get_shard</span><span class="hljs-params">(self, model_sharded_by)</span>:</span>
+        <span class="hljs-keyword">return</span> self.pick_shard(model_sharded_by)
+</code></pre>
+<h4 id="non-deterministic-functions">Non-deterministic Functions</h4>
+<h5 id="random-bucketing-strategy">Random Bucketing Strategy</h5>
+<p>As the name says, this method chooses a random shard and ends up storing it on the model in question.</p>
+<pre><code class="lang-python"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">RandomBucketingStrategy</span><span class="hljs-params">(BaseShardedModelBucketingStrategy)</span>:</span>
+    <span class="hljs-string">&quot;&quot;&quot;
+    A shard selection strategy that assigns shards randomly.
+    This is non-deterministic and this strategy assumes the shard is saved to
+    the model.
+    &quot;&quot;&quot;</span>
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__init__</span><span class="hljs-params">(self, shard_group, databases)</span>:</span>
+        super(RoundRobinBucketingStrategy, self).__init__(shard_group)
+        self.shards = self.get_shards(databases)
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">pick_shard</span><span class="hljs-params">(self, model_sharded_by)</span>:</span>
+        <span class="hljs-keyword">return</span> choice(self.shards)
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">get_shard</span><span class="hljs-params">(self, model_sharded_by)</span>:</span>
+        <span class="hljs-keyword">return</span> model_sharded_by.shard
+</code></pre>
+<h5 id="round-robin-bucketing-strategy">Round-Robin Bucketing Strategy</h5>
+<p>This uses a round-robin approach to choose a shard in order to maintain a balance across the system so that the proportion of new instances is even across the shards:</p>
+<pre><code class="lang-python"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">RoundRobinBucketingStrategy</span><span class="hljs-params">(BaseShardedModelBucketingStrategy)</span>:</span>
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__init__</span><span class="hljs-params">(self, shard_group, databases)</span>:</span>
+        super(RoundRobinBucketingStrategy, self).__init__(shard_group)
+        shards = self.get_shards(databases)
+        max_index = max(<span class="hljs-number">0</span>, len(shards) - <span class="hljs-number">1</span>)
+        starting_index = randint(<span class="hljs-number">0</span>, max_index)
+        shards = shards[starting_index:] + shards[:starting_index]
+        self._shards_cycle = cycle(shards)
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">pick_shard</span><span class="hljs-params">(self, model_sharded_by)</span>:</span>
+        <span class="hljs-keyword">return</span> next(self._shards_cycle)
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">get_shard</span><span class="hljs-params">(self, model_sharded_by)</span>:</span>
+        <span class="hljs-keyword">return</span> model_sharded_by.shard
+</code></pre>
+<p>Since this is initialized at app initialization time, it begins the cycle at a random index, otherwise the first shard would always be imbalanced.</p>
+<h5 id="mod-bucketing-strategy">Mod Bucketing Strategy</h5>
+<p>This works the same way as the non-deterministic strategy but allows you to add shards by storing them on the model.</p>
+<pre><code class="lang-python"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ModBucketingStrategy</span><span class="hljs-params">(BaseBucketingStrategy)</span>:</span>
+    <span class="hljs-string">&quot;&quot;&quot;
+    A shard selection strategy that assigns shards based on the mod of the
+    models pk.
+    &quot;&quot;&quot;</span>
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__init__</span><span class="hljs-params">(self, shard_group, databases)</span>:</span>
+        super(RoundRobinBucketingStrategy, self).__init__(shard_group)
+        self.shards = self.get_shards(databases)
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">pick_shard</span><span class="hljs-params">(self, model_sharded_by)</span>:</span>
+        <span class="hljs-keyword">return</span> self.shards[hash(str(model_sharded_by.pk)) % len(self.shards)]
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">get_shard</span><span class="hljs-params">(self, model_sharded_by)</span>:</span>
+        <span class="hljs-keyword">return</span> model_sharded_by.shard
+</code></pre>
+
+                                
+                                </section>
+                            
+    </div>
+    <div class="search-results">
+        <div class="has-results">
+            
+            <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+            <ul class="search-results-list"></ul>
+            
+        </div>
+        <div class="no-results">
+            
+            <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+            
+        </div>
+    </div>
+</div>
+
+                        </div>
+                    </div>
+                
+            </div>
+
+            
+                
+                <a href="IDGeneration.html" class="navigation navigation-prev " aria-label="Previous page: ID Generation">
+                    <i class="fa fa-angle-left"></i>
+                </a>
+                
+                
+                <a href="ReadStrategies.html" class="navigation navigation-next " aria-label="Next page: Read Strategies">
+                    <i class="fa fa-angle-right"></i>
+                </a>
+                
+            
+        
+    </div>
+
+    <script>
+        var gitbook = gitbook || [];
+        gitbook.push(function() {
+            gitbook.page.hasChanged({"page":{"title":"Sharding Functions","level":"1.2.2","depth":2,"next":{"title":"Read Strategies","level":"1.2.3","depth":2,"path":"docs/components/ReadStrategies.md","ref":"docs/components/ReadStrategies.md","articles":[]},"previous":{"title":"ID Generation","level":"1.2.1","depth":2,"path":"docs/components/IDGeneration.md","ref":"docs/components/IDGeneration.md","articles":[]},"dir":"ltr"},"config":{"plugins":["search"],"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"search":{},"highlight":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"links":{},"gitbook":"3.x.x"},"file":{"path":"docs/components/ShardingFunctions.md","mtime":"2016-10-07T21:49:12.000Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2016-10-07T22:10:52.928Z"},"basePath":"../..","book":{"language":""}});
+        });
+    </script>
+</div>
+
+        
+    <script src="../../gitbook/gitbook.js"></script>
+    <script src="../../gitbook/theme.js"></script>
+    
+        
+        <script src="../../gitbook/gitbook-plugin-search/search-engine.js"></script>
+        
+    
+        
+        <script src="../../gitbook/gitbook-plugin-search/search.js"></script>
+        
+    
+        
+        <script src="../../gitbook/gitbook-plugin-lunr/lunr.min.js"></script>
+        
+    
+        
+        <script src="../../gitbook/gitbook-plugin-lunr/search-lunr.js"></script>
+        
+    
+        
+        <script src="../../gitbook/gitbook-plugin-sharing/buttons.js"></script>
+        
+    
+        
+        <script src="../../gitbook/gitbook-plugin-fontsettings/fontsettings.js"></script>
+        
+    
+
+    </body>
+</html>
+

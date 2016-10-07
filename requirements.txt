@@ -1,0 +1,2 @@
+django>=1.8
+dj-database-url==0.3.0

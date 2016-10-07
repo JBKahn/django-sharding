@@ -1,0 +1,561 @@
+
+<!DOCTYPE HTML>
+<html lang="" >
+    <head>
+        <meta charset="UTF-8">
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <title>Choosing How To Shard · GitBook</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="description" content="">
+        <meta name="generator" content="GitBook 3.2.2">
+        
+        
+        
+    
+    <link rel="stylesheet" href="../../gitbook/style.css">
+
+    
+            
+                
+                <link rel="stylesheet" href="../../gitbook/gitbook-plugin-search/search.css">
+                
+            
+                
+                <link rel="stylesheet" href="../../gitbook/gitbook-plugin-highlight/website.css">
+                
+            
+                
+                <link rel="stylesheet" href="../../gitbook/gitbook-plugin-fontsettings/website.css">
+                
+            
+        
+
+    
+
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+        
+    
+    
+    <meta name="HandheldFriendly" content="true"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="../../gitbook/images/apple-touch-icon-precomposed-152.png">
+    <link rel="shortcut icon" href="../../gitbook/images/favicon.ico" type="image/x-icon">
+
+    
+    <link rel="next" href="Settings.html" />
+    
+    
+    <link rel="prev" href="./" />
+    
+
+    </head>
+    <body>
+        
+<div class="book">
+    <div class="book-summary">
+        
+            
+<div id="book-search-input" role="search">
+    <input type="text" placeholder="Type to search" />
+</div>
+
+            
+                <nav role="navigation">
+                
+
+
+<ul class="summary">
+    
+    
+
+    
+
+    
+        
+        <li class="header">Table of Contents</li>
+        
+        
+    
+        <li class="chapter " data-level="1.1" data-path="../../">
+            
+                <a href="../../">
+            
+                    
+                    Read Me
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2" data-path="../components/">
+            
+                <a href="../components/">
+            
+                    
+                    Components
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.2.1" data-path="../components/IDGeneration.html">
+            
+                <a href="../components/IDGeneration.html">
+            
+                    
+                    ID Generation
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.2" data-path="../components/ShardingFunctions.html">
+            
+                <a href="../components/ShardingFunctions.html">
+            
+                    
+                    Sharding Functions
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.3" data-path="../components/ReadStrategies.html">
+            
+                <a href="../components/ReadStrategies.html">
+            
+                    
+                    Read Strategies
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.4" data-path="../components/Router.html">
+            
+                <a href="../components/Router.html">
+            
+                    
+                    The Router
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.5" data-path="../components/OtherComponents.html">
+            
+                <a href="../components/OtherComponents.html">
+            
+                    
+                    Other Components
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3" data-path="./">
+            
+                <a href="./">
+            
+                    
+                    Installation
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter active" data-level="1.3.1" data-path="HowToShard.html">
+            
+                <a href="HowToShard.html">
+            
+                    
+                    Choosing How To Shard
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.2" data-path="Settings.html">
+            
+                <a href="Settings.html">
+            
+                    
+                    Settings
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4" data-path="../usage/">
+            
+                <a href="../usage/">
+            
+                    
+                    Usage
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.4.1" data-path="../usage/AnotherDB.html">
+            
+                <a href="../usage/AnotherDB.html">
+            
+                    
+                    Store Models on Another DB
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.2" data-path="../usage/ShardingAModel.html">
+            
+                <a href="../usage/ShardingAModel.html">
+            
+                    
+                    Sharding A Model
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.3" data-path="../usage/Migrations.html">
+            
+                <a href="../usage/Migrations.html">
+            
+                    
+                    Model Migration
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.4" data-path="../usage/DataMigrations.html">
+            
+                <a href="../usage/DataMigrations.html">
+            
+                    
+                    Data Migrations
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5" data-path="../advanced/">
+            
+                <a href="../advanced/">
+            
+                    
+                    Advanced Topics
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.5.1" data-path="../advanced/ReplicationLag.html">
+            
+                <a href="../advanced/ReplicationLag.html">
+            
+                    
+                    Replication Lag
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5.2" data-path="../advanced/Rebalancing.html">
+            
+                <a href="../advanced/Rebalancing.html">
+            
+                    
+                    Shard Rebalancing
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.6" data-path="../../CHANGES.md">
+            
+                <span>
+            
+                    
+                    Change Log
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+    
+
+    <li class="divider"></li>
+
+    <li>
+        <a href="https://www.gitbook.com" target="blank" class="gitbook-link">
+            Published with GitBook
+        </a>
+    </li>
+</ul>
+
+
+                </nav>
+            
+        
+    </div>
+
+    <div class="book-body">
+        
+            <div class="body-inner">
+                
+                    
+
+<div class="book-header" role="navigation">
+    
+
+    <!-- Title -->
+    <h1>
+        <i class="fa fa-circle-o-notch fa-spin"></i>
+        <a href="../.." >Choosing How To Shard</a>
+    </h1>
+</div>
+
+
+
+
+                    <div class="page-wrapper" tabindex="-1" role="main">
+                        <div class="page-inner">
+                            
+<div id="book-search-results">
+    <div class="search-noresults">
+    
+                                <section class="normal markdown-section">
+                                
+                                <h1 id="choosing-how-to-shard">Choosing How To Shard</h1>
+<p>When deciding how to shard, there are several considerations to make that will impact your setup.</p>
+<h3 id="shard-groups">Shard Groups</h3>
+<p>You can think of shard groups as distinct groups of databases so that you can limit sharded data to a subset of the shards included in your application. For example, you may have six shards in your application and use three for one item and three to store another. The <code>default</code> shard group is used when no shard groups are given in the settings file.</p>
+<p>While you may use this library however you&apos;d like, the author recommends that you only use the <code>default</code> shard group. This is because you will often want to do joins on the data later, when it will not be in the same set of databases, or the data is so split that it probably does not belong in the same application as the other data. In either case, it is simpler and easier to use one shard group over many.</p>
+<h3 id="storing-shards">Storing Shards</h3>
+<p>Often you&apos;ll want to store the shard when you pick one for an instance. For example, if you were to shard your data by user then you&apos;ll want to store that shard somewhere. You&apos;ll likely want to store it on the user, but perhaps all your users have multiple Group instances and you&apos;d like to store this data on the Group rather than the user, than that is an option too. Both are supported by the library, but you must decide where to store the shard unless your sharding function is deterministic (as discussed earlier in the component section of these docs).</p>
+<h3 id="sharding-functions">Sharding Functions</h3>
+<p>In order to shard your data, you need to decide how to pick those shards. For example, it you were to shard by User then how do you pick a shard given a User? You may choose to inspect the user or to try to balance the load across all the databases. There are multiple ways to do that and several included as discussed in the component section of these docs.</p>
+<h3 id="will-i-use-replicate-databases">Will I Use Replicate Databases?</h3>
+<p>To an app without replicate databases, the read strategy for a router is unimportant. However, if you have replicates then you may want to decide how to use them. You may want to read from them evenly, randomly or using a known ratio as discussed in the components section of the docs. While replicates may be useful, the author feels that you should not use them in your production environment. As discussed by <a href="https://engineering.pinterest.com/blog/sharding-pinterest-how-we-scaled-our-mysql-fleet" target="_blank">pinterest</a> in their Design Philosophies, you then have to take into account replication lag time as well as other issues. It would be simpler and easier to just include more shards.</p>
+<h3 id="logical-vs-physical-sharding">Logical vs Physical Sharding</h3>
+<p>There are two types of shards you can create, logical shards and physical shards. A logical shard is splitting data into multiple databases on the same physical node. A physical shard is when splitting data across multiple nodes. It is the recommendation of the author that you start using both. The reason is that it&apos;s easier to rebalance logical shards across machines that rebalance the data in physical shards. For example, imagine your application were to have two physical shards defined like so:</p>
+<pre><code class="lang-python">DATABASES = database_configs(databases_dict={
+    <span class="hljs-string">&apos;unsharded_databases&apos;</span>: [
+        {
+            <span class="hljs-string">&apos;name&apos;</span>: <span class="hljs-string">&apos;default&apos;</span>,
+            <span class="hljs-string">&apos;environment_variable&apos;</span>: <span class="hljs-string">&apos;DATABASE_URL&apos;</span>,
+            <span class="hljs-string">&apos;default_database_url&apos;</span>: <span class="hljs-string">&apos;postgres://user:pwd@localhost/sharding&apos;</span>
+        }
+    ],
+    <span class="hljs-string">&apos;sharded_databases&apos;</span>: [
+        {
+            <span class="hljs-string">&apos;name&apos;</span>: <span class="hljs-string">&apos;app_shard_001&apos;</span>,
+            <span class="hljs-string">&apos;environment_variable&apos;</span>: <span class="hljs-string">&apos;SHARD_001_DATABASE_URL&apos;</span>,
+            <span class="hljs-string">&apos;default_database_url&apos;</span>: <span class="hljs-string">&apos;postgres://user:pwd@some_host_01/shard_01&apos;</span>
+        },
+        {
+            <span class="hljs-string">&apos;name&apos;</span>: <span class="hljs-string">&apos;app_shard_002&apos;</span>,
+            <span class="hljs-string">&apos;environment_variable&apos;</span>: <span class="hljs-string">&apos;SHARD_002_DATABASE_URL&apos;</span>,
+            <span class="hljs-string">&apos;default_database_url&apos;</span>: <span class="hljs-string">&apos;postgres://user:pwd@some_host_02/shard_02&apos;</span>
+        },
+    ]
+})
+</code></pre>
+<p>Suppose they were nearing capacity then adding a third would result in a terrible data imbalance. The only way to rebalance them is to move related data to a new shard. That&apos;s a difficult task which we&apos;ll discuss in the advanced section of this guide.</p>
+<p>On the other hand, if you had used two physical nodes with two logical shards each, which you&apos;d define like so:</p>
+<pre><code class="lang-python">DATABASES = database_configs(databases_dict={
+    <span class="hljs-string">&apos;unsharded_databases&apos;</span>: [
+        {
+            <span class="hljs-string">&apos;name&apos;</span>: <span class="hljs-string">&apos;default&apos;</span>,
+            <span class="hljs-string">&apos;environment_variable&apos;</span>: <span class="hljs-string">&apos;DATABASE_URL&apos;</span>,
+            <span class="hljs-string">&apos;default_database_url&apos;</span>: <span class="hljs-string">&apos;postgres://user:pwd@localhost/sharding&apos;</span>
+        }
+    ],
+    <span class="hljs-string">&apos;sharded_databases&apos;</span>: [
+        {
+            <span class="hljs-string">&apos;name&apos;</span>: <span class="hljs-string">&apos;app_shard_001&apos;</span>,
+            <span class="hljs-string">&apos;environment_variable&apos;</span>: <span class="hljs-string">&apos;SHARD_001_DATABASE_URL&apos;</span>,
+            <span class="hljs-string">&apos;default_database_url&apos;</span>: <span class="hljs-string">&apos;postgres://user:pwd@some_host_01/shard_01&apos;</span>
+        },
+        {
+            <span class="hljs-string">&apos;name&apos;</span>: <span class="hljs-string">&apos;app_shard_002&apos;</span>,
+            <span class="hljs-string">&apos;environment_variable&apos;</span>: <span class="hljs-string">&apos;SHARD_002_DATABASE_URL&apos;</span>,
+            <span class="hljs-string">&apos;default_database_url&apos;</span>: <span class="hljs-string">&apos;postgres://user:pwd@some_host_01/shard_02&apos;</span>
+        },
+        {
+            <span class="hljs-string">&apos;name&apos;</span>: <span class="hljs-string">&apos;app_shard_003&apos;</span>,
+            <span class="hljs-string">&apos;environment_variable&apos;</span>: <span class="hljs-string">&apos;SHARD_003_DATABASE_URL&apos;</span>,
+            <span class="hljs-string">&apos;default_database_url&apos;</span>: <span class="hljs-string">&apos;postgres://user:pwd@some_host_02/shard_03&apos;</span>
+        },
+        {
+            <span class="hljs-string">&apos;name&apos;</span>: <span class="hljs-string">&apos;app_shard_004&apos;</span>,
+            <span class="hljs-string">&apos;environment_variable&apos;</span>: <span class="hljs-string">&apos;SHARD_004_DATABASE_URL&apos;</span>,
+            <span class="hljs-string">&apos;default_database_url&apos;</span>: <span class="hljs-string">&apos;postgres://user:pwd@some_host_02/shard_04&apos;</span>
+        },
+    ]
+})
+</code></pre>
+<p>Then, as a way to rebalance the data, you could move either <code>app_shard_003</code> or <code>app_shard_002</code> to <code>some_host_03</code>, your new machine. And all you&apos;d have to do is copy over the database and change <code>&apos;postgres://user:pwd@some_host_02/shard_03&apos;</code> to <code>&apos;postgres://user:pwd@some_host_03/shard_03&apos;</code>. This wouldn&apos;t leave you incredibly balanced with only two logical shards per node, so the author suggests at least ten logical shards per node. That way you can easily rebalance data as your data-set grows.</p>
+<h3 id="many-shards-or-few-shards">Many Shards or Few Shards?</h3>
+<p>The author recommends that you create more shards than you think are necessary. Extra logical shards allow you to much more easily rebalance data across physical nodes in the future. Also, by storing data on different machines, you increase the number of connections to your databases.</p>
+
+                                
+                                </section>
+                            
+    </div>
+    <div class="search-results">
+        <div class="has-results">
+            
+            <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+            <ul class="search-results-list"></ul>
+            
+        </div>
+        <div class="no-results">
+            
+            <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+            
+        </div>
+    </div>
+</div>
+
+                        </div>
+                    </div>
+                
+            </div>
+
+            
+                
+                <a href="./" class="navigation navigation-prev " aria-label="Previous page: Installation">
+                    <i class="fa fa-angle-left"></i>
+                </a>
+                
+                
+                <a href="Settings.html" class="navigation navigation-next " aria-label="Next page: Settings">
+                    <i class="fa fa-angle-right"></i>
+                </a>
+                
+            
+        
+    </div>
+
+    <script>
+        var gitbook = gitbook || [];
+        gitbook.push(function() {
+            gitbook.page.hasChanged({"page":{"title":"Choosing How To Shard","level":"1.3.1","depth":2,"next":{"title":"Settings","level":"1.3.2","depth":2,"path":"docs/installation/Settings.md","ref":"docs/installation/Settings.md","articles":[]},"previous":{"title":"Installation","level":"1.3","depth":1,"path":"docs/installation/README.md","ref":"docs/installation/README.md","articles":[{"title":"Choosing How To Shard","level":"1.3.1","depth":2,"path":"docs/installation/HowToShard.md","ref":"docs/installation/HowToShard.md","articles":[]},{"title":"Settings","level":"1.3.2","depth":2,"path":"docs/installation/Settings.md","ref":"docs/installation/Settings.md","articles":[]}]},"dir":"ltr"},"config":{"plugins":["search"],"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"search":{},"highlight":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"links":{},"gitbook":"3.x.x"},"file":{"path":"docs/installation/HowToShard.md","mtime":"2016-10-07T21:49:12.000Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2016-10-07T22:10:52.928Z"},"basePath":"../..","book":{"language":""}});
+        });
+    </script>
+</div>
+
+        
+    <script src="../../gitbook/gitbook.js"></script>
+    <script src="../../gitbook/theme.js"></script>
+    
+        
+        <script src="../../gitbook/gitbook-plugin-search/search-engine.js"></script>
+        
+    
+        
+        <script src="../../gitbook/gitbook-plugin-search/search.js"></script>
+        
+    
+        
+        <script src="../../gitbook/gitbook-plugin-lunr/lunr.min.js"></script>
+        
+    
+        
+        <script src="../../gitbook/gitbook-plugin-lunr/search-lunr.js"></script>
+        
+    
+        
+        <script src="../../gitbook/gitbook-plugin-sharing/buttons.js"></script>
+        
+    
+        
+        <script src="../../gitbook/gitbook-plugin-fontsettings/fontsettings.js"></script>
+        
+    
+
+    </body>
+</html>
+

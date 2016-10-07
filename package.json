@@ -1,0 +1,16 @@
+{
+  "name": "django-sharding",
+  "version": "1.0.0",
+  "description": "django library and package for sharding",
+  "scripts": {
+    "docs:clean": "rimraf _book",
+    "docs:prepare": "gitbook install",
+    "docs:build": "npm run docs:prepare && gitbook build -g JBKahn/django-sharding",
+    "docs:watch": "npm run docs:prepare && gitbook serve",
+    "docs:publish": "npm run docs:clean && npm run docs:build && cd _book && git init && git commit --allow-empty -m 'update book' && git checkout -b gh-pages && touch .nojekyll && git add . && git commit -am 'update book' && git push git@github.com:JBKahn/django-sharding gh-pages --force"
+  },
+  "devDependencies": {
+    "gitbook-cli": "^0.3.4",
+    "gitbook-plugin-prism": "^0.1.1"
+  }
+}

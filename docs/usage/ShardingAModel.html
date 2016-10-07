@@ -1,0 +1,596 @@
+
+<!DOCTYPE HTML>
+<html lang="" >
+    <head>
+        <meta charset="UTF-8">
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <title>Sharding A Model · GitBook</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="description" content="">
+        <meta name="generator" content="GitBook 3.2.2">
+        
+        
+        
+    
+    <link rel="stylesheet" href="../../gitbook/style.css">
+
+    
+            
+                
+                <link rel="stylesheet" href="../../gitbook/gitbook-plugin-search/search.css">
+                
+            
+                
+                <link rel="stylesheet" href="../../gitbook/gitbook-plugin-highlight/website.css">
+                
+            
+                
+                <link rel="stylesheet" href="../../gitbook/gitbook-plugin-fontsettings/website.css">
+                
+            
+        
+
+    
+
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+        
+    
+    
+    <meta name="HandheldFriendly" content="true"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="../../gitbook/images/apple-touch-icon-precomposed-152.png">
+    <link rel="shortcut icon" href="../../gitbook/images/favicon.ico" type="image/x-icon">
+
+    
+    <link rel="next" href="Migrations.html" />
+    
+    
+    <link rel="prev" href="AnotherDB.html" />
+    
+
+    </head>
+    <body>
+        
+<div class="book">
+    <div class="book-summary">
+        
+            
+<div id="book-search-input" role="search">
+    <input type="text" placeholder="Type to search" />
+</div>
+
+            
+                <nav role="navigation">
+                
+
+
+<ul class="summary">
+    
+    
+
+    
+
+    
+        
+        <li class="header">Table of Contents</li>
+        
+        
+    
+        <li class="chapter " data-level="1.1" data-path="../../">
+            
+                <a href="../../">
+            
+                    
+                    Read Me
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2" data-path="../components/">
+            
+                <a href="../components/">
+            
+                    
+                    Components
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.2.1" data-path="../components/IDGeneration.html">
+            
+                <a href="../components/IDGeneration.html">
+            
+                    
+                    ID Generation
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.2" data-path="../components/ShardingFunctions.html">
+            
+                <a href="../components/ShardingFunctions.html">
+            
+                    
+                    Sharding Functions
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.3" data-path="../components/ReadStrategies.html">
+            
+                <a href="../components/ReadStrategies.html">
+            
+                    
+                    Read Strategies
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.4" data-path="../components/Router.html">
+            
+                <a href="../components/Router.html">
+            
+                    
+                    The Router
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.5" data-path="../components/OtherComponents.html">
+            
+                <a href="../components/OtherComponents.html">
+            
+                    
+                    Other Components
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3" data-path="../installation/">
+            
+                <a href="../installation/">
+            
+                    
+                    Installation
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.3.1" data-path="../installation/HowToShard.html">
+            
+                <a href="../installation/HowToShard.html">
+            
+                    
+                    Choosing How To Shard
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.2" data-path="../installation/Settings.html">
+            
+                <a href="../installation/Settings.html">
+            
+                    
+                    Settings
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4" data-path="./">
+            
+                <a href="./">
+            
+                    
+                    Usage
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.4.1" data-path="AnotherDB.html">
+            
+                <a href="AnotherDB.html">
+            
+                    
+                    Store Models on Another DB
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter active" data-level="1.4.2" data-path="ShardingAModel.html">
+            
+                <a href="ShardingAModel.html">
+            
+                    
+                    Sharding A Model
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.3" data-path="Migrations.html">
+            
+                <a href="Migrations.html">
+            
+                    
+                    Model Migration
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.4" data-path="DataMigrations.html">
+            
+                <a href="DataMigrations.html">
+            
+                    
+                    Data Migrations
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5" data-path="../advanced/">
+            
+                <a href="../advanced/">
+            
+                    
+                    Advanced Topics
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.5.1" data-path="../advanced/ReplicationLag.html">
+            
+                <a href="../advanced/ReplicationLag.html">
+            
+                    
+                    Replication Lag
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5.2" data-path="../advanced/Rebalancing.html">
+            
+                <a href="../advanced/Rebalancing.html">
+            
+                    
+                    Shard Rebalancing
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.6" data-path="../../CHANGES.md">
+            
+                <span>
+            
+                    
+                    Change Log
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+    
+
+    <li class="divider"></li>
+
+    <li>
+        <a href="https://www.gitbook.com" target="blank" class="gitbook-link">
+            Published with GitBook
+        </a>
+    </li>
+</ul>
+
+
+                </nav>
+            
+        
+    </div>
+
+    <div class="book-body">
+        
+            <div class="body-inner">
+                
+                    
+
+<div class="book-header" role="navigation">
+    
+
+    <!-- Title -->
+    <h1>
+        <i class="fa fa-circle-o-notch fa-spin"></i>
+        <a href="../.." >Sharding A Model</a>
+    </h1>
+</div>
+
+
+
+
+                    <div class="page-wrapper" tabindex="-1" role="main">
+                        <div class="page-inner">
+                            
+<div id="book-search-results">
+    <div class="search-noresults">
+    
+                                <section class="normal markdown-section">
+                                
+                                <h1 id="sharding-a-model">Sharding A Model</h1>
+<h3 id="defining-the-shard-key">Defining The Shard Key</h3>
+<p>Based on the earlier sections of the documentation, you need to choose a sharding function, strategy and ID generation strategy. </p>
+<h4 id="storing-the-shard-on-the-model-with-the-shard-key">Storing The Shard On The Model With The Shard Key</h4>
+<p>The first way to do this is to store the shard on the model with the shard key. For simplicity, we&apos;ll assume that you want to shard all your data by a key on the User table, although the <code>ShardedByMixin</code> could be used on any model. The code would therefore look something like this:</p>
+<pre><code class="lang-python"><span class="hljs-keyword">from</span> django.contrib.auth.models <span class="hljs-keyword">import</span> AbstractUser
+
+<span class="hljs-keyword">from</span> django_sharding_library.models <span class="hljs-keyword">import</span> ShardedByMixin
+
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span><span class="hljs-params">(AbstractUser, ShardedByMixin)</span>:</span>
+    <span class="hljs-keyword">pass</span>
+</code></pre>
+<p>Add that custom User to your settings file using the string class path:</p>
+<pre><code class="lang-python">AUTH_USER_MODEL = <span class="hljs-string">&apos;&lt;app_with_user_model&gt;.User&apos;</span>
+</code></pre>
+<p>Now the result is that the User table has a field on it to store the shard and the app configuration is will automatically generate and save the shard to the User model on the first save.</p>
+<h4 id="storing-the-shard-on-the-a-model-without-the-shard-key">Storing The Shard On The a Model Without The Shard Key</h4>
+<p>Alternatively you may want to store the shard somewhere else. For example, the system primary runs on operations done on branches of a bank and so you could store the shard on the branch but you&apos;d also like all branches of the same bank to be on a single shard. In this situation, you&apos;ll want to store the shard on the branch but ensure that no two branches of the same bank are ever on different shards. To do that, you need to use a second table to store the shard and foreign key to that table rather than storing the shard directly.</p>
+<p>For example, this code sets up <code>SomeCoolGuyModel</code> to store the shard using a foreign key so that all <code>SomeCoolGuyModel</code>s that are nested under the same user are on the same shard.</p>
+<pre><code class="lang-python"><span class="hljs-keyword">from</span> django.db <span class="hljs-keyword">import</span> models
+
+<span class="hljs-keyword">from</span> django_sharding_library.fields <span class="hljs-keyword">import</span> ShardForeignKeyStorageField
+<span class="hljs-keyword">from</span> django_sharding_library.models <span class="hljs-keyword">import</span> ShardStorageModel
+
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ShardStorageTable</span><span class="hljs-params">(ShardStorageModel)</span>:</span>
+    <span class="hljs-string">&quot;&quot;&quot;
+    A table with a row for the unique sharding key and a value for the shard.
+    &quot;&quot;&quot;</span>
+    <span class="hljs-keyword">pass</span>
+
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SomeCoolGuyModel</span><span class="hljs-params">(models.Model)</span>:</span>
+    shard = ShardForeignKeyStorageField(ShardStorageTable, shard_group=<span class="hljs-string">&apos;default&apos;</span>)
+    some_cool_guy_string = models.CharField(max_length=<span class="hljs-number">120</span>)
+    test = models.ForeignKey(UnshardedTestModel)
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">get_shard_key</span><span class="hljs-params">(self)</span>:</span>
+        <span class="hljs-keyword">return</span> self.test.user_pk
+</code></pre>
+<h3 id="create-your-first-sharded-model">Create Your First Sharded Model</h3>
+<h4 id="defining-the-model">Defining The Model</h4>
+<p>Once you&apos;ve chosen how you&apos;d like to shard your model, it&apos;s very easy to shard a model across a shard group. You need to define your model like this:</p>
+<pre><code class="lang-python"><span class="hljs-keyword">from</span> django.db <span class="hljs-keyword">import</span> models
+
+<span class="hljs-keyword">from</span> django_sharding_library.decorators <span class="hljs-keyword">import</span> model_config
+<span class="hljs-keyword">from</span> django_sharding_library.fields <span class="hljs-keyword">import</span> TableShardedIDField
+<span class="hljs-keyword">from</span> django_sharding_library.models <span class="hljs-keyword">import</span> TableStrategyModel
+
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ShardedCoolGuyModelIDs</span><span class="hljs-params">(TableStrategyModel)</span>:</span>
+    <span class="hljs-keyword">pass</span>
+
+
+<span class="hljs-meta">@model_config(shard_group=&apos;default&apos;, sharded_by_field=&apos;user_pk&apos;)</span>
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">CoolGuyShardedModel</span><span class="hljs-params">(models.Model)</span>:</span>
+    id = TableShardedIDField(primary_key=<span class="hljs-keyword">True</span>, source_table=ShardedCoolGuyModelIDs)
+    cool_guy_string = models.CharField(max_length=<span class="hljs-number">120</span>)
+    user_pk = models.PositiveIntegerField()
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">get_shard</span><span class="hljs-params">(self)</span>:</span>
+        <span class="hljs-keyword">from</span> django.contrib.auth <span class="hljs-keyword">import</span> get_user_model
+        <span class="hljs-keyword">return</span> get_user_model().objects.get(pk=self.user_pk).shard
+
+<span class="hljs-meta">    @staticmethod</span>
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">get_shard_from_id</span><span class="hljs-params">(user_pk)</span>:</span>
+        <span class="hljs-keyword">from</span> django.contrib.auth <span class="hljs-keyword">import</span> get_user_model
+        <span class="hljs-keyword">return</span> get_user_model().objects.get(pk=user_pk).shard
+</code></pre>
+<p>The above example illustrates the id generation strategy of using an unsharded table to generate unique IDs for each instance of the sharded model. The four important steps in defining a sharded model are:</p>
+<ol>
+<li>The model requires the use the decorator with a given <code>shard_group</code> and <code>sharded_by_field</code> to tell Django that the model is sharded and what field it is sharded by.</li>
+<li>The model requires a shard-aware primary field, even if it&apos;s going to use a simple <code>AutoIDField</code>.</li>
+<li>The model needs a <code>get_shard</code> function to instruct how to get a shard given an instance.</li>
+<li>The model needs a <code>get_shard_from_id</code> static method that will tell the router which shard to query against. The method must take an argument (which will be the <code>sharded_by_field</code> value you are querying against) and return the shard to query.</li>
+</ol>
+<h4 id="accessing-data-on-sharded-models">Accessing Data on Sharded Models</h4>
+<p>When you&apos;re not re-saving an instance of the model you&apos;ve retrieved, you need to tell Django which database to read from and which to save on. This is done by using the <code>using</code> command, or by querying with the <code>shard_by_id</code> field in the filter(), create(), get(), or get_or_create() methods:</p>
+<pre><code class="lang-python"><span class="hljs-comment"># You can use the method on the model or another one to get the shard</span>
+shard = <span class="hljs-string">&apos;some_database&apos;</span>
+CoolGuyShardedModel.objects.using(shard).filter(some_field=<span class="hljs-string">&apos;some_value&apos;</span>)
+<span class="hljs-comment"># Or, without the using() statement, if you query against the `sharded_by_field` in your filter()</span>
+CoolGuyShardedModel.objects.filter(user_pk=<span class="hljs-number">123</span>, some_field=<span class="hljs-string">&apos;some_value&apos;</span>)
+</code></pre>
+<p>Once you&apos;ve defined your model, we can move onto how to run migrations.</p>
+<h3 id="using-the-postgresshardgeneratedidfield">Using the PostgresShardGeneratedIDField</h3>
+<p>If you would like to use the PostgresShardGeneratedIDField, there are a few subtle differences and caveats that you need to be aware of.</p>
+<ol>
+<li>If you define a PostgresShardGeneratedIDField, you should not use another shard ID generation strategy with that model. Additionally, the field should be marked as the primary key. An example of a model with a PostgresShardIDField:<pre><code class="lang-python"><span class="hljs-meta">@model_config(shard_group=&apos;default&apos;)</span>
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">CoolGuyShardedModel</span><span class="hljs-params">(models.Model)</span>:</span>
+ id = PostgresShardGeneratedIDField(primary_key=<span class="hljs-keyword">True</span>)
+ cool_guy_string = models.CharField(max_length=<span class="hljs-number">120</span>)
+ user_pk = models.PositiveIntegerField()
+</code></pre>
+</li>
+<li><p>You must define a &quot;SHARD_EPOCH&quot; variable in your Django settings file. This can be any epoch start time you want, but once chosen, should NEVER be changed. Here is an example of what it should look like (which will make your shard epoch Jan 1, 2016):</p>
+<pre><code class="lang-python"><span class="hljs-keyword">import</span> time
+<span class="hljs-keyword">from</span> datetime <span class="hljs-keyword">import</span> datetime
+<span class="hljs-comment"># other settings go here...</span>
+SHARD_EPOCH=int(time.mktime(datetime(<span class="hljs-number">2016</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>).timetuple()) * <span class="hljs-number">1000</span>)
+</code></pre>
+</li>
+<li><p>When you are editing your DATABASES settings, the order of the shards MUST be maintained. If you add a new shard, it needs to be added to the end of the list of databases, not to the beginning or middle.</p>
+</li>
+<li>There is a maximum number of logical shards supported by this field. You can only have up to 8191 logical shards: if you try to go beyond, you will get duplicate IDs between your shards. Do not try to add more than 8191 shards. If you need more than that, I recommend you choose one of the other ID generation strategies.</li>
+</ol>
+
+                                
+                                </section>
+                            
+    </div>
+    <div class="search-results">
+        <div class="has-results">
+            
+            <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+            <ul class="search-results-list"></ul>
+            
+        </div>
+        <div class="no-results">
+            
+            <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+            
+        </div>
+    </div>
+</div>
+
+                        </div>
+                    </div>
+                
+            </div>
+
+            
+                
+                <a href="AnotherDB.html" class="navigation navigation-prev " aria-label="Previous page: Store Models on Another DB">
+                    <i class="fa fa-angle-left"></i>
+                </a>
+                
+                
+                <a href="Migrations.html" class="navigation navigation-next " aria-label="Next page: Model Migration">
+                    <i class="fa fa-angle-right"></i>
+                </a>
+                
+            
+        
+    </div>
+
+    <script>
+        var gitbook = gitbook || [];
+        gitbook.push(function() {
+            gitbook.page.hasChanged({"page":{"title":"Sharding A Model","level":"1.4.2","depth":2,"next":{"title":"Model Migration","level":"1.4.3","depth":2,"path":"docs/usage/Migrations.md","ref":"docs/usage/Migrations.md","articles":[]},"previous":{"title":"Store Models on Another DB","level":"1.4.1","depth":2,"path":"docs/usage/AnotherDB.md","ref":"docs/usage/AnotherDB.md","articles":[]},"dir":"ltr"},"config":{"plugins":["search"],"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"search":{},"highlight":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"links":{},"gitbook":"3.x.x"},"file":{"path":"docs/usage/ShardingAModel.md","mtime":"2016-10-07T21:49:12.000Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2016-10-07T22:10:52.928Z"},"basePath":"../..","book":{"language":""}});
+        });
+    </script>
+</div>
+
+        
+    <script src="../../gitbook/gitbook.js"></script>
+    <script src="../../gitbook/theme.js"></script>
+    
+        
+        <script src="../../gitbook/gitbook-plugin-search/search-engine.js"></script>
+        
+    
+        
+        <script src="../../gitbook/gitbook-plugin-search/search.js"></script>
+        
+    
+        
+        <script src="../../gitbook/gitbook-plugin-lunr/lunr.min.js"></script>
+        
+    
+        
+        <script src="../../gitbook/gitbook-plugin-lunr/search-lunr.js"></script>
+        
+    
+        
+        <script src="../../gitbook/gitbook-plugin-sharing/buttons.js"></script>
+        
+    
+        
+        <script src="../../gitbook/gitbook-plugin-fontsettings/fontsettings.js"></script>
+        
+    
+
+    </body>
+</html>
+

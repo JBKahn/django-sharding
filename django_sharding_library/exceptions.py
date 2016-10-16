@@ -10,5 +10,9 @@ class InvalidMigrationException(DjangoShardingException):
     pass
 
 
+class InvalidShowMigrationsException(DjangoShardingException):
+    pass
+
+
 class NonExistentDatabaseException(DjangoShardingException):
     pass

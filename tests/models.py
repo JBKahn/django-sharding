@@ -49,7 +49,7 @@ class ShardedTestModelIDs(TableStrategyModel):
 
 @model_config(shard_group='default', sharded_by_field='user_pk')
 class TestModel(models.Model):
-    id = TableShardedIDField(primary_key=True, source_table=ShardedTestModelIDs)
+    id = TableShardedIDField(primary_key=True, source_table_name='tests.ShardedTestModelIDs')
     random_string = models.CharField(max_length=120)
     user_pk = models.PositiveIntegerField()
 
@@ -66,7 +66,7 @@ class TestModel(models.Model):
 
 @model_config(database='default')
 class UnshardedTestModel(models.Model):
-    id = TableShardedIDField(primary_key=True, source_table=ShardedTestModelIDs)
+    id = TableShardedIDField(primary_key=True, source_table_name='tests.ShardedTestModelIDs')
     random_string = models.CharField(max_length=120)
     user_pk = models.PositiveIntegerField()
 
@@ -98,7 +98,7 @@ class PostgresCustomAutoIDModel(models.Model):
     if settings.DATABASES['default']['ENGINE'] in Backends.POSTGRES:
         id = PostgresShardGeneratedIDAutoField(primary_key=True)
     else:
-        id = TableShardedIDField(primary_key=True, source_table=PostgresCustomIDModelBackupField)
+        id = TableShardedIDField(primary_key=True, source_table_name='tests.PostgresCustomIDModelBackupField')
     random_string = models.CharField(max_length=120)
     user_pk = models.PositiveIntegerField()
 
@@ -114,8 +114,9 @@ class PostgresCustomAutoIDModel(models.Model):
 class PostgresCustomIDModel(models.Model):
     if settings.DATABASES['default']['ENGINE'] in Backends.POSTGRES:
         id = PostgresShardGeneratedIDField(primary_key=True)
+        some_field = PostgresShardGeneratedIDField()
     else:
-        id = TableShardedIDField(primary_key=True, source_table=PostgresCustomIDModelBackupField)
+        id = TableShardedIDField(primary_key=True, source_table_name='tests.PostgresCustomIDModelBackupField')
     random_string = models.CharField(max_length=120)
     user_pk = models.PositiveIntegerField()
 

@@ -70,7 +70,7 @@ class ShardedCarIDs(TableStrategyModel):
 
 @model_config(sharded=True)
 class Car(models.Model):
-    id = TableShardedIDField(primary_key=True, source_table=ShardeCarIDs)
+    id = TableShardedIDField(primary_key=True, source_table_name='app.ShardeCarIDs')
     ignition_type = models.CharField(max_length=120)
     company = models.ForeignKey('companies.Company')
 

@@ -219,7 +219,7 @@ class PostgresShardIdFieldTestCase(TestCase):
         sharded_instance_id |= (shard_id << 10)
         sharded_instance_id |= (seq_id)
 
-        with patch('django_sharding_library.fields.get_next_sharded_id', return_value=9056):
+        with patch('django_sharding_library.fields.get_next_sharded_id', return_value=sharded_instance_id):
             created_model = PostgresCustomIDModel.objects.using("app_shard_003").create(random_string='Test String', user_pk=user.id)
 
         self.assertEqual(created_model.id, sharded_instance_id)
@@ -245,5 +245,4 @@ class PostgresShardIdFieldTestCase(TestCase):
 
         instance_id = created_model.id
         shard_id = int(bin(instance_id)[-23:-10], 2)
-        self.assertEqual(shard_id, 4)
-        self.assertEqual(settings.DATABASES["app_shard_004"]['SHARD_ID'], 4)
+        self.assertEqual(shard_id, settings.DATABASES["app_shard_004"]['SHARD_ID'])

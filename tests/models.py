@@ -2,7 +2,12 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.conf import settings
 from django_sharding_library.decorators import model_config
-from django_sharding_library.fields import TableShardedIDField, ShardForeignKeyStorageField, PostgresShardGeneratedIDField
+from django_sharding_library.fields import (
+    TableShardedIDField,
+    ShardForeignKeyStorageField,
+    PostgresShardGeneratedIDAutoField,
+    PostgresShardGeneratedIDField
+)
 from django_sharding_library.models import ShardedByMixin, ShardStorageModel, TableStrategyModel
 from django_sharding_library.constants import Backends
 
@@ -89,6 +94,23 @@ class PostgresCustomIDModelBackupField(TableStrategyModel):
 
 
 @model_config(shard_group="postgres", sharded_by_field="user_pk")
+class PostgresCustomAutoIDModel(models.Model):
+    if settings.DATABASES['default']['ENGINE'] in Backends.POSTGRES:
+        id = PostgresShardGeneratedIDAutoField(primary_key=True)
+    else:
+        id = TableShardedIDField(primary_key=True, source_table=PostgresCustomIDModelBackupField)
+    random_string = models.CharField(max_length=120)
+    user_pk = models.PositiveIntegerField()
+
+    def get_shard(self):
+        return PostgresShardUser.objects.get(pk=self.user_pk).shard
+
+    @staticmethod
+    def get_shard_from_id(user_pk):
+        return PostgresShardUser.objects.get(pk=user_pk).shard
+
+
+@model_config(shard_group="postgres")
 class PostgresCustomIDModel(models.Model):
     if settings.DATABASES['default']['ENGINE'] in Backends.POSTGRES:
         id = PostgresShardGeneratedIDField(primary_key=True)

@@ -221,6 +221,10 @@ class PostgresShardGeneratedIDField(BasePostgresShardGeneratedIDField, BigIntege
         return None  # Return None if we could not determine the shard so we can fall through to the next shard grab attempt
 
     def get_pk_value_on_save(self, instance):
+        return self.generate_id(instance)
+
+    @staticmethod
+    def generate_id(instance):
         shard = instance._state.db or instance.get_shard()
         return get_next_sharded_id(shard)
 

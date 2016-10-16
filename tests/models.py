@@ -117,6 +117,7 @@ class PostgresCustomIDModel(models.Model):
         some_field = PostgresShardGeneratedIDField()
     else:
         id = TableShardedIDField(primary_key=True, source_table_name='tests.PostgresCustomIDModelBackupField')
+        some_field = models.PositiveIntegerField()
     random_string = models.CharField(max_length=120)
     user_pk = models.PositiveIntegerField()
 

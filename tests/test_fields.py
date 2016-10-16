@@ -213,21 +213,21 @@ class PostgresShardIdFieldTestCase(TestCase):
     def test_check_shard_id_generated_prior_to_model_save(self):
         user = PostgresShardUser.objects.create_user(username='username', password='pwassword', email='test@example.com')
 
-        shard_id = settings.DATABASES["app_shard_001"]['SHARD_ID']
+        shard_id = settings.DATABASES["app_shard_003"]['SHARD_ID']
         seq_id = 800
         sharded_instance_id = ((settings.SHARD_EPOCH + 10) - settings.SHARD_EPOCH) << 23
         sharded_instance_id |= (shard_id << 10)
         sharded_instance_id |= (seq_id)
 
         with patch('django_sharding_library.fields.get_next_sharded_id', return_value=9056):
-            created_model = PostgresCustomIDModel.objects.using("app_shard_001").create(random_string='Test String', user_pk=user.id)
+            created_model = PostgresCustomIDModel.objects.using("app_shard_003").create(random_string='Test String', user_pk=user.id)
 
         self.assertEqual(created_model.id, sharded_instance_id)
 
     @unittest.skipIf(settings.DATABASES['default']['ENGINE'] not in Backends.POSTGRES, "Not a postgres backend")
     def test_check_shard_id_generated_prior_to_model_save_ordered(self):
         user = PostgresShardUser.objects.create_user(username='username', password='pwassword', email='test@example.com')
-        created_model = PostgresCustomIDModel.objects.using("app_shard_001").create(random_string='Test String', user_pk=user.id)
+        created_model = PostgresCustomIDModel.objects.using("app_shard_003").create(random_string='Test String', user_pk=user.id)
         self.assertTrue(getattr(created_model, 'id'))
 
         # Same as above, lets create an id that would have been made 10 seconds ago and make sure the one that was
@@ -240,10 +240,10 @@ class PostgresShardIdFieldTestCase(TestCase):
     @unittest.skipIf(settings.DATABASES['default']['ENGINE'] not in Backends.POSTGRES, "Not a postgres backend")
     def test_deconstruct_shard_from_id(self):
         user = PostgresShardUser.objects.create_user(username='username', password='pwassword', email='test@example.com')
-        created_model = PostgresCustomIDModel.objects.using("app_shard_002").create(random_string='Test String', user_pk=user.id)
+        created_model = PostgresCustomIDModel.objects.using("app_shard_004").create(random_string='Test String', user_pk=user.id)
         self.assertTrue(getattr(created_model, 'id'))
 
         instance_id = created_model.id
         shard_id = int(bin(instance_id)[-23:-10], 2)
-        self.assertEqual(shard_id, 2)
-        self.assertEqual(settings.DATABASES["app_shard_002"]['SHARD_ID'], 2)
+        self.assertEqual(shard_id, 4)
+        self.assertEqual(settings.DATABASES["app_shard_004"]['SHARD_ID'], 4)

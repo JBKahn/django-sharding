@@ -12,12 +12,12 @@ from django_sharding_library.id_generation_strategies import TableStrategy, UUID
 class TableStrategyIDGenerationTestCase(TestCase):
 
     def test_returns_unique_values(self):
-        sut = TableStrategy(ShardedModelIDs)
+        sut = TableStrategy('tests.ShardedModelIDs')
         ids = [sut.get_next_id() for i in xrange(100)]
         self.assertEqual(ids, list(set(ids)))
 
     def test_largest_value_stored_in_db(self):
-        sut = TableStrategy(ShardedModelIDs)
+        sut = TableStrategy('tests.ShardedModelIDs')
         for i in xrange(100):
             id = sut.get_next_id()
             self.assertEqual(ShardedModelIDs.objects.latest('pk').pk, id)

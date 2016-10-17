@@ -6,7 +6,6 @@ from django.db.models import signals
 from django_sharding_library.exceptions import DjangoShardingException
 
 
-
 def create_postgres_global_sequence(sequence_name, db_alias, reset_sequence=False):
     cursor = connections[db_alias].cursor()
     sid = transaction.savepoint(db_alias)
@@ -110,3 +109,12 @@ def get_database_for_model_instance(instance):
         return instance.get_shard()
 
     raise DjangoShardingException("Unable to deduce datbase for model instance")
+
+
+def get_next_sharded_id(shard):
+    cursor = connections[shard].cursor()
+    cursor.execute("SELECT next_sharded_id();")
+    generated_id = cursor.fetchone()
+    cursor.close()
+
+    return generated_id[0]

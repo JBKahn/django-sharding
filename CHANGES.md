@@ -1,7 +1,23 @@
 Changelog
 =========
 
-0.1.0 (Oct 7th 2015)
+1.0.0 (Oct 16th 2016)
+------------------
+
+### Django 1.10 compatibility and some additional library features!
+
+- Added decorator for shard storage.
+- Renamed `PostgresShardGeneratedIDField` to `PostgresShardGeneratedIDAutoField`.
+- Added non-autoid `PostgresShardGeneratedIDField` that makes a separate call to
+the database prior to saving. Good for statement based replication. Now you can
+have more than one of these fields on a model.
+- Fix `TableShardedIDField` to take a table name rather than model class so that
+it doesn't give errors when reading the migrations file after deleting the table.
+- Fix `showmigrations` to use the same database param as `migrate` and act on
+all by default.
+
+
+0.1.0 (Oct 7th 2016)
 ------------------
 
 ### Django 1.10 compatibility and some additional library features!

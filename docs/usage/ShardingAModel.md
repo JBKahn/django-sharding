@@ -2,7 +2,7 @@
 
 ### Defining The Shard Key
 
-Based on the earlier sections of the documentation, you need to choose a sharding function, strategy and ID generation strategy. 
+Based on the earlier sections of the documentation, you need to choose a sharding function, strategy and ID generation strategy.
 
 #### Storing The Shard On The Model With The Shard Key
 
@@ -77,14 +77,14 @@ class ShardedCoolGuyModelIDs(TableStrategyModel):
 
 @model_config(shard_group='default', sharded_by_field='user_pk')
 class CoolGuyShardedModel(models.Model):
-    id = TableShardedIDField(primary_key=True, source_table=ShardedCoolGuyModelIDs)
+    id = TableShardedIDField(primary_key=True, source_table_name='app.ShardedCoolGuyModelIDs')
     cool_guy_string = models.CharField(max_length=120)
     user_pk = models.PositiveIntegerField()
 
     def get_shard(self):
         from django.contrib.auth import get_user_model
         return get_user_model().objects.get(pk=self.user_pk).shard
-        
+
     @staticmethod
     def get_shard_from_id(user_pk):
         from django.contrib.auth import get_user_model

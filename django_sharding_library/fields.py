@@ -3,7 +3,7 @@ from django.conf import settings
 from django.db.models import AutoField, CharField, ForeignKey, BigIntegerField, OneToOneField
 
 from django_sharding_library.constants import Backends
-from django_sharding_library.utils import create_postgres_global_sequence, create_postgres_shard_id_function
+from django_sharding_library.utils import create_postgres_global_sequence, create_postgres_shard_id_function, get_next_sharded_id
 
 try:
     from django.db.backends.postgresql.base import DatabaseWrapper as PostgresDatabaseWrapper
@@ -59,19 +59,19 @@ class ShardedIDFieldMixin(object):
 
 class TableShardedIDField(ShardedIDFieldMixin, BigAutoField):
     """
-    An autoincrimenting field which takes a `source_table` as an argument in
-    order to generate unqiue ids for the sharded model.
+    An autoincrimenting field which takes a `source_table_name` as an argument in
+    order to generate unqiue ids for the sharded model.  i.e. `app.model_name`.
     """
     def __init__(self, *args, **kwargs):
         from django_sharding_library.id_generation_strategies import TableStrategy
-        kwargs['strategy'] = TableStrategy(backing_model=kwargs['source_table'])
-        setattr(self, 'source_table', kwargs['source_table'])
-        del kwargs['source_table']
+        kwargs['strategy'] = TableStrategy(backing_model_name=kwargs['source_table_name'])
+        setattr(self, 'source_table_name', kwargs['source_table_name'])
+        del kwargs['source_table_name']
         return super(TableShardedIDField, self).__init__(*args, **kwargs)
 
     def deconstruct(self):
         name, path, args, kwargs = super(TableShardedIDField, self).deconstruct()
-        kwargs['source_table'] = getattr(self, 'source_table')
+        kwargs['source_table_name'] = getattr(self, 'source_table_name')
         return name, path, args, kwargs
 
 
@@ -169,25 +169,14 @@ class ShardForeignKeyStorageField(ShardForeignKeyStorageFieldMixin, ForeignKey):
     pass
 
 
-class PostgresShardGeneratedIDField(AutoField):
-    """
-    A field that uses a Postgres stored procedure to return an ID generated on the database.
-    """
-    def db_type(self, connection, *args, **kwargs):
+class BasePostgresShardGeneratedIDField(object):
+
+    def __init__(self, *args, **kwargs):
 
         if not hasattr(settings, 'SHARD_EPOCH'):
             raise ValueError("PostgresShardGeneratedIDField requires a SHARD_EPOCH to be defined in your settings file.")
 
-        if connection.vendor == PostgresDatabaseWrapper.vendor:
-            return "bigint DEFAULT next_sharded_id()"
-        else:
-            return super(PostgresShardGeneratedIDField, self).db_type(connection)
-
-    def get_internal_type(self):
-        return 'BigIntegerField'
-
-    def rel_db_type(self, connection):
-        return BigIntegerField().db_type(connection=connection)
+        return super(BasePostgresShardGeneratedIDField, self).__init__(*args, **kwargs)
 
     @staticmethod
     def migration_receiver(*args, **kwargs):
@@ -200,6 +189,51 @@ class PostgresShardGeneratedIDField(AutoField):
             shard_id = settings.DATABASES[db_alias].get('SHARD_ID', 0)
             create_postgres_global_sequence(sequence_name, db_alias, True)
             create_postgres_shard_id_function(sequence_name, db_alias, shard_id)
+
+
+class PostgresShardGeneratedIDAutoField(BasePostgresShardGeneratedIDField, BigAutoField):
+    """
+    A field that uses a Postgres stored procedure to return an ID generated on the database.
+    """
+    def db_type(self, connection, *args, **kwargs):
+        if connection.vendor == PostgresDatabaseWrapper.vendor:
+            return "bigint DEFAULT next_sharded_id()"
+        else:
+            return super(PostgresShardGeneratedIDAutoField, self).db_type(connection)
+
+
+class PostgresShardGeneratedIDField(BasePostgresShardGeneratedIDField, BigIntegerField):
+    """
+    A field that uses a Postgres stored procedure to return an ID generated on the database.
+
+    Generates them prior to save with a seperate call to the DB.
+    """
+
+    def get_shard_from_id(self, instance_id):
+        group = getattr(self, 'django_sharding__shard_group', None)
+        shard_id_to_find = int(bin(instance_id)[-23:-10], 2)  # We know where the shard id is stored in the PK's bits.
+
+        # We can check the shard id from the PK against the shard ID in the databases config
+        for alias, db_settings in settings.DATABASES.items():
+            if db_settings["SHARD_GROUP"] == group and db_settings["SHARD_ID"] == shard_id_to_find:
+                return alias
+
+        return None  # Return None if we could not determine the shard so we can fall through to the next shard grab attempt
+
+    def get_pk_value_on_save(self, instance):
+        return self.generate_id(instance)
+
+    def pre_save(self, model_instance, add):
+        if getattr(model_instance, self.attname, None) is not None:
+            return super(PostgresShardGeneratedIDField, self).pre_save(model_instance, add)
+        value = self.generate_id(model_instance)
+        setattr(model_instance, self.attname, value)
+        return value
+
+    @staticmethod
+    def generate_id(instance):
+        shard = instance._state.db or instance.get_shard()
+        return get_next_sharded_id(shard)
 
 
 class PostgresShardForeignKey(ForeignKey):

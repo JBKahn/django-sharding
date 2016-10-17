@@ -1,24 +1,24 @@
+import unittest
+
+from django.conf import settings
 from django.db import models
 from django_sharding_library.id_generation_strategies import TableStrategyModel
 from django_sharding_library.decorators import model_config
 from django_sharding_library.exceptions import NonExistentDatabaseException, ShardedModelInitializationException
-from django_sharding_library.fields import TableShardedIDField
+from django_sharding_library.fields import PostgresShardGeneratedIDField, TableShardedIDField
 from django.test import TestCase
 from django_sharding_library.manager import ShardManager
 
+from django_sharding_library.constants import Backends
+
 
 class ModelConfigDecoratorTestCase(TestCase):
-
-    def setUp(self):
-        class ShardedDecoratorTestModelIDs(TableStrategyModel):
-            pass
-        self.id_table = ShardedDecoratorTestModelIDs
 
     def test_model_cannot_be_both_sharded_and_marked_for_a_specific_db(self):
         with self.assertRaises(ShardedModelInitializationException):
             @model_config(shard_group='default', database='default')
             class TestModelTwo(models.Model):
-                id = TableShardedIDField(primary_key=True, source_table=self.id_table)
+                id = TableShardedIDField(primary_key=True, source_table_name="blah")
                 random_string = models.CharField(max_length=120)
                 user_pk = models.PositiveIntegerField()
 
@@ -29,7 +29,7 @@ class ModelConfigDecoratorTestCase(TestCase):
         with self.assertRaises(ShardedModelInitializationException):
             @model_config(shard_group='default')
             class TestModelTwo(models.Model):
-                id = TableShardedIDField(primary_key=True, source_table=self.id_table)
+                id = TableShardedIDField(primary_key=True, source_table_name="blah")
                 random_string = models.CharField(max_length=120)
                 user_pk = models.PositiveIntegerField()
 
@@ -37,7 +37,7 @@ class ModelConfigDecoratorTestCase(TestCase):
         with self.assertRaises(ShardedModelInitializationException):
             @model_config(shard_group='default')
             class TestModelTwo(models.Model):
-                id = TableShardedIDField(source_table=self.id_table)
+                id = TableShardedIDField(source_table_name="blah")
                 random_string = models.CharField(max_length=120)
                 user_pk = models.PositiveIntegerField(primary_key=True)
 
@@ -58,7 +58,22 @@ class ModelConfigDecoratorTestCase(TestCase):
     def test_puts_shard_group_on_the_model_class(self):
         @model_config(shard_group='testing')
         class TestModelThree(models.Model):
-            id = TableShardedIDField(source_table=self.id_table, primary_key=True)
+            id = TableShardedIDField(source_table_name="blah", primary_key=True)
+            random_string = models.CharField(max_length=120)
+            user_pk = models.PositiveIntegerField()
+
+            def get_shard(self):
+                from django.contrib.auth import get_user_model
+                return get_user_model().objects.get(pk=self.user_pk).shard
+
+        self.assertEqual(getattr(TestModelThree, 'django_sharding__shard_group', None), 'testing')
+
+    @unittest.skipIf(settings.DATABASES['default']['ENGINE'] not in Backends.POSTGRES, "Not a postgres backend")
+    def test_two_postgres_sharded_id_generator_fields(self):
+        @model_config(shard_group='testing')
+        class TestModelThree(models.Model):
+            id = PostgresShardGeneratedIDField(primary_key=True)
+            something = PostgresShardGeneratedIDField()
             random_string = models.CharField(max_length=120)
             user_pk = models.PositiveIntegerField()
 
@@ -92,7 +107,7 @@ class ModelConfigDecoratorTestCase(TestCase):
         with self.assertRaises(ShardedModelInitializationException):
             @model_config(shard_group='default', sharded_by_field="user_pk")
             class TestModelOne(models.Model):
-                id = TableShardedIDField(primary_key=True, source_table=self.id_table)
+                id = TableShardedIDField(primary_key=True, source_table_name="blah")
                 random_string = models.CharField(max_length=120)
                 user_pk = models.PositiveIntegerField()
 
@@ -111,7 +126,7 @@ class ModelConfigDecoratorTestCase(TestCase):
         # Manager is not defined, should NOT raise an exception
         @model_config(shard_group='default', sharded_by_field="user_pk")
         class TestModelTwo(models.Model):
-            id = TableShardedIDField(primary_key=True, source_table=self.id_table)
+            id = TableShardedIDField(primary_key=True, source_table_name="blah")
             random_string = models.CharField(max_length=120)
             user_pk = models.PositiveIntegerField()
 
@@ -128,7 +143,7 @@ class ModelConfigDecoratorTestCase(TestCase):
         # Manager is defines but is a shardmanager, should not raise an exception
         @model_config(shard_group='default', sharded_by_field="user_pk")
         class TestModelThree(models.Model):
-            id = TableShardedIDField(primary_key=True, source_table=self.id_table)
+            id = TableShardedIDField(primary_key=True, source_table_name="blah")
             random_string = models.CharField(max_length=120)
             user_pk = models.PositiveIntegerField()
 
@@ -148,7 +163,7 @@ class ModelConfigDecoratorTestCase(TestCase):
         with self.assertRaises(ShardedModelInitializationException):
             @model_config(shard_group='default', sharded_by_field="user_pk")
             class TestModelOne(models.Model):
-                id = TableShardedIDField(primary_key=True, source_table=self.id_table)
+                id = TableShardedIDField(primary_key=True, source_table_name="blah")
                 random_string = models.CharField(max_length=120)
                 user_pk = models.PositiveIntegerField()
 
@@ -162,7 +177,7 @@ class ModelConfigDecoratorTestCase(TestCase):
         with self.assertRaises(ShardedModelInitializationException):
             @model_config(shard_group='default', sharded_by_field="user_pk")
             class TestModelOne(models.Model):
-                id = TableShardedIDField(primary_key=True, source_table=self.id_table)
+                id = TableShardedIDField(primary_key=True, source_table_name="blah")
                 random_string = models.CharField(max_length=120)
                 user_pk = models.PositiveIntegerField()
 
@@ -179,7 +194,7 @@ class ModelConfigDecoratorTestCase(TestCase):
         with self.assertRaises(ShardedModelInitializationException):
             @model_config()
             class TestModelOne(models.Model):
-                id = TableShardedIDField(primary_key=True, source_table=self.id_table)
+                id = TableShardedIDField(primary_key=True, source_table_name="blah")
                 random_string = models.CharField(max_length=120)
                 user_pk = models.PositiveIntegerField()
 

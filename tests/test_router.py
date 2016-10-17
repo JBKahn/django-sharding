@@ -6,11 +6,11 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.test import TransactionTestCase
 
-from tests.models import TestModel, ShardedTestModelIDs, PostgresCustomIDModel, PostgresShardUser
+from tests.models import TestModel, ShardedTestModelIDs, PostgresCustomAutoIDModel, PostgresShardUser
 from django_sharding_library.exceptions import InvalidMigrationException
 from django_sharding_library.router import ShardedRouter
 from django_sharding_library.routing_read_strategies import BaseRoutingStrategy
-from django_sharding_library.fields import PostgresShardGeneratedIDField
+from django_sharding_library.fields import PostgresShardGeneratedIDAutoField
 from django_sharding_library.constants import Backends
 from django_sharding_library.manager import ShardManager
 
@@ -518,20 +518,20 @@ class RouterForPostgresIDFieldTest(TransactionTestCase):
 
     @unittest.skipIf(settings.DATABASES['default']['ENGINE'] not in Backends.POSTGRES, "Not a postgres backend")
     def test_postgres_sharded_id_can_be_queried_without_using_and_without_sharded_by(self):
-        created_model = PostgresCustomIDModel.objects.create(random_string='Test String', user_pk=self.user.id)
+        created_model = PostgresCustomAutoIDModel.objects.create(random_string='Test String', user_pk=self.user.id)
         self.assertTrue(getattr(created_model, 'id'))
 
-        self.assertTrue(isinstance(PostgresCustomIDModel._meta.pk, PostgresShardGeneratedIDField))
+        self.assertTrue(isinstance(PostgresCustomAutoIDModel._meta.pk, PostgresShardGeneratedIDAutoField))
 
-        self.assertTrue(isinstance(PostgresCustomIDModel.objects, ShardManager))
+        self.assertTrue(isinstance(PostgresCustomAutoIDModel.objects, ShardManager))
 
-        instance = PostgresCustomIDModel.objects.get(id=created_model.id)
+        instance = PostgresCustomAutoIDModel.objects.get(id=created_model.id)
         self.assertEqual(created_model._state.db, instance._state.db)
 
-        instance = PostgresCustomIDModel.objects.get(pk=created_model.id)
+        instance = PostgresCustomAutoIDModel.objects.get(pk=created_model.id)
         self.assertEqual(created_model._state.db, instance._state.db)
 
     @unittest.skipIf(settings.DATABASES['default']['ENGINE'] not in Backends.POSTGRES, "Not a postgres backend")
     def test_shard_extracted_correctly(self):
-        created_model = PostgresCustomIDModel.objects.create(random_string='Test String', user_pk=self.user.pk)
-        self.assertEqual(self.user.shard, self.sut.get_shard_for_postgres_pk_field(PostgresCustomIDModel, created_model.id))
+        created_model = PostgresCustomAutoIDModel.objects.create(random_string='Test String', user_pk=self.user.pk)
+        self.assertEqual(self.user.shard, self.sut.get_shard_for_postgres_pk_field(PostgresCustomAutoIDModel, created_model.id))

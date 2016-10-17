@@ -220,14 +220,14 @@ class PostgresShardIdFieldTestCase(TestCase):
         sharded_instance_id |= (seq_id)
 
         with patch('django_sharding_library.fields.get_next_sharded_id', return_value=sharded_instance_id):
-            created_model = PostgresCustomIDModel.objects.using(user.shard).create(random_string='Test String', user_pk=user.id, some_field=323231)
+            created_model = PostgresCustomIDModel.objects.using(user.shard).create(random_string='Test String', user_pk=user.id)
 
         self.assertEqual(created_model.id, sharded_instance_id)
 
     @unittest.skipIf(settings.DATABASES['default']['ENGINE'] not in Backends.POSTGRES, "Not a postgres backend")
     def test_check_shard_id_generated_prior_to_model_save_ordered(self):
         user = PostgresShardUser.objects.create_user(username='username', password='pwassword', email='test@example.com')
-        created_model = PostgresCustomIDModel.objects.using(user.shard).create(random_string='Test String', user_pk=user.id, some_field=323232)
+        created_model = PostgresCustomIDModel.objects.using(user.shard).create(random_string='Test String', user_pk=user.id)
         self.assertTrue(getattr(created_model, 'id'))
 
         # Same as above, lets create an id that would have been made 10 seconds ago and make sure the one that was
@@ -240,7 +240,7 @@ class PostgresShardIdFieldTestCase(TestCase):
     @unittest.skipIf(settings.DATABASES['default']['ENGINE'] not in Backends.POSTGRES, "Not a postgres backend")
     def test_deconstruct_shard_from_id(self):
         user = PostgresShardUser.objects.create_user(username='username', password='pwassword', email='test@example.com')
-        created_model = PostgresCustomIDModel.objects.using(user.shard).create(random_string='Test String', user_pk=user.id, some_field=323233)
+        created_model = PostgresCustomIDModel.objects.using(user.shard).create(random_string='Test String', user_pk=user.id)
         self.assertTrue(getattr(created_model, 'id'))
 
         instance_id = created_model.id

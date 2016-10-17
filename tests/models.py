@@ -1,7 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.conf import settings
-from django_sharding_library.decorators import model_config
+from django_sharding_library.decorators import model_config, shard_storage_config
 from django_sharding_library.fields import (
     TableShardedIDField,
     ShardForeignKeyStorageField,
@@ -21,15 +21,16 @@ class ShardedModelIDs(TableStrategyModel):
 
 # An implimentation of the extension of a the Django user to add
 # the mixin provided in order to save the shard on the user.
+@shard_storage_config()
 class User(AbstractUser, ShardedByMixin):
-    django_sharding__shard_group = 'default'
+    pass
 
 
 # An implimentation of the extension of a the Django user to add
 # the mixin provided in order to save the shard on the user.
+@shard_storage_config(shard_group='postgres')
 class PostgresShardUser(AbstractUser, ShardedByMixin):
-    shard_group = 'postgres'
-    django_sharding__shard_group = 'postgres'
+    pass
 
 
 # A model for use with a sharded model to generate pk's using

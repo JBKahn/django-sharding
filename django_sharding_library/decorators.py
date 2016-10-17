@@ -13,6 +13,15 @@ from django_sharding_library.utils import register_migration_signal_for_model_re
 PRE_MIGRATION_DISPATCH_UID = "PRE_MIGRATE_FOR_MODEL_%s"
 
 
+def shard_storage_config(shard_group='default', shared_field='shard'):
+    def configure(cls):
+        setattr(cls, 'django_sharding__shard_group', shard_group)
+        setattr(cls, 'django_sharding__shard_field', shared_field)
+        setattr(cls, 'django_sharding__stores_shard', True)
+        return cls
+    return configure
+
+
 def model_config(shard_group=None, database=None, sharded_by_field=None):
     """
     A decorator for marking a model as being either sharded or stored on a

@@ -223,6 +223,13 @@ class PostgresShardGeneratedIDField(BasePostgresShardGeneratedIDField, BigIntege
     def get_pk_value_on_save(self, instance):
         return self.generate_id(instance)
 
+    def pre_save(self, model_instance, add):
+        if getattr(self.attname, None) is not None:
+            return super(PostgresShardGeneratedIDField, self).pre_save(model_instance, add)
+        value = self.generate_id(model_instance)
+        setattr(model_instance, self.attname, value)
+        return value
+
     @staticmethod
     def generate_id(instance):
         shard = instance._state.db or instance.get_shard()

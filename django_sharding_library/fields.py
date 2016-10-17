@@ -224,7 +224,7 @@ class PostgresShardGeneratedIDField(BasePostgresShardGeneratedIDField, BigIntege
         return self.generate_id(instance)
 
     def pre_save(self, model_instance, add):
-        if getattr(self.attname, None) is not None:
+        if getattr(model_instance, self.attname, None) is not None:
             return super(PostgresShardGeneratedIDField, self).pre_save(model_instance, add)
         value = self.generate_id(model_instance)
         setattr(model_instance, self.attname, value)

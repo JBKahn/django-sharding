@@ -1,0 +1,57 @@
+version: '2'
+services:
+  web:
+    build: .
+    command: python runtests.py
+    environment:
+      - DATABASE_URL=postgres://postgres:postgres@postgres1:5432/postgres
+      - SHARD_001_DATABASE_URL=mysql://mysqlu:mysqlpw:@mysql:3306/mysqldb
+      - SHARD_002_DATABASE_URL=postgres://postgres:postgres@postgres2:5432/postgres
+      - SHARD_003_DATABASE_URL=postgres://postgres:postgres@postgres3:5432/postgres
+      - SHARD_004_DATABASE_URL=postgres://postgres:postgres@postgres4:5432/postgres
+      - REPLICA_001_DATABASE_URL=postgres://postgres:postgres@postgres5:5432/postgres
+      - REPLICA_002_DATABASE_URL=postgres://postgres:postgres@postgres6:5432/postgres
+    volumes:
+      - .:/code
+    depends_on:
+      - mysql
+      - postgres1
+      - postgres2
+      - postgres3
+      - postgres4
+      - postgres5
+      - postgres6
+    links:
+      - postgres1
+      - postgres2
+      - postgres3
+      - postgres4
+      - postgres5
+      - postgres6
+      - mysql
+
+  postgres1:
+    image: postgres
+
+  postgres2:
+    image: postgres
+
+  postgres3:
+    image: postgres
+
+  postgres4:
+    image: postgres
+
+  postgres5:
+    image: postgres
+
+  postgres6:
+    image: postgres
+
+  mysql:
+    image: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpw
+      MYSQL_DATABASE: mysqldb
+      MYSQL_USER: mysqlu
+      MYSQL_PASSWORD: mysqlpw

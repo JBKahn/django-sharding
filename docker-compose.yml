@@ -11,8 +11,6 @@ services:
       - SHARD_004_DATABASE_URL=postgres://postgres:postgres@postgres4:5432/postgres
       - REPLICA_001_DATABASE_URL=postgres://postgres:postgres@postgres5:5432/postgres
       - REPLICA_002_DATABASE_URL=postgres://postgres:postgres@postgres6:5432/postgres
-    volumes:
-      - .:/code
     depends_on:
       - mysql
       - postgres1
@@ -21,35 +19,53 @@ services:
       - postgres4
       - postgres5
       - postgres6
-    links:
-      - postgres1
-      - postgres2
-      - postgres3
-      - postgres4
-      - postgres5
-      - postgres6
-      - mysql
 
   postgres1:
-    image: postgres
+    image: convox/postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DATABASE: postgres
 
   postgres2:
-    image: postgres
+    image: convox/postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DATABASE: postgres
 
   postgres3:
-    image: postgres
+    image: convox/postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DATABASE: postgres
 
   postgres4:
-    image: postgres
+    image: convox/postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DATABASE: postgres
 
   postgres5:
-    image: postgres
+    image: convox/postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DATABASE: postgres
 
   postgres6:
-    image: postgres
+    image: convox/postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DATABASE: postgres
 
   mysql:
-    image: mysql
+    image: convox/mysql
+    ports:
+      - 3306
     environment:
       MYSQL_ROOT_PASSWORD: rootpw
       MYSQL_DATABASE: mysqldb

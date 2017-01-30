@@ -44,7 +44,7 @@ from django_sharding_library.decorators import shard_storage_config
 from django_sharding_library.models import ShardedByMixin
 
 
-@shard_storage_config
+@shard_storage_config()
 class User(AbstractUser, ShardedByMixin):
     pass
 ```

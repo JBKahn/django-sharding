@@ -1,11 +1,15 @@
+import os
 from setuptools import setup, find_packages
 
 from django_sharding import VERSION
 
-with open('./requirements/common.txt') as f:
+
+current_dir = os.path.dirname(os.path.realpath(__file__))
+
+with open(os.path.join(current_dir, 'requirements', 'common.txt')) as f:
     requirements = [line.strip() for line in f if line.strip() and not line.strip().startswith('-r')]
 
-with open('./requirements/development.txt') as f:
+with open(os.path.join(current_dir, 'requirements', 'development.txt')) as f:
     test_requirements = [line.strip() for line in f if line.strip() and not line.strip().startswith('-r')]
 
 setup(

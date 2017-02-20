@@ -66,3 +66,4 @@ INSTALLED_APPS = [
 SITE_ID = 1
 MIDDLEWARE_CLASSES = ()
 SHARD_EPOCH = int(time.mktime(datetime(2016, 1, 1).timetuple()) * 1000)
+SECRET_KEY = "e)qb)#*(dz5cy$as3gh7jd2g4#^nbxsd%c3^p_8b5%g!ve81)v"

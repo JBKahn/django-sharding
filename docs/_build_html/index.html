@@ -1,0 +1,157 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Welcome to Django Sharding’s documentation! &#8212; Django Sharding 1.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="ID Generation" href="components/IDGeneration.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="welcome-to-django-sharding-s-documentation">
+<h1>Welcome to Django Sharding&#8217;s documentation!<a class="headerlink" href="#welcome-to-django-sharding-s-documentation" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">Components:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="components/IDGeneration.html">ID Generation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="components/IDGeneration.html#unique-shard-ids-generated-using-the-time">1) Unique shard IDs generated using the time</a></li>
+<li class="toctree-l2"><a class="reference internal" href="components/IDGeneration.html#use-a-uuid-shard-id-combination">2) Use a UUID &amp; shard id combination</a></li>
+<li class="toctree-l2"><a class="reference internal" href="components/IDGeneration.html#use-a-simple-integer">3) Use a simple integer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="components/IDGeneration.html#writing-your-own">Writing Your Own</a></li>
+<li class="toctree-l2"><a class="reference internal" href="components/IDGeneration.html#pinterest">Pinterest</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="components/ShardingFunctions.html">Sharding Functions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="components/ShardingFunctions.html#deterministic-functions">Deterministic Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="components/ShardingFunctions.html#non-deterministic-functions">Non-deterministic Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="components/ReadStrategies.html">Read Strategies</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="components/ReadStrategies.html#primary-only-read-strategy">Primary Only Read Strategy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="components/ReadStrategies.html#random-read-strategy">Random Read Strategy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="components/ReadStrategies.html#round-robin-read-strategy">Round Robin Read Strategy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="components/ReadStrategies.html#ratio-routing-strategy">Ratio Routing Strategy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="components/ReadStrategies.html#note-about-using-read-strategies">Note About Using Read Strategies</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="components/Router.html">The Router</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="components/Router.html#choosing-a-database-to-read-from">Choosing a Database to Read From</a></li>
+<li class="toctree-l2"><a class="reference internal" href="components/Router.html#choosing-a-database-to-write-to">Choosing a Database to Write To</a></li>
+<li class="toctree-l2"><a class="reference internal" href="components/Router.html#can-items-be-related">Can Items Be Related?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="components/Router.html#can-i-be-migrated">Can I Be Migrated?</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="components/OtherComponents.html">Other Components</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="components/OtherComponents.html#decorators">Decorators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="components/OtherComponents.html#fields">Fields</a></li>
+<li class="toctree-l2"><a class="reference internal" href="components/OtherComponents.html#sharded-id-fields">Sharded ID Fields</a></li>
+<li class="toctree-l2"><a class="reference internal" href="components/OtherComponents.html#sharded-storage-field">Sharded Storage Field</a></li>
+<li class="toctree-l2"><a class="reference internal" href="components/OtherComponents.html#models">Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="components/OtherComponents.html#signals">Signals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="components/OtherComponents.html#the-app-config">The App Config</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
+<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
+<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Welcome to Django Sharding&#8217;s documentation!</a></li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="#">Documentation overview</a><ul>
+      <li>Next: <a href="components/IDGeneration.html" title="next chapter">ID Generation</a></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/index.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Joseph Kahn.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

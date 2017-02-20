@@ -1,0 +1,248 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Read Strategies &#8212; Django Sharding 1.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="&lt;no title&gt;" href="Router.html" />
+    <link rel="prev" title="Sharding Functions" href="ShardingFunctions.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="read-strategies">
+<h1>Read Strategies<a class="headerlink" href="#read-strategies" title="Permalink to this headline">¶</a></h1>
+<p>For some applications, reading one shards data from a single copy is not
+sufficient and you&#8217;ll want to use read replicas. While sharding should already
+help distribute the load of reads across the system, this package allows you to
+configure how to read data if there are replicas in your system.</p>
+<p>A read strategy looks something like this:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">BaseRoutingStrategy</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A base strategy for picking which database to read from when</span>
+<span class="sd">    there are read replicas in the system. In order to extend this</span>
+<span class="sd">    strategy, you must define a `pick_read_db` function which</span>
+<span class="sd">    returns the name of the DB to read from, given a primary DB.</span>
+<span class="sd">    If there are no read replicas defined, all strategies should</span>
+<span class="sd">    always return the primary.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">databases</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">primary_replica_mapping</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_replica_mapping</span><span class="p">(</span>
+            <span class="n">databases</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_replica_mapping</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">databases</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a dictionary that maps a primary drive name to all</span>
+<span class="sd">        the names of it&#39;s replication databases. This can be used</span>
+<span class="sd">        in the strategies.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mapping</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">config</span> <span class="ow">in</span> <span class="n">databases</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">primary</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;PRIMARY&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">primary</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">primary</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">mapping</span><span class="p">:</span>
+                <span class="n">mapping</span><span class="p">[</span><span class="n">primary</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">if</span> <span class="n">primary</span> <span class="o">!=</span> <span class="n">name</span><span class="p">:</span>
+                <span class="n">mapping</span><span class="p">[</span><span class="n">primary</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">mapping</span>
+
+    <span class="k">def</span> <span class="nf">pick_read_db</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primary_db_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Given the name of a primary, pick the name of the database</span>
+<span class="sd">        to read from which may be a replica or the primary itself.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="bp">NotImplemented</span>
+</pre></div>
+</div>
+<p>Here we&#8217;ll go through some of the included strategies:</p>
+<div class="section" id="primary-only-read-strategy">
+<h2>Primary Only Read Strategy<a class="headerlink" href="#primary-only-read-strategy" title="Permalink to this headline">¶</a></h2>
+<p>A strategy that ignores existing replication databases and will always choose
+the primary database unless instructed otherwise.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">PrimaryOnlyRoutingStrategy</span><span class="p">(</span><span class="n">BaseRoutingStrategy</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A strategy which will always read from the primary,</span>
+<span class="sd">    unless overridden, regardless of replicas defined.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">pick_read_db</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primary_db_name</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">primary_db_name</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="random-read-strategy">
+<h2>Random Read Strategy<a class="headerlink" href="#random-read-strategy" title="Permalink to this headline">¶</a></h2>
+<p>If you don&#8217;t have an opinion on the load on each node, you may want to simply
+choose a random place to read from each time.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">RandomRoutingStrategy</span><span class="p">(</span><span class="n">BaseRoutingStrategy</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A strategy which will choose a random read replicas,</span>
+<span class="sd">    or the primary, when choosing which database to read from.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">pick_read_db</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primary_db_name</span><span class="p">):</span>
+        <span class="n">replicas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">primary_replica_mapping</span><span class="p">[</span><span class="n">primary_db_name</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">choice</span><span class="p">(</span><span class="n">replicas</span> <span class="o">+</span> <span class="p">[</span><span class="n">primary_db_name</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="round-robin-read-strategy">
+<h2>Round Robin Read Strategy<a class="headerlink" href="#round-robin-read-strategy" title="Permalink to this headline">¶</a></h2>
+<p>This is similar to the sharding function in that it should provide a well
+rounded solution to picking a database and split the load evenly. In order to
+reduce load imbalance due to the app being restarted, you may want to choose a
+random DB to start with here as well.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">RoundRobinRoutingStrategy</span><span class="p">(</span><span class="n">BaseRoutingStrategy</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A strategy which will cycle through the read replicas and</span>
+<span class="sd">    primary, in a round-robin fashion when choosing which</span>
+<span class="sd">    database to read from.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">databases</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">RoundRobinRoutingStrategy</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">databases</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">read_cycles</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="n">mappings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">primary_replica_mapping</span>
+        <span class="k">for</span> <span class="n">primary</span><span class="p">,</span> <span class="n">replicas</span> <span class="ow">in</span> <span class="n">mappings</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">read_cycles</span><span class="p">[</span><span class="n">primary</span><span class="p">]</span> <span class="o">=</span> <span class="n">cycle</span><span class="p">(</span><span class="n">replicas</span> <span class="o">+</span> <span class="p">[</span><span class="n">primary</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">pick_read_db</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primary_db_name</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">read_cycles</span><span class="p">[</span><span class="n">primary_db_name</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="ratio-routing-strategy">
+<h2>Ratio Routing Strategy<a class="headerlink" href="#ratio-routing-strategy" title="Permalink to this headline">¶</a></h2>
+<p>Here I&#8217;ve provided a basic example, but you could choose to split it up across
+all the databases at any ratio.</p>
+<p>For example, you may want to read from the primary drive ten percent of the
+time, replica 1 forty percent of the time and replica 2 fifty percent of the
+time.</p>
+<p>Here&#8217;s the example implementation:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">ExampleRatioRoutingStrategy</span><span class="p">(</span><span class="n">BaseRoutingStrategy</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">pick_read_db</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primary_db_name</span><span class="p">):</span>
+        <span class="n">num</span> <span class="o">=</span> <span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">num</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">primary_db_name</span>
+        <span class="k">elif</span> <span class="n">num</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">primary_replica_mapping</span><span class="p">[</span><span class="n">primary_db_name</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">primary_replica_mapping</span><span class="p">[</span><span class="n">primary_db_name</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="note-about-using-read-strategies">
+<h2>Note About Using Read Strategies<a class="headerlink" href="#note-about-using-read-strategies" title="Permalink to this headline">¶</a></h2>
+<p>If you&#8217;re using one of the above, or a custom read strategy, there are some
+considerations that are important when choosing them.</p>
+<p>The system currently does not have a built-in system to handle replication lag
+time.</p>
+<p>For example, if a user updates item A in the primary database then reading from
+a replication database before that data has propagated will result in the user
+getting stale data. This is typically handled by reading only from the primary
+drive during this period, however the system does not include these tools and
+additional tools would be required for that.</p>
+<p>For more information, check out the section where we discuss replication lag
+time.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Read Strategies</a><ul>
+<li><a class="reference internal" href="#primary-only-read-strategy">Primary Only Read Strategy</a></li>
+<li><a class="reference internal" href="#random-read-strategy">Random Read Strategy</a></li>
+<li><a class="reference internal" href="#round-robin-read-strategy">Round Robin Read Strategy</a></li>
+<li><a class="reference internal" href="#ratio-routing-strategy">Ratio Routing Strategy</a></li>
+<li><a class="reference internal" href="#note-about-using-read-strategies">Note About Using Read Strategies</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="ShardingFunctions.html" title="previous chapter">Sharding Functions</a></li>
+      <li>Next: <a href="Router.html" title="next chapter">&lt;no title&gt;</a></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/components/ReadStrategies.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Joseph Kahn.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="../_sources/components/ReadStrategies.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

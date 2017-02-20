@@ -1,0 +1,260 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>The Router &#8212; Django Sharding 1.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="&lt;no title&gt;" href="OtherComponents.html" />
+    <link rel="prev" title="Read Strategies" href="ReadStrategies.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="the-router">
+<h1>The Router<a class="headerlink" href="#the-router" title="Permalink to this headline">¶</a></h1>
+<p>In this library I&#8217;ve included a single router, which uses the previous
+components. Here we will go through the various elements of the router. This
+section is meant to explain how the library works and it will be unlikely for
+this to be extended or modified unless something custom is needed.</p>
+<p>Note: The utils and helper method&#8217;s code is not included in this section.</p>
+<div class="section" id="choosing-a-database-to-read-from">
+<h2>Choosing a Database to Read From<a class="headerlink" href="#choosing-a-database-to-read-from" title="Permalink to this headline">¶</a></h2>
+<p>The router checks for several conditions in the order of:
+1) Is this model stored on only one database, if so then return it.
+2) If this model sharded and is the instance called in <cite>hints</cite>, if so then
+retrieve the shard.
+3) If we have retrieved the shard, then use a read strategy, otherwise we return
+None since we do not know where to read it from.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">db_for_read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="o">**</span><span class="n">hints</span><span class="p">):</span>
+    <span class="n">possible_databases</span> <span class="o">=</span> <span class="n">get_possible_databases_for_model</span><span class="p">(</span>
+        <span class="n">model</span><span class="o">=</span><span class="n">model</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">possible_databases</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">possible_databases</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">shard</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_shard</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="o">**</span><span class="n">hints</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">shard</span><span class="p">:</span>
+        <span class="n">shard_group</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span>
+            <span class="n">model</span><span class="p">,</span> <span class="s1">&#39;django_sharding__shard_group&#39;</span><span class="p">,</span> <span class="kc">None</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">shard_group</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">DjangoShardingException</span><span class="p">(</span>
+                <span class="s1">&#39;Unable to identify the shard_group for&#39;</span> <span class="o">+</span>
+                <span class="s1">&#39;the </span><span class="si">{}</span><span class="s1"> model&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="n">routing_strategy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_read_db_routing_strategy</span><span class="p">(</span>
+            <span class="n">shard_group</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">routing_strategy</span><span class="o">.</span><span class="n">pick_read_db</span><span class="p">(</span><span class="n">shard</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">None</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="choosing-a-database-to-write-to">
+<h2>Choosing a Database to Write To<a class="headerlink" href="#choosing-a-database-to-write-to" title="Permalink to this headline">¶</a></h2>
+<p>This works similarly to the above, except we only return the primary database
+rather than using a read strategy.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">db_for_write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="o">**</span><span class="n">hints</span><span class="p">):</span>
+    <span class="n">possible_databases</span> <span class="o">=</span> <span class="n">get_possible_databases_for_model</span><span class="p">(</span>
+        <span class="n">model</span><span class="o">=</span><span class="n">model</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">possible_databases</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">possible_databases</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">shard</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_shard</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="o">**</span><span class="n">hints</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">shard</span><span class="p">:</span>
+        <span class="n">db_config</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">DATABASES</span><span class="p">[</span><span class="n">shard</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">db_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;PRIMARY&#39;</span><span class="p">,</span> <span class="n">shard</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">None</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="can-items-be-related">
+<h2>Can Items Be Related?<a class="headerlink" href="#can-items-be-related" title="Permalink to this headline">¶</a></h2>
+<p>We can only allow relations between items on the same database as you cannot
+have a foreign key across a database.</p>
+<p>The router checks for several conditions in the order of:
+1) Are both models stored on only one database and are they the same one, if so
+then we can allow that relationship.
+2) If the above is not true, are these instances on the same database, as that
+is the only way they can be related.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">allow_relation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj1</span><span class="p">,</span> <span class="n">obj2</span><span class="p">,</span> <span class="o">**</span><span class="n">hints</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Only allow relationships between two items which are</span>
+<span class="sd">    both on only one database or between sharded items on</span>
+<span class="sd">    the same shard.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">object1_databases</span> <span class="o">=</span> <span class="n">get_possible_databases_for_model</span><span class="p">(</span>
+        <span class="n">model</span><span class="o">=</span><span class="n">obj1</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">model</span>
+    <span class="p">)</span>
+    <span class="n">object2_databases</span> <span class="o">=</span> <span class="n">get_possible_databases_for_model</span><span class="p">(</span>
+        <span class="n">model</span><span class="o">=</span><span class="n">obj2</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">model</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="p">(</span>
+        <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">object1_databases</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">object2_databases</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="ow">and</span>
+        <span class="p">(</span><span class="n">object1_databases</span> <span class="o">==</span> <span class="n">object2_databases</span><span class="p">)</span>
+    <span class="p">):</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_shard_for_instance</span><span class="p">(</span><span class="n">obj1</span><span class="p">)</span> <span class="o">==</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_shard_for_instance</span><span class="p">(</span><span class="n">obj2</span><span class="p">)</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="can-i-be-migrated">
+<h2>Can I Be Migrated?<a class="headerlink" href="#can-i-be-migrated" title="Permalink to this headline">¶</a></h2>
+<p>When running your migrations, the app needs to be able to determine which
+databases require the migration in order to save developers from having to do
+this work manually.</p>
+<p>As such, we restrict migrations to run only on the primary databases which store
+the model. In the case of sharded models, they are stored on many databases and
+each one needs to me migrated.</p>
+<p>By using the module loading system in Django, we can determine the shard status
+of a model instance in order to make an informed decision.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">allow_migrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db</span><span class="p">,</span> <span class="n">app_label</span><span class="p">,</span> <span class="n">model_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">hints</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">settings</span><span class="o">.</span><span class="n">DATABASES</span><span class="p">[</span><span class="n">db</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;PRIMARY&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="c1"># Since the API for this function is limiting in a sharded</span>
+    <span class="c1"># environemnt, we provide an override to specify which</span>
+    <span class="c1"># databases to run the migrations on.</span>
+    <span class="k">if</span> <span class="n">hints</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;force_migrate_on_databases&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">db</span> <span class="ow">in</span> <span class="n">hints</span><span class="p">[</span><span class="s2">&quot;force_migrate_on_databases&quot;</span><span class="p">]</span>
+
+    <span class="n">model_name</span> <span class="o">=</span> <span class="n">model_name</span> <span class="ow">or</span> <span class="n">hints</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;model_name&#39;</span><span class="p">)</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">hints</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;model&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">model</span><span class="p">:</span>
+        <span class="n">model_name</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="vm">__name__</span>
+
+    <span class="c1"># Return true if any model in the app is on this database.</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">model_name</span><span class="p">:</span>
+        <span class="n">app</span> <span class="o">=</span> <span class="n">apps</span><span class="o">.</span><span class="n">get_app_config</span><span class="p">(</span><span class="n">app_label</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">app</span><span class="o">.</span><span class="n">get_models</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">is_model_class_on_database</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">database</span><span class="o">=</span><span class="n">db</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="c1"># Sometimes, when extending models from another app the</span>
+    <span class="c1"># the app&#39;s name is contained in the `model_name` param</span>
+    <span class="c1"># using the `app.model` syntax.</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">app</span> <span class="o">=</span> <span class="n">apps</span><span class="o">.</span><span class="n">get_app_config</span><span class="p">(</span><span class="n">app_label</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="n">model_name</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">LookupError</span><span class="p">:</span>
+        <span class="n">app_label</span> <span class="o">=</span> <span class="n">model_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">app</span> <span class="o">=</span> <span class="n">apps</span><span class="o">.</span><span class="n">get_app_config</span><span class="p">(</span><span class="n">app_label</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="n">model_name</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">app_label</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:])</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">is_model_class_on_database</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">database</span><span class="o">=</span><span class="n">db</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">DjangoShardingException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">InvalidMigrationException</span><span class="p">(</span>
+            <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">The Router</a><ul>
+<li><a class="reference internal" href="#choosing-a-database-to-read-from">Choosing a Database to Read From</a></li>
+<li><a class="reference internal" href="#choosing-a-database-to-write-to">Choosing a Database to Write To</a></li>
+<li><a class="reference internal" href="#can-items-be-related">Can Items Be Related?</a></li>
+<li><a class="reference internal" href="#can-i-be-migrated">Can I Be Migrated?</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="ReadStrategies.html" title="previous chapter">Read Strategies</a></li>
+      <li>Next: <a href="OtherComponents.html" title="next chapter">&lt;no title&gt;</a></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/components/Router.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Joseph Kahn.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="../_sources/components/Router.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,609 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Other Components &#8212; Django Sharding 1.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="The Router" href="Router.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="other-components">
+<h1>Other Components<a class="headerlink" href="#other-components" title="Permalink to this headline">¶</a></h1>
+<p>A quick run through of some of the other components shipped with the library.</p>
+<div class="section" id="decorators">
+<h2>Decorators<a class="headerlink" href="#decorators" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="model-configuration-decorator">
+<h3>Model Configuration Decorator<a class="headerlink" href="#model-configuration-decorator" title="Permalink to this headline">¶</a></h3>
+<p>One of the decorators provided is used to label where a model will be stored,
+wether it be on a single shard or across many. This decorator also does some
+validation that the model is set up correctly.</p>
+<p>It does the following:
+1) Validates that the primary key is shard aware by checking that it included
+the sharded mixin.</p>
+<ol class="arabic simple" start="2">
+<li>That the model is being stored on only primary databases.</li>
+<li>That any postgres specific fields are being used on postgres databases.</li>
+</ol>
+<p>4) Provides a hook for some extra magic (always be careful when using magic) to
+remove most cases of the <cite>using</cite> param from lookups where the params are enough
+to determine which shard to use.</p>
+</div>
+<div class="section" id="shard-storage-decorator">
+<h3>Shard Storage Decorator<a class="headerlink" href="#shard-storage-decorator" title="Permalink to this headline">¶</a></h3>
+<p>A decorator used to mark which models store the shard and which shard group to
+use:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">shard_storage_config</span><span class="p">(</span><span class="n">shard_group</span><span class="o">=</span><span class="s1">&#39;default&#39;</span><span class="p">,</span> <span class="n">shared_field</span><span class="o">=</span><span class="s1">&#39;shard&#39;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">configure</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="s1">&#39;django_sharding__shard_group&#39;</span><span class="p">,</span> <span class="n">shard_group</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="s1">&#39;django_sharding__shard_field&#39;</span><span class="p">,</span> <span class="n">shared_field</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="s1">&#39;django_sharding__stores_shard&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span>
+    <span class="k">return</span> <span class="n">configure</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="fields">
+<h2>Fields<a class="headerlink" href="#fields" title="Permalink to this headline">¶</a></h2>
+<p>Note: all fields given must remove the custom kwargs from their kwargs before
+calling <cite>__init__</cite> on <cite>super</cite> and replace them after calling <cite>deconstruct</cite> on
+<cite>super</cite> in order to prevent these arguments from being based on to the
+migration and subsequently the database.</p>
+</div>
+<div class="section" id="sharded-id-fields">
+<h2>Sharded ID Fields<a class="headerlink" href="#sharded-id-fields" title="Permalink to this headline">¶</a></h2>
+<p>This package ships with the mixin required to create you own sharded ID fields
+as well as a few basic ones.</p>
+<div class="section" id="the-sharded-id-field-mixin">
+<h3>The Sharded ID Field Mixin<a class="headerlink" href="#the-sharded-id-field-mixin" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">ShardedIDFieldMixin</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A field which takes an id generator class instance as an</span>
+<span class="sd">    argument and uses the generator to assign each new object</span>
+<span class="sd">    a unique id.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="c1"># Remove the strategy from the kwargs so that it doesn&#39;t</span>
+        <span class="c1"># get passed to Django.</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;strategy&#39;</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;strategy&#39;</span><span class="p">])</span>
+        <span class="k">del</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;strategy&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">ShardedIDFieldMixin</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">deconstruct</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">name</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span>
+            <span class="n">ShardedIDFieldMixin</span><span class="p">,</span> <span class="bp">self</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">deconstruct</span><span class="p">()</span>
+
+        <span class="c1"># Add the strategy from the kwargs so that it does get</span>
+        <span class="c1"># passed to our model.</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;strategy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;strategy&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">name</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span>
+
+    <span class="k">def</span> <span class="nf">get_pk_value_on_save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">instance</span><span class="o">.</span><span class="n">pk</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">strategy</span><span class="o">.</span><span class="n">get_next_id</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">instance</span><span class="o">.</span><span class="n">pk</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="uuid4-sharded-id-field">
+<h3>UUID4 Sharded ID Field<a class="headerlink" href="#uuid4-sharded-id-field" title="Permalink to this headline">¶</a></h3>
+<p>This is an exmaple using the above mixin to generate a uuid and
+use that uuid in combination with the shard to generate a unique
+ID.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">ShardedUUID4Field</span><span class="p">(</span><span class="n">ShardedIDFieldMixin</span><span class="p">,</span> <span class="n">CharField</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="kn">from</span> <span class="nn">app.shardng_strategies</span> <span class="k">import</span> <span class="n">UUIDStrategy</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;strategy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">UUIDStrategy</span><span class="p">()</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">ShardedUUID4Field</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_pk_value_on_save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">):</span>
+        <span class="n">shard</span> <span class="o">=</span> <span class="n">instance</span><span class="o">.</span><span class="n">get_shard</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">strategy</span><span class="o">.</span><span class="n">get_next_id</span><span class="p">(</span><span class="n">shard</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="sharded-storage-field">
+<h2>Sharded Storage Field<a class="headerlink" href="#sharded-storage-field" title="Permalink to this headline">¶</a></h2>
+<p>The most common use case is to store the shard on one of the
+models. Included in this package is a mixin that helps do that.</p>
+<div class="section" id="storing-the-shard-on-the-same-object-shard-storage-charfield">
+<h3>Storing The Shard On The Same Object: Shard Storage CharField<a class="headerlink" href="#storing-the-shard-on-the-same-object-shard-storage-charfield" title="Permalink to this headline">¶</a></h3>
+<p>For example, in this case we will be storing the shard in a
+<cite>CharField</cite> but we could have used another type of field.</p>
+<p>The field takes the <cite>shard_group</cite> as a key word argument and sets
+the field up to makes use of a signal to save the shard (which we
+will go into later).</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">ShardStorageFieldMixin</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A mixin for a field used to store a shard for in</span>
+<span class="sd">    an instance or parent of an instance.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">setattr</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;django_sharding__stores_shard&#39;</span><span class="p">,</span> <span class="kc">True</span>
+        <span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="s1">&#39;django_sharding__shard_group&#39;</span><span class="p">,</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;shard_group&#39;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="k">del</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;shard_group&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">ShardStorageFieldMixin</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">deconstruct</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">name</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span>
+            <span class="n">ShardStorageFieldMixin</span><span class="p">,</span> <span class="bp">self</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">deconstruct</span><span class="p">()</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;shard_group&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;django_sharding__shard_group&#39;</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">name</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span>
+
+
+<span class="k">class</span> <span class="nc">ShardLocalStorageFieldMixin</span><span class="p">(</span><span class="n">ShardStorageFieldMixin</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The ShardLocalStorageFieldMixin is used for when the shard</span>
+<span class="sd">    is stored on the model that is being sharded by.</span>
+<span class="sd">    i.e. Storing the shard on the User model and sharding by</span>
+<span class="sd">    the User.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;django_sharding__use_signal&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span>
+            <span class="n">ShardLocalStorageFieldMixin</span><span class="p">,</span> <span class="bp">self</span>
+        <span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">deconstruct</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span>
+            <span class="n">ShardLocalStorageFieldMixin</span><span class="p">,</span> <span class="bp">self</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">deconstruct</span><span class="p">()</span>
+
+
+<span class="k">class</span> <span class="nc">ShardStorageCharField</span><span class="p">(</span><span class="n">ShardLocalStorageFieldMixin</span><span class="p">,</span> <span class="n">CharField</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A simple char field that stores a shard and uses a signal</span>
+<span class="sd">    to generate the shard using a pre_save signal.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="storing-the-shard-on-another-model-shard-foreign-key-storage-field">
+<h3>Storing The Shard On Another Model Shard Foreign Key Storage Field<a class="headerlink" href="#storing-the-shard-on-another-model-shard-foreign-key-storage-field" title="Permalink to this headline">¶</a></h3>
+<p>As an example, say we have a webapp that serves all TD banks and
+we wish to store all the branches within a district under the same
+shard.</p>
+<p>We could store the shard on the district but perhaps we don&#8217;t
+usually touch the district or need to check it and would rather
+store the shard on the branch itself but still shard by district.</p>
+<p>One solution is to use a unqiue <cite>shard_key</cite> field on another table
+to store the shards and create a foreign key to that table. That
+implimentation has been included in this library.</p>
+<p>We will use the method <cite>pre_save</cite> to store the shard. Notice once
+again that we are loading the strategy from the AppConfig, which
+we will go through soon.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">ShardFKStorageFieldMixin</span><span class="p">(</span><span class="n">ShardStorageFieldMixin</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A mixin for a field used to store a foreign key to another</span>
+<span class="sd">    table which stores the shard, usually a table which inherits</span>
+<span class="sd">    from the ShardStorageModel.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;django_sharding__stores_shard&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="n">model_class</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;to&#39;</span><span class="p">,</span> <span class="n">args</span> <span class="ow">and</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">model_class</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="n">app_label</span> <span class="o">=</span> <span class="n">model_class</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">app</span> <span class="o">=</span> <span class="n">apps</span><span class="o">.</span><span class="n">get_app_config</span><span class="p">(</span><span class="n">app_label</span><span class="p">)</span>
+            <span class="n">model_class</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span>
+                <span class="n">model_class</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">app_label</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:]</span>
+            <span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="s1">&#39;django_sharding__shard_storage_table&#39;</span><span class="p">,</span>
+            <span class="n">model_class</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span>
+            <span class="n">ShardFKStorageFieldMixin</span><span class="p">,</span> <span class="bp">self</span>
+        <span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">pre_save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_instance</span><span class="p">,</span> <span class="n">add</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span>
+            <span class="n">ShardFKStorageFieldMixin</span><span class="p">,</span> <span class="bp">self</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">pre_save</span><span class="p">(</span><span class="n">model_instance</span><span class="p">,</span> <span class="n">ad</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_shard</span><span class="p">(</span><span class="n">model_instance</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="k">def</span> <span class="nf">save_shard</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_instance</span><span class="p">):</span>
+        <span class="n">shard_key</span> <span class="o">=</span> <span class="n">model_instance</span><span class="o">.</span><span class="n">get_shard_key</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">model_instance</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
+            <span class="n">storage_table</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span>
+                <span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;django_sharding__shard_storage_table&#39;</span>
+            <span class="p">)</span>
+            <span class="n">shard_group</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span>
+                <span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;django_sharding__shard_group&#39;</span>
+            <span class="p">)</span>
+
+            <span class="n">sharding_app</span> <span class="o">=</span> <span class="n">apps</span><span class="o">.</span><span class="n">get_app_config</span><span class="p">(</span><span class="s1">&#39;django_sharding&#39;</span><span class="p">)</span>
+            <span class="n">bucketer</span> <span class="o">=</span> <span class="n">sharding_app</span><span class="o">.</span><span class="n">get_bucketer</span><span class="p">(</span><span class="n">shard_group</span><span class="p">)</span>
+            <span class="n">shard</span> <span class="o">=</span> <span class="n">bucketer</span><span class="o">.</span><span class="n">pick_shard</span><span class="p">(</span><span class="n">model_instance</span><span class="p">)</span>
+            <span class="n">shard_object</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">storage_table</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_or_create</span><span class="p">(</span>
+                <span class="n">shard_key</span><span class="o">=</span><span class="n">shard_key</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">shard_object</span><span class="o">.</span><span class="n">shard</span><span class="p">:</span>
+                <span class="n">shard_object</span><span class="o">.</span><span class="n">shard</span> <span class="o">=</span> <span class="n">shard</span>
+                <span class="n">shard_object</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="n">model_instance</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">shard_object</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">ShardFKStorageField</span><span class="p">(</span><span class="n">ShardFKStorageFieldMixin</span><span class="p">,</span> <span class="n">ForeignKey</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A simple char field that stores a shard and uses a signal</span>
+<span class="sd">    to generate the shard using a pre_save signal.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="models">
+<h2>Models<a class="headerlink" href="#models" title="Permalink to this headline">¶</a></h2>
+<p>Several models are included to help with sharding your applications.</p>
+<div class="section" id="shard-by-mixin">
+<h3>Shard By Mixin<a class="headerlink" href="#shard-by-mixin" title="Permalink to this headline">¶</a></h3>
+<p>A mixin which add a field to shard by to a model. This also flags
+the model to use the included signal (unless the settings is set
+to off) to save the shard automatically to this field.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">_get_primary_shards</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the names of databases which make up the shards</span>
+<span class="sd">    and have no primary.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="n">database_name</span> <span class="k">for</span> <span class="p">(</span><span class="n">database_name</span><span class="p">,</span> <span class="n">db_settings</span><span class="p">)</span> <span class="ow">in</span>
+        <span class="n">settings</span><span class="o">.</span><span class="n">DATABASES</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">db_settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;PRIMARY&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span>
+        <span class="n">db_settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;SHARD_GROUP&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="p">]</span>
+
+<span class="k">class</span> <span class="nc">ShardedByMixin</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">django_sharding__shard_field</span> <span class="o">=</span> <span class="s1">&#39;shard&#39;</span>
+    <span class="n">django_sharding__stores_shard</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="n">SHARD_CHOICES</span> <span class="o">=</span> <span class="p">((</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">_get_primary_shards</span><span class="p">())</span>
+
+    <span class="n">shard</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="n">max_length</span><span class="o">=</span><span class="mi">120</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">SHARD_CHOICES</span>
+    <span class="p">)</span>
+
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">abstract</span> <span class="o">=</span> <span class="kc">True</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="table-strategy-model">
+<h3>Table Strategy Model<a class="headerlink" href="#table-strategy-model" title="Permalink to this headline">¶</a></h3>
+<p>Before when we talked about the <cite>TableShardedIDField</cite> for using
+an auto-incriment field to generate unique IDs for items, we
+required a table to store that information as an argument to
+that field. Such a table is included to inherit from:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">TableStrategyModel</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="nb">id</span> <span class="o">=</span> <span class="n">BigAutoField</span><span class="p">(</span><span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">stub</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">NullBooleanField</span><span class="p">(</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">unique</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">abstract</span> <span class="o">=</span> <span class="kc">True</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="shard-storage-mixin">
+<h3>Shard Storage Mixin<a class="headerlink" href="#shard-storage-mixin" title="Permalink to this headline">¶</a></h3>
+<p>Before when we talked about the <cite>ShardForeignKeyStorageField</cite>, we
+discussed needing a table to store the shard that uses a
+<cite>shard_key</cite> as a primary key on that table to ensure the
+<cite>shard_key</cite> will only ever be assigned a single shard.</p>
+<p>Here&#8217;s an included version of that table to inherit from:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">ShardStorageModel</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">SHARD_CHOICES</span> <span class="o">=</span> <span class="p">((</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">_get_primary_shards</span><span class="p">())</span>
+
+    <span class="n">shard</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="n">max_length</span><span class="o">=</span><span class="mi">120</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">SHARD_CHOICES</span>
+    <span class="p">)</span>
+    <span class="n">shard_key</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">120</span>
+    <span class="p">)</span>
+
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">abstract</span> <span class="o">=</span> <span class="kc">True</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="signals">
+<h2>Signals<a class="headerlink" href="#signals" title="Permalink to this headline">¶</a></h2>
+<p>We include one signal in the library which uses the attributes
+added by the other components in order to save shards to models
+when they are created.</p>
+<p>The <cite>magic</cite> part which automatically runs this is in the app
+config which is the last component we&#8217;ll discuss.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">save_shard_handler</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="n">sharding_app</span> <span class="o">=</span> <span class="n">apps</span><span class="o">.</span><span class="n">get_app_config</span><span class="p">(</span><span class="s1">&#39;django_sharding&#39;</span><span class="p">)</span>
+    <span class="n">bucketer</span> <span class="o">=</span> <span class="n">sharding_app</span><span class="o">.</span><span class="n">get_bucketer</span><span class="p">(</span><span class="n">sender</span><span class="o">.</span><span class="n">shard_group</span><span class="p">)</span>
+
+    <span class="n">conditional_name</span> <span class="o">=</span> <span class="s1">&#39;django_sharding__stores_shard&#39;</span>
+    <span class="n">shard_fields</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">field</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">conditional_name</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+        <span class="n">sender</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">fields</span>
+    <span class="p">))</span>
+
+    <span class="n">location_name</span> <span class="o">=</span> <span class="s1">&#39;django_sharding__shard_field&#39;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">shard_fields</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">shard_field_name</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">location_name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">shard_fields</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">field</span><span class="p">:</span> <span class="n">field</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">shard_field_name</span><span class="p">,</span>
+            <span class="n">sender</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">fields</span>
+        <span class="p">))</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">shard_fields</span><span class="p">):</span>
+        <span class="k">return</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">shard_fields</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+            <span class="s1">&#39;The model </span><span class="si">{}</span><span class="s1"> has multuple fields &#39;</span>
+            <span class="s1">&#39;for shard storage: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">sender</span><span class="p">,</span> <span class="n">shard_fields</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="n">shard_field</span> <span class="o">=</span> <span class="n">shard_fields</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">shard_field</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="n">shard</span> <span class="o">=</span> <span class="n">bucketer</span><span class="o">.</span><span class="n">pick_shard</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">shard_field</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">shard</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="the-app-config">
+<h2>The App Config<a class="headerlink" href="#the-app-config" title="Permalink to this headline">¶</a></h2>
+<p>In order to automate the magic for most users, there is an
+included app configuration in the <cite>django_shard</cite> app. We&#8217;ll go
+through it in steps.</p>
+<p>First it grabs the shard information and initializes the
+strategies chosen by the user. This is done through the settings
+which we&#8217;ll go through in the installation step.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">shard_settings</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span>
+    <span class="n">settings</span><span class="p">,</span> <span class="s1">&#39;DJANGO_SHARDING_SETTINGS&#39;</span><span class="p">,</span> <span class="p">{}</span>
+<span class="p">)</span>
+<span class="n">shard_groups</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">DATABASES</span><span class="p">[</span><span class="n">db_settings</span><span class="p">][</span><span class="s1">&#39;SHARD_GROUP&#39;</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">db_settings</span> <span class="ow">in</span> <span class="n">settings</span><span class="o">.</span><span class="n">DATABASES</span>
+<span class="p">]</span>
+<span class="n">shard_groups</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span>
+    <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">group</span><span class="p">:</span> <span class="n">group</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="n">shard_groups</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">bucketers</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">routing_strategies</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">shard_group</span> <span class="ow">in</span> <span class="n">shard_groups</span><span class="p">:</span>
+    <span class="n">group_settings</span> <span class="o">=</span> <span class="n">shard_settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">shard_group</span><span class="p">,</span> <span class="p">{})</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">bucketers</span><span class="p">[</span><span class="n">shard_group</span><span class="p">]</span> <span class="o">=</span> <span class="n">group_settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+        <span class="s1">&#39;BUCKETING_STRATEGY&#39;</span><span class="p">,</span>
+        <span class="n">RoundRobinBucketingStrategy</span><span class="p">(</span>
+            <span class="n">shard_group</span><span class="o">=</span><span class="n">shard_group</span><span class="p">,</span> <span class="n">databases</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">DATABASES</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">routing_strategies</span><span class="p">[</span><span class="n">shard_group</span><span class="p">]</span> <span class="o">=</span> <span class="n">group_settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+        <span class="s1">&#39;ROUTING_STRATEGY&#39;</span><span class="p">,</span>
+        <span class="n">PrimaryOnlyRoutingStrategy</span><span class="p">(</span><span class="n">databases</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">DATABASES</span><span class="p">)</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+<p>Then, once the strategies are known for each of the shard groups,
+the models that each shard group are sharded on are examined.</p>
+<p>When a sharded model is found, it is assumed that the developer
+wanted the signal to be added to automatically save the shard to
+the item of the items you&#8217;re sharding by. For example, a User with
+a shard field will automatically have the shard saved to the user
+unless set to not do so.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">apps</span><span class="o">.</span><span class="n">get_models</span><span class="p">():</span>
+    <span class="n">shard_group</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span>
+        <span class="n">model</span><span class="p">,</span> <span class="s1">&#39;django_sharding__shard_group&#39;</span><span class="p">,</span> <span class="kc">None</span>
+    <span class="p">)</span>
+    <span class="n">stores_shard</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span>
+        <span class="n">model</span><span class="p">,</span> <span class="s1">&#39;django_sharding__stores_shard&#39;</span><span class="p">,</span> <span class="kc">False</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">stores_shard</span> <span class="ow">and</span> <span class="n">shard_group</span><span class="p">:</span>
+        <span class="n">shard_field</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span>
+            <span class="n">model</span><span class="p">,</span> <span class="s1">&#39;django_sharding__shard_field&#39;</span><span class="p">,</span> <span class="kc">None</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">shard_field</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+                <span class="s1">&#39;The model </span><span class="si">{}</span><span class="s1"> must have a `shard_field` &#39;</span>
+                <span class="s1">&#39;attribute&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+            <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">shard_fields</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">field</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span>
+                <span class="n">field</span><span class="p">,</span> <span class="s1">&#39;django_sharding__stores_shard&#39;</span><span class="p">,</span> <span class="kc">False</span>
+            <span class="p">),</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">fields</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">shard_fields</span><span class="p">):</span>
+            <span class="k">continue</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">shard_fields</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+                <span class="s1">&#39;The model </span><span class="si">{}</span><span class="s1"> has multuple fields for shard &#39;</span>
+                <span class="s1">&#39;storage: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">model</span><span class="p">,</span> <span class="n">shard_fields</span><span class="p">)</span>
+                <span class="p">)</span>
+        <span class="n">shard_field</span> <span class="o">=</span> <span class="n">shard_fields</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">shard_group</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span>
+            <span class="n">shard_field</span><span class="p">,</span> <span class="s1">&#39;django_sharding__shard_group&#39;</span><span class="p">,</span> <span class="kc">None</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">shard_group</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+                <span class="s1">&#39;The model </span><span class="si">{}</span><span class="s1"> with the shard field must have &#39;</span>
+                <span class="s1">&#39;a `shard_group` attribute&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span>
+            <span class="n">shard_field</span><span class="p">,</span> <span class="s1">&#39;django_sharding__use_signal&#39;</span><span class="p">,</span> <span class="kc">False</span>
+        <span class="p">):</span>
+            <span class="k">continue</span>
+
+    <span class="n">group_settings</span> <span class="o">=</span> <span class="n">shard_settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">shard_group</span><span class="p">,</span> <span class="p">{})</span>
+    <span class="k">if</span> <span class="n">group_settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;SKIP_ADD_SHARDED_SIGNAL&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="k">continue</span>
+
+    <span class="n">receiver</span><span class="p">(</span>
+        <span class="n">models</span><span class="o">.</span><span class="n">signals</span><span class="o">.</span><span class="n">pre_save</span><span class="p">,</span> <span class="n">sender</span><span class="o">=</span><span class="n">model</span>
+    <span class="p">)(</span><span class="n">save_shard_handler</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In order to later retrieve these strategies, two functions are
+added to the app configuration so that any other code can
+access them:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">ShardingConfig</span><span class="p">(</span><span class="n">AppConfig</span><span class="p">):</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;django_sharding&#39;</span>
+
+    <span class="k">def</span> <span class="nf">ready</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>  <span class="c1"># The above code went in here.</span>
+
+    <span class="k">def</span> <span class="nf">get_routing_strategy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shard_group</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">routing_strategies</span><span class="p">[</span><span class="n">shard_group</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">get_bucketer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shard_group</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">bucketers</span><span class="p">[</span><span class="n">shard_group</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Other Components</a><ul>
+<li><a class="reference internal" href="#decorators">Decorators</a><ul>
+<li><a class="reference internal" href="#model-configuration-decorator">Model Configuration Decorator</a></li>
+<li><a class="reference internal" href="#shard-storage-decorator">Shard Storage Decorator</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#fields">Fields</a></li>
+<li><a class="reference internal" href="#sharded-id-fields">Sharded ID Fields</a><ul>
+<li><a class="reference internal" href="#the-sharded-id-field-mixin">The Sharded ID Field Mixin</a></li>
+<li><a class="reference internal" href="#uuid4-sharded-id-field">UUID4 Sharded ID Field</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#sharded-storage-field">Sharded Storage Field</a><ul>
+<li><a class="reference internal" href="#storing-the-shard-on-the-same-object-shard-storage-charfield">Storing The Shard On The Same Object: Shard Storage CharField</a></li>
+<li><a class="reference internal" href="#storing-the-shard-on-another-model-shard-foreign-key-storage-field">Storing The Shard On Another Model Shard Foreign Key Storage Field</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#models">Models</a><ul>
+<li><a class="reference internal" href="#shard-by-mixin">Shard By Mixin</a></li>
+<li><a class="reference internal" href="#table-strategy-model">Table Strategy Model</a></li>
+<li><a class="reference internal" href="#shard-storage-mixin">Shard Storage Mixin</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#signals">Signals</a></li>
+<li><a class="reference internal" href="#the-app-config">The App Config</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="Router.html" title="previous chapter">The Router</a></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/components/OtherComponents.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Joseph Kahn.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="../_sources/components/OtherComponents.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,11 +1,16 @@
 from setuptools import setup, find_packages
 
-version = '1.0.0'
+from django_sharding import VERSION
 
+with open('requirements.txt') as f:
+    requirements = [line.strip() for line in f if line.strip() and not line.strip().startswith('-r')]
+
+with open('test-requirements.txt') as f:
+    test_requirements = [line.strip() for line in f if line.strip() and not line.strip().startswith('-r')]
 
 setup(
     name='django_sharding',
-    version=version,
+    version=VERSION,
     description="""A sharding app to include in your project so that you can shard your data.""",
     long_description=open('README.md').read(),
     author='JBKahn',
@@ -13,8 +18,8 @@ setup(
     url='https://github.com/JBKahn/django-sharding',
     packages=find_packages(),
     include_package_data=True,
-    install_requires=['Django>=1.8', 'dj-database-url==0.4.1'],
-    tests_require=['psycopg2==2.6.2', 'mysqlclient==1.3.7', 'mock==2.0.0', 'django_nose==1.4.4', 'tox==2.3.1'],
+    install_requires=requirements,
+    tests_require=test_requirements,
     license="BSD",
     zip_safe=False,
     keywords='django shard sharding library',
@@ -25,6 +30,7 @@ setup(
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5'
+        'Programming Language :: Python :: 3.6'
     ],
     test_suite='runtests.run_tests',
 )

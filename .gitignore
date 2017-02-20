@@ -6,7 +6,6 @@ __pycache__
 *.eggs
 *.egg-info
 dist
-build
 eggs
 parts
 bin
@@ -34,5 +33,6 @@ node_modules
 # Local dev
 Dockerfile
 docker-compose.yml
+.DS_Store
 
 tests/migrations/*

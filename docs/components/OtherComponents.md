@@ -100,7 +100,7 @@ class ShardedIDFieldMixin(object):
 
 ##### Table Sharded ID Field
 
-As an example using the above mixin, one of the included fields uses a secondary table to generate unique IDs, as discussed in the ID generation section of this guide. This takes the class of the table as an argument and impliments to strategy shipped with this package:
+As an example using the above mixin, one of the included fields uses a secondary table to generate unique IDs, as discussed in the ID generation section of this guide. This takes the class of the table as an argument and implements to strategy shipped with this package:
 
 ```python
 
@@ -172,7 +172,7 @@ class ShardStorageCharField(ShardLocalStorageFieldMixin, CharField):
 
 ##### Storing The Shard On Another Model Shard Foreign Key Storage Field
 
-As an example, say we have a webapp that serves all TD banks and we wish to store all the branches within a district under the same shard. We could store the shard on the district but perhaps we don't usually touch the district or need to check it and would rather store the shard on the branch itself but still shard by district. One solution is to use a unqiue `shard_key` field on another table to store the shards and create a foreign key to that table. That implimentation has been included in this library.
+As an example, say we have a webapp that serves all TD banks and we wish to store all the branches within a district under the same shard. We could store the shard on the district but perhaps we don't usually touch the district or need to check it and would rather store the shard on the branch itself but still shard by district. One solution is to use a unqiue `shard_key` field on another table to store the shards and create a foreign key to that table. That implementation has been included in this library.
 
 As before, we simply store additional data in `__init__` and then retreive stored args and kwargs in `deconstruct`. In this case, we will make use of the `ForeignKey` field's args as well as the `shard_group` from our previous mixin.
 

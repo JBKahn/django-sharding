@@ -89,7 +89,7 @@ First we check if it's non-sharded but stored on a single database other than `d
 
 When running your migrations, the app needs to be able to determine which databases require the migration in order to same developers from having to do this work manually.
 
-As such, we restrict migrations to only those which provide the model they are migrating as well as migrations to primary databases. In the event that a model is on a sepcific database or sharded then we also restrict the migration to those sets of databases. By using the module loading system in Django, we can determine the shard status of a model instance in order to make an informed decision.
+As such, we restrict migrations to only those which provide the model they are migrating as well as migrations to primary databases. In the event that a model is on a specific database or sharded then we also restrict the migration to those sets of databases. By using the module loading system in Django, we can determine the shard status of a model instance in order to make an informed decision.
 
 ```python
     def allow_migrate(self, db, app_label, model_name=None, **hints):

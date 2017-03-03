@@ -41,7 +41,7 @@ class ShardingConfig(AppConfig):
                     continue
 
                 if len(shard_fields) > 1:
-                    raise Exception('The model {} has multuple fields for shard storage: {}'.format(model, shard_fields))
+                    raise Exception('The model {} has multiple fields for shard storage: {}'.format(model, shard_fields))
                 shard_field = shard_fields[0]
                 shard_group = getattr(shard_field, 'django_sharding__shard_group', None)
 

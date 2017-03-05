@@ -89,7 +89,7 @@ DJANGO_FRAGMENTS_SHARD_SETTINGS = {
 }
 ```
 
-Additionally, if you add a shard field on a model to store the shard for that object, the package will automate the process of retreiving and saving the shard on model save. You can skip automatically saving the shard to the User model in this example by adding this setting:
+Additionally, if you add a shard field on a model to store the shard for that object, the package will automate the process of retrieving and saving the shard on model save. You can skip automatically saving the shard to the User model in this example by adding this setting:
 
 ```python
 DJANGO_FRAGMENTS_SHARD_SETTINGS = {

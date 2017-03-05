@@ -19,14 +19,14 @@ class ShardedModelIDs(TableStrategyModel):
     pass
 
 
-# An implimentation of the extension of a the Django user to add
+# An implementation of the extension of a the Django user to add
 # the mixin provided in order to save the shard on the user.
 @shard_storage_config()
 class User(AbstractUser, ShardedByMixin):
     pass
 
 
-# An implimentation of the extension of a the Django user to add
+# An implementation of the extension of a the Django user to add
 # the mixin provided in order to save the shard on the user.
 @shard_storage_config(shard_group='postgres')
 class PostgresShardUser(AbstractUser, ShardedByMixin):

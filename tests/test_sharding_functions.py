@@ -21,14 +21,14 @@ class BaseBucketingStrategyTestCase(TestCase):
 
         self.assertEqual(sorted(result), expected_result)
 
-    def test_pick_shard_method_defined_but_unimplimented(self):
+    def test_pick_shard_method_defined_but_unimplemented(self):
         from django.contrib.auth import get_user_model
         User = get_user_model()
         sut = BaseBucketingStrategy(shard_group='default')
         with self.assertRaises(NotImplementedError):
             sut.pick_shard(User)
 
-    def test_get_shard_method_defined_but_unimplimented(self):
+    def test_get_shard_method_defined_but_unimplemented(self):
         from django.contrib.auth import get_user_model
         User = get_user_model()
         sut = BaseBucketingStrategy(shard_group='default')

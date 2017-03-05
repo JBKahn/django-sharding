@@ -1,8 +1,8 @@
 # ID Generation
 
-In order to shard your database, one of the first decisions to makee is how you assign identifiers to the sharded objects. While it is not required, it is highly recommended that you choose a unique identifier. The main reason here being that you may want to either move data across shards later or that you may choose to analyze data across various shards for analytics and you will have to differentiate those objects before moving them to another server.
+In order to shard your database, one of the first decisions to make is how you assign identifiers to the sharded objects. While it is not required, it is highly recommended that you choose a unique identifier. The main reason here being that you may want to either move data across shards later or that you may choose to analyze data across various shards for analytics and you will have to differentiate those objects before moving them to another server.
 
-This repository is initially shipping with three strategies but you may impliment your own. The base requirement for defining your own strategy at the moment is that you define a class like this:
+This repository is initially shipping with three strategies but you may implement your own. The base requirement for defining your own strategy at the moment is that you define a class like this:
 
 ```python
 class BaseIDGenerationStrategy(object):

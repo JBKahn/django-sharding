@@ -9,6 +9,8 @@ try:
     from django.db.backends.postgresql.base import DatabaseWrapper as PostgresDatabaseWrapper
 except ImportError:
     from django.db.backends.postgresql_psycopg2.base import DatabaseWrapper as PostgresDatabaseWrapper
+except ImportError:
+    PostgresDatabaseWrapper = None
 
 try:
     from django.db.models import BigAutoField
@@ -172,6 +174,8 @@ class ShardForeignKeyStorageField(ShardForeignKeyStorageFieldMixin, ForeignKey):
 class BasePostgresShardGeneratedIDField(object):
 
     def __init__(self, *args, **kwargs):
+        if not PostgresDatabaseWrapper:
+            raise ImportError("Psycopg2 2.5 or higher is required")
 
         if not hasattr(settings, 'SHARD_EPOCH'):
             raise ValueError("PostgresShardGeneratedIDField requires a SHARD_EPOCH to be defined in your settings file.")

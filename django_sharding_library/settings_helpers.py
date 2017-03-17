@@ -6,7 +6,7 @@ def database_config(environment_variable, default_database_url, database_name=No
     Wraps dj_database_url to provide additional arguments to specify whether a database is a shard
     and if it a replica of another database.
 
-    If the the environment_variable URL does not include the database name, it will use the database_name argument
+    If database_name is provided, it will override the database name in the environment_variable URL
     """
     db_config = config(env=environment_variable, default=default_database_url)
     if not db_config:
@@ -15,7 +15,7 @@ def database_config(environment_variable, default_database_url, database_name=No
     db_config['TEST'] = db_config.get('TEST', {})
     db_config['SHARD_GROUP'] = shard_group
 
-    if not db_config['NAME'] and database_name is not None:
+    if database_name is not None:
         db_config['NAME'] = database_name
 
     if is_replica_of:
@@ -27,8 +27,7 @@ def database_config(environment_variable, default_database_url, database_name=No
 
 def database_configs(databases_dict):
     """
-    Takes databases of the form (note the database_name is optional and meant to be used when the environment_variable
-    does not contain the database name):
+    Takes databases of the form (database_name is optional, and will override any database name set in the URL):
     {
         'unsharded_databases': [
             {

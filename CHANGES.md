@@ -1,6 +1,16 @@
 Changelog
 =========
 
+1.1.0 (Mar 19th 2017)
+------------------
+
+### A bug fix and settings improvement
+
+- Bugfix so that the `fields.py` file is importable when psycog2 isn't installed.
+- Add the ability to set the database name in the settings helper, and override
+the one in the url. Makes generating these settings programatically a bit easier.
+
+
 1.0.0 (Oct 16th 2016)
 ------------------
 

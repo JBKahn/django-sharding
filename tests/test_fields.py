@@ -181,7 +181,7 @@ class ShardForeignKeyStorageFieldTestCase(TestCase):
 
 class PostgresShardIdFieldTestCase(TestCase):
 
-    @unittest.skipIf(settings.DATABASES['default']['ENGINE'] not in Backends.POSTGRES, "Not a postgres backend")
+    @unittest.skipIf(settings.DATABASES['default']['ENGINE'] not in (Backends.POSTGRES + Backends.SQLITE), "Not a postgres backend")
     def test_check_shard_id_function(self):
         cursor = connections['default'].cursor()
         cursor.execute("SELECT next_sharded_id();")
@@ -196,7 +196,7 @@ class PostgresShardIdFieldTestCase(TestCase):
 
         self.assertGreater(generated_id[0], lowest_id)
 
-    @unittest.skipIf(settings.DATABASES['default']['ENGINE'] not in Backends.POSTGRES, "Not a postgres backend")
+    @unittest.skipIf(settings.DATABASES['default']['ENGINE'] not in (Backends.POSTGRES + Backends.SQLITE), "Not a postgres backend")
     def test_check_shard_id_returns_with_model_save(self):
         user = PostgresShardUser.objects.create_user(username='username', password='pwassword', email='test@example.com')
         created_model = PostgresCustomAutoIDModel.objects.create(random_string='Test String', user_pk=user.id)
@@ -209,7 +209,7 @@ class PostgresShardIdFieldTestCase(TestCase):
         lowest_id |= 1
         self.assertGreater(created_model.id, lowest_id)
 
-    @unittest.skipIf(settings.DATABASES['default']['ENGINE'] not in Backends.POSTGRES, "Not a postgres backend")
+    @unittest.skipIf(settings.DATABASES['default']['ENGINE'] not in (Backends.POSTGRES + Backends.SQLITE), "Not a postgres backend")
     def test_check_shard_id_generated_prior_to_model_save(self):
         user = PostgresShardUser.objects.create_user(username='username', password='pwassword', email='test@example.com')
 
@@ -224,7 +224,7 @@ class PostgresShardIdFieldTestCase(TestCase):
 
         self.assertEqual(created_model.id, sharded_instance_id)
 
-    @unittest.skipIf(settings.DATABASES['default']['ENGINE'] not in Backends.POSTGRES, "Not a postgres backend")
+    @unittest.skipIf(settings.DATABASES['default']['ENGINE'] not in (Backends.POSTGRES + Backends.SQLITE), "Not a postgres backend")
     def test_check_shard_id_generated_prior_to_model_save_ordered(self):
         user = PostgresShardUser.objects.create_user(username='username', password='pwassword', email='test@example.com')
         created_model = PostgresCustomIDModel.objects.using(user.shard).create(random_string='Test String', user_pk=user.id)
@@ -237,7 +237,7 @@ class PostgresShardIdFieldTestCase(TestCase):
         lowest_id |= 1
         self.assertGreater(created_model.id, lowest_id)
 
-    @unittest.skipIf(settings.DATABASES['default']['ENGINE'] not in Backends.POSTGRES, "Not a postgres backend")
+    @unittest.skipIf(settings.DATABASES['default']['ENGINE'] not in (Backends.POSTGRES + Backends.SQLITE), "Not a postgres backend")
     def test_deconstruct_shard_from_id(self):
         user = PostgresShardUser.objects.create_user(username='username', password='pwassword', email='test@example.com')
         created_model = PostgresCustomIDModel.objects.using(user.shard).create(random_string='Test String', user_pk=user.id)

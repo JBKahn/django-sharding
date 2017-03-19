@@ -1,5 +1,6 @@
 from django.apps import apps
 from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 from django.db.models import AutoField, CharField, ForeignKey, BigIntegerField, OneToOneField
 
 from django_sharding_library.constants import Backends
@@ -7,8 +8,11 @@ from django_sharding_library.utils import create_postgres_global_sequence, creat
 
 try:
     from django.db.backends.postgresql.base import DatabaseWrapper as PostgresDatabaseWrapper
-except ImportError:
-    from django.db.backends.postgresql_psycopg2.base import DatabaseWrapper as PostgresDatabaseWrapper
+except (ImportError, ImproperlyConfigured):
+    try:
+        from django.db.backends.postgresql_psycopg2.base import DatabaseWrapper as PostgresDatabaseWrapper
+    except (ImportError, ImproperlyConfigured):
+        PostgresDatabaseWrapper = None
 
 try:
     from django.db.models import BigAutoField
@@ -169,14 +173,14 @@ class ShardForeignKeyStorageField(ShardForeignKeyStorageFieldMixin, ForeignKey):
     pass
 
 
-class BasePostgresShardGeneratedIDField(object):
+class BaseShardGeneratedIDField(object):
 
     def __init__(self, *args, **kwargs):
 
         if not hasattr(settings, 'SHARD_EPOCH'):
-            raise ValueError("PostgresShardGeneratedIDField requires a SHARD_EPOCH to be defined in your settings file.")
+            raise ValueError("ShardGeneratedIDField requires a SHARD_EPOCH to be defined in your settings file.")
 
-        return super(BasePostgresShardGeneratedIDField, self).__init__(*args, **kwargs)
+        return super(BaseShardGeneratedIDField, self).__init__(*args, **kwargs)
 
     @staticmethod
     def migration_receiver(*args, **kwargs):
@@ -189,20 +193,67 @@ class BasePostgresShardGeneratedIDField(object):
             shard_id = settings.DATABASES[db_alias].get('SHARD_ID', 0)
             create_postgres_global_sequence(sequence_name, db_alias, True)
             create_postgres_shard_id_function(sequence_name, db_alias, shard_id)
+        elif settings.DATABASES[db_alias]['ENGINE'] in Backends.SQLITE:
+            shard_id = settings.DATABASES[db_alias].get('SHARD_ID', 0)
+
+            from itertools import cycle  # noqa
+            from datetime import datetime, timedelta  # noqa
+            import time  # noqa
+            import pytz  # noqa
+
+            def create_function_for_sharded_id(shard_id):
+                get_next_seq_id = cycle(range(1024))
+                epoch_datetime = datetime.fromtimestamp(settings.SHARD_EPOCH / 1000)
+                epoch_datetime = epoch_datetime.replace(tzinfo=pytz.UTC)
+
+                def next_sharded_id():
+                    now = datetime.utcnow()
+                    now = now.replace(tzinfo=pytz.UTC)
+                    stored_diff = (now - epoch_datetime).total_seconds() * 1000
+
+                    new_id = (int(stored_diff) << 23) | (shard_id << 10) | next(get_next_seq_id)
+                    return new_id
+                return next_sharded_id
+
+            import sqlite3  # noqa
+            from django.db import connections  # noqa
+            con = connections[db_alias]
+            con.connection.create_function("next_sharded_id", 0, create_function_for_sharded_id(shard_id))
 
 
-class PostgresShardGeneratedIDAutoField(BasePostgresShardGeneratedIDField, BigAutoField):
+class ShardGeneratedIDAutoField(BaseShardGeneratedIDField, BigAutoField):
     """
     A field that uses a Postgres stored procedure to return an ID generated on the database.
     """
+
+    # Needed because sqlite django integration
+    @staticmethod
+    def generate_id(instance):
+        shard = instance._state.db or instance.get_shard()
+        return get_next_sharded_id(shard)
+
+    # Needed because sqlite django integration
+    def get_pk_value_on_save(self, instance):
+        return self.generate_id(instance)
+
+    # Needed because sqlite django integration
+    # The app has no hook to get rid of the autoincrement keyword because
+    # the API is not even close to flexible on a connection level.
+    def db_type_suffix(self, connection):
+        if connection.settings_dict['ENGINE'] in Backends.SQLITE:
+            return ""
+        return super(ShardGeneratedIDAutoField, self).db_type_suffix(connection)
+
     def db_type(self, connection, *args, **kwargs):
-        if connection.vendor == PostgresDatabaseWrapper.vendor:
+        if connection.settings_dict['ENGINE'] in Backends.SQLITE:
+            return 'int DEFAULT (next_sharded_id())'
+        elif connection.vendor == PostgresDatabaseWrapper.vendor:
             return "bigint DEFAULT next_sharded_id()"
         else:
-            return super(PostgresShardGeneratedIDAutoField, self).db_type(connection)
+            return super(ShardGeneratedIDAutoField, self).db_type(connection)
 
 
-class PostgresShardGeneratedIDField(BasePostgresShardGeneratedIDField, BigIntegerField):
+class ShardGeneratedIDField(BaseShardGeneratedIDField, BigIntegerField):
     """
     A field that uses a Postgres stored procedure to return an ID generated on the database.
 
@@ -225,7 +276,7 @@ class PostgresShardGeneratedIDField(BasePostgresShardGeneratedIDField, BigIntege
 
     def pre_save(self, model_instance, add):
         if getattr(model_instance, self.attname, None) is not None:
-            return super(PostgresShardGeneratedIDField, self).pre_save(model_instance, add)
+            return super(ShardGeneratedIDField, self).pre_save(model_instance, add)
         value = self.generate_id(model_instance)
         setattr(model_instance, self.attname, value)
         return value

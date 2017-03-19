@@ -34,7 +34,7 @@ Note: The MySQL implementation uses a single row to accomplish this task while P
 
 While the odds of a UUID collision are very low, it is still possible and so we append the database shard name as a way to guarantee that they remain unique. The only drawback to this method is that the items cannot be moved across shards. However, it is the recommendation of the author that you refrain from shard rebalancing and instead focus on maintaining lots of shards rather than worry about balancing few large ones.
 
-##### The PostgresShardGeneratedIDField Method
+##### The ShardGeneratedIDField Method
 
 This strategy is an automated implementation of how Instagram does shard IDs. It uses built-in Postgres functionality to generate a shard-safe ID on the database server at the time of the insert. A stored procedure is created and uses a user-defined epoch time and a shard ID to make sure the IDs it generates are unique. This method (currently) supports up to 8191 shards and up to 1024 inserts per millisecond, which should be more than enough for most use cases, up to and including Instagram scale usage!
 

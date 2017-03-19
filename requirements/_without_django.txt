@@ -1,1 +1,2 @@
 dj-database-url==0.4.1
+pytz==2016.10

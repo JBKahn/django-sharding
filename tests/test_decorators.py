@@ -5,7 +5,7 @@ from django.db import models
 from django_sharding_library.id_generation_strategies import TableStrategyModel
 from django_sharding_library.decorators import model_config
 from django_sharding_library.exceptions import NonExistentDatabaseException, ShardedModelInitializationException
-from django_sharding_library.fields import PostgresShardGeneratedIDField, TableShardedIDField
+from django_sharding_library.fields import ShardGeneratedIDField, TableShardedIDField
 from django.test import TestCase
 from django_sharding_library.manager import ShardManager
 
@@ -68,12 +68,12 @@ class ModelConfigDecoratorTestCase(TestCase):
 
         self.assertEqual(getattr(TestModelThree, 'django_sharding__shard_group', None), 'testing')
 
-    @unittest.skipIf(settings.DATABASES['default']['ENGINE'] not in Backends.POSTGRES, "Not a postgres backend")
+    @unittest.skipIf(settings.DATABASES['default']['ENGINE'] not in (Backends.POSTGRES + Backends.SQLITE), "Not a postgres backend")
     def test_two_postgres_sharded_id_generator_fields(self):
         @model_config(shard_group='testing')
         class TestModelThree(models.Model):
-            id = PostgresShardGeneratedIDField(primary_key=True)
-            something = PostgresShardGeneratedIDField()
+            id = ShardGeneratedIDField(primary_key=True)
+            something = ShardGeneratedIDField()
             random_string = models.CharField(max_length=120)
             user_pk = models.PositiveIntegerField()
 

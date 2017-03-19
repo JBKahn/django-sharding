@@ -34,5 +34,6 @@ node_modules
 # Local dev
 Dockerfile
 docker-compose.yml
+.DS_Store
 
 tests/migrations/*

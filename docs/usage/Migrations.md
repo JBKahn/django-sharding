@@ -66,7 +66,7 @@ class Command(MigrationCommand):
 
 By using the included router, it's as simple as calling migrate on all the primary databases in the system and allowing the system to decide which databases to run the migration on. The above changes were made to make the interface more simple than having to specify all the relevant databases.
 
-### PostgresShardGeneratedIDField Migration Info
+### ShardGeneratedIDField Migration Info
 
 This library hooks into the Django migrations and creates (or updates) the necessary stored procedures before every migration. We made it work this way for two reasons:
 

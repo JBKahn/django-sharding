@@ -1,7 +1,7 @@
 from django.apps import apps
 from django.conf import settings
 
-from django_sharding_library.fields import BasePostgresShardGeneratedIDField
+from django_sharding_library.fields import BaseShardGeneratedIDField
 from django_sharding_library.exceptions import DjangoShardingException, InvalidMigrationException
 from django_sharding_library.utils import (
     is_model_class_on_database,
@@ -69,7 +69,7 @@ class ShardedRouter(object):
             if sharded_by_field_id:
                 shard = self.get_shard_for_id_field(model, sharded_by_field_id)
 
-        is_pk_postgres_generated_id_field = issubclass(type(getattr(model._meta, 'pk')), BasePostgresShardGeneratedIDField)
+        is_pk_postgres_generated_id_field = issubclass(type(getattr(model._meta, 'pk')), BaseShardGeneratedIDField)
         lookup_pk = hints.get('exact_lookups', {}).get('pk') or hints.get('exact_lookups', {}).get('id')
 
         if shard is None and is_pk_postgres_generated_id_field and lookup_pk is not None:

@@ -112,15 +112,15 @@ CoolGuyShardedModel.objects.filter(user_pk=123, some_field='some_value')
 
 Once you've defined your model, we can move onto how to run migrations.
 
-### Using the PostgresShardGeneratedIDField
+### Using the ShardGeneratedIDField
 
-If you would like to use the PostgresShardGeneratedIDField, there are a few subtle differences and caveats that you need to be aware of.
+If you would like to use the ShardGeneratedIDField, there are a few subtle differences and caveats that you need to be aware of.
 
-1. If you define a PostgresShardGeneratedIDField, you should not use another shard ID generation strategy with that model. Additionally, the field should be marked as the primary key. An example of a model with a PostgresShardIDField:
+1. If you define a ShardGeneratedIDField, you should not use another shard ID generation strategy with that model. Additionally, the field should be marked as the primary key. An example of a model with a PostgresShardIDField:
 ```python
 @model_config(shard_group='default')
 class CoolGuyShardedModel(models.Model):
-    id = PostgresShardGeneratedIDField(primary_key=True)
+    id = ShardGeneratedIDField(primary_key=True)
     cool_guy_string = models.CharField(max_length=120)
     user_pk = models.PositiveIntegerField()
 ```

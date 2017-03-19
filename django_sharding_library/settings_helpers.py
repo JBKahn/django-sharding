@@ -1,10 +1,12 @@
 from dj_database_url import config
 
 
-def database_config(environment_variable, default_database_url, shard_group=None, is_replica_of=None):
+def database_config(environment_variable, default_database_url, database_name=None, shard_group=None, is_replica_of=None):
     """
     Wraps dj_database_url to provide additional arguments to specify whether a database is a shard
     and if it a replica of another database.
+
+    If database_name is provided, it will override the database name in the environment_variable URL
     """
     db_config = config(env=environment_variable, default=default_database_url)
     if not db_config:
@@ -12,6 +14,9 @@ def database_config(environment_variable, default_database_url, shard_group=None
 
     db_config['TEST'] = db_config.get('TEST', {})
     db_config['SHARD_GROUP'] = shard_group
+
+    if database_name is not None:
+        db_config['NAME'] = database_name
 
     if is_replica_of:
         db_config['PRIMARY'] = is_replica_of
@@ -22,25 +27,29 @@ def database_config(environment_variable, default_database_url, shard_group=None
 
 def database_configs(databases_dict):
     """
-    Takes databases of the form:
+    Takes databases of the form (database_name is optional, and will override any database name set in the URL):
     {
         'unsharded_databases': [
             {
                 'name': 'DB01',
                 'environment_variable': 'ENV',
-                'default_database_url': 'postgres:://...'
+                'default_database_url': 'postgres:://...',
+                'database_name': 'db01'
             }, {
                 'name': 'DB02',
                'environment_variable': 'ENV2',
                 'default_database_url': 'postgres:://...',
+                'database_name': 'db02'
                 'replicas': [{
                     'name': 'DB02_S1',
                     'environment_variable': 'ENVS1',
-                    'default_database_url': 'postgres:://...'
+                    'default_database_url': 'postgres:://...',
+                    'database_name': 'db02'
                 }, {
                     'name': 'DB02_S2',
                     'environment_variable': 'ENVS2',
-                    'default_database_url': 'postgres:://...'
+                    'default_database_url': 'postgres:://...',
+                    'database_name': 'db02'
                 }]
             },],
         'sharded_databases': [
@@ -76,6 +85,7 @@ def database_configs(databases_dict):
             db_config = database_config(
                 database['environment_variable'],
                 database['default_database_url'],
+                database_name=database.get('database_name'),
                 shard_group=(is_sharded and database.get('shard_group', 'default')) or None,
                 is_replica_of=None
             )
@@ -85,6 +95,7 @@ def database_configs(databases_dict):
                 db_config = database_config(
                     replica['environment_variable'],
                     replica['default_database_url'],
+                    database_name=database.get('database_name'),
                     shard_group=(is_sharded and database.get('shard_group', 'default') or None),
                     is_replica_of=database['name']
                 )

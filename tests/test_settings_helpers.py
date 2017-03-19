@@ -100,6 +100,45 @@ class DatabaseConfigsTestCase(TestCase):
 
         self.assertEqual(result, {'DB01': DB01})
 
+    def test_database_name_overrides_url(self):
+        simple_config = {
+            'unsharded_databases': [
+                {
+                    'name': 'DB01',
+                    'environment_variable': 'SOME_OTHER_USELESS_ENV',
+                    'default_database_url': self.default_database_url,
+                    'database_name': 'another_db'
+                }
+            ]
+        }
+        result = database_configs(simple_config)
+
+        DB01 = {'SHARD_GROUP': None, 'TEST': {}}
+        DB01.update(self.dj_database_config)
+        DB01['NAME'] = 'another_db'
+
+        self.assertEqual(result, {'DB01': DB01})
+
+    def test_database_name_missing_in_url(self):
+        simple_config = {
+            'unsharded_databases': [
+                {
+                    'name': 'DB01',
+                    'environment_variable': 'SOME_OTHER_USELESS_ENV',
+                    'default_database_url': self.default_database_url.rstrip('test_db'),
+                    'database_name': 'another_db'
+                }
+            ]
+        }
+        result = database_configs(simple_config)
+
+        DB01 = {'SHARD_GROUP': None, 'TEST': {}}
+        DB01.update(self.dj_database_config)
+        DB01['NAME'] = 'another_db'
+
+        self.assertEqual(result, {'DB01': DB01})
+
+
     def test_unsharded_databases_ignore_shard_group(self):
         simple_config = {
             'unsharded_databases': [

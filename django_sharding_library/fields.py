@@ -5,10 +5,6 @@ from django.db.models import AutoField, CharField, ForeignKey, BigIntegerField, 
 from django_sharding_library.constants import Backends
 from django_sharding_library.utils import create_postgres_global_sequence, create_postgres_shard_id_function, get_next_sharded_id
 
-try:
-    from django.db.backends.postgresql.base import DatabaseWrapper as PostgresDatabaseWrapper
-except ImportError:
-    from django.db.backends.postgresql_psycopg2.base import DatabaseWrapper as PostgresDatabaseWrapper
 
 try:
     from django.db.models import BigAutoField
@@ -196,6 +192,11 @@ class PostgresShardGeneratedIDAutoField(BasePostgresShardGeneratedIDField, BigAu
     A field that uses a Postgres stored procedure to return an ID generated on the database.
     """
     def db_type(self, connection, *args, **kwargs):
+        try:
+            from django.db.backends.postgresql.base import DatabaseWrapper as PostgresDatabaseWrapper
+        except ImportError:
+            from django.db.backends.postgresql_psycopg2.base import DatabaseWrapper as PostgresDatabaseWrapper
+
         if connection.vendor == PostgresDatabaseWrapper.vendor:
             return "bigint DEFAULT next_sharded_id()"
         else:

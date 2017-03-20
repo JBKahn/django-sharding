@@ -226,19 +226,6 @@ class ShardGeneratedIDAutoField(BaseShardGeneratedIDField, BigAutoField):
     A field that uses a Postgres stored procedure to return an ID generated on the database.
     """
 
-    # Needed because sqlite django integration
-    @staticmethod
-    def generate_id(instance):
-        shard = instance._state.db or instance.get_shard()
-        return get_next_sharded_id(shard)
-
-    # Needed because sqlite django integration
-    def get_pk_value_on_save(self, instance):
-        return self.generate_id(instance)
-
-    # Needed because sqlite django integration
-    # The app has no hook to get rid of the autoincrement keyword because
-    # the API is not even close to flexible on a connection level.
     def db_type_suffix(self, connection):
         if connection.settings_dict['ENGINE'] in Backends.SQLITE:
             return ""

@@ -139,9 +139,8 @@ class RouterReadTestCase(TransactionTestCase):
         self.assertEqual(result.id, original_id)
         self.assertFalse(created)
 
-        # Django 1.10 dropped a call for each here :)
         import django
-        if django.VERSION < (1, 10):
+        if django.VERSION < (1, 10) or django.VERSION >= (1, 11):
             self.assertEqual(
                 [call(get_user_model()), call(get_user_model()), call(get_user_model())],
                 read_route_function.mock_calls
@@ -150,13 +149,12 @@ class RouterReadTestCase(TransactionTestCase):
                 [call(TestModel, **lookups_to_find), call(TestModel, **lookups_to_find), call(TestModel, **lookups_to_find)],
                 write_route_function.mock_calls
             )
-
         else:
+            # Django 1.10 dropped a call for each here :)
             self.assertEqual(
                 [call(get_user_model()), call(get_user_model())],
                 read_route_function.mock_calls
             )
-
             self.assertEqual(
                 [call(TestModel, **lookups_to_find), call(TestModel, **lookups_to_find)],
                 write_route_function.mock_calls
@@ -171,20 +169,37 @@ class RouterReadTestCase(TransactionTestCase):
                 instance, created = TestModel.objects.update_or_create(user_pk=self.user.pk)
 
         self.assertTrue(created)
-        self.assertEqual(
-            [call(get_user_model()), call(get_user_model()), call(get_user_model())],
-            read_route_function.mock_calls
-        )
-
-        self.assertEqual(
-            [
-                call(TestModel, **lookups_to_find),
-                call(TestModel, **lookups_to_find),
-                call(TestModel, instance=write_route_function.mock_calls[2][2]["instance"], **lookups_to_find),  # no way to access that copy of the instance here, the one prior to saving.
-                call(ShardedTestModelIDs),
-            ],
-            write_route_function.mock_calls
-        )
+        import django
+        if (1, 11) > django.VERSION:
+            self.assertEqual(
+                [call(get_user_model()), call(get_user_model()), call(get_user_model())],
+                read_route_function.mock_calls
+            )
+            self.assertEqual(
+                [
+                    call(TestModel, **lookups_to_find),
+                    call(TestModel, **lookups_to_find),
+                    # no way to access that copy of the instance here, the one prior to saving.
+                    call(TestModel, instance=write_route_function.mock_calls[2][2]["instance"], **lookups_to_find),
+                    call(ShardedTestModelIDs),
+                ],
+                write_route_function.mock_calls
+            )
+        else:
+            self.assertEqual(
+                [call(get_user_model()), call(get_user_model()), call(get_user_model()), call(get_user_model())],
+                read_route_function.mock_calls
+            )
+            self.assertEqual(
+                [
+                    call(TestModel, **lookups_to_find),
+                    call(TestModel, **lookups_to_find),
+                    call(TestModel, **lookups_to_find),
+                    call(TestModel, instance=write_route_function.mock_calls[3][2]["instance"], **lookups_to_find),
+                    call(ShardedTestModelIDs),
+                ],
+                write_route_function.mock_calls
+            )
 
     def test_router_hints_receives_filter_kwargs_on_count(self):
         TestModel.objects.create(user_pk=self.user.pk)

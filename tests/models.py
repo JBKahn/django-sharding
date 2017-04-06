@@ -23,14 +23,18 @@ class ShardedModelIDs(TableStrategyModel):
 # the mixin provided in order to save the shard on the user.
 @shard_storage_config()
 class User(AbstractUser, ShardedByMixin):
-    pass
+    # Patch for Django 1.11
+    groups = None
+    user_permissions = None
 
 
 # An implementation of the extension of a the Django user to add
 # the mixin provided in order to save the shard on the user.
 @shard_storage_config(shard_group='postgres')
 class PostgresShardUser(AbstractUser, ShardedByMixin):
-    pass
+    # Patch for Django 1.11
+    groups = None
+    user_permissions = None
 
 
 # A model for use with a sharded model to generate pk's using

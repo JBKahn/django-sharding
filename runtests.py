@@ -65,7 +65,6 @@ settings.configure(
     DATABASES=DATABASES,
     DATABASE_ROUTERS=['django_sharding_library.router.ShardedRouter'],
     AUTH_USER_MODEL='tests.User',
-    ROOT_URLCONF="tests.urls",
     INSTALLED_APPS=[
         "django.contrib.auth",
         "django.contrib.contenttypes",

@@ -1,6 +1,14 @@
 Changelog
 =========
 
+1.2.0 (May 1st 2017)
+------------------
+
+### Official Support for Django 1.11
+
+- Support for Django 1.11.
+
+
 1.1.0 (Mar 19th 2017)
 ------------------
 

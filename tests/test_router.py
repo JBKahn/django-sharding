@@ -318,6 +318,8 @@ class RouterReadTestCase(TransactionTestCase):
         sum_model_pk = TestModel.objects.filter(user_pk=self.user.pk).aggregate(user_pk_sum=Sum('user_pk'))
         self.assertEqual(sum_model_pk['user_pk_sum'], self.user.pk * 10)
 
+        self.assertTrue(TestModel.objects.filter(user_pk=self.user.pk).exists())
+
 
 class RouterWriteTestCase(TransactionTestCase):
 

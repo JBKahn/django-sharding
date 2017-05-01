@@ -293,6 +293,17 @@ class RouterReadTestCase(TransactionTestCase):
             write_route_function.mock_calls
         )
 
+    def test_router_hints_receives_get_kwargs(self):
+        test_model = TestModel.objects.create(user_pk=self.user.pk)
+
+        lookups_to_find = {'exact_lookups': {'user_pk': self.user.pk}}
+
+        with patch.object(ShardedRouter, 'db_for_read') as read_route_function:
+            read_route_function.return_value = 'app_shard_001'
+
+            test_model = TestModel.objects.get(user_pk=self.user.pk, id=test_model.id)
+            self.assertIn(lookups_to_find, read_route_function.call_args)
+
     def test_queryset_router_filter_returns_existing_objects(self):
         for i in range(1, 11):
             test_model_obj = TestModel.objects.create(user_pk=self.user.pk, random_string="%s" % i)
@@ -357,6 +368,34 @@ class RouterWriteTestCase(TransactionTestCase):
         instance = TestModel.objects.create(user_pk=self.user.pk)
         self.assertEqual(instance._state.db, self.user.shard)
         self.assertTrue(TestModel.objects.using(self.user.shard).get(id=instance.id))
+
+    def test_router_hints_receives_get_or_create_kwargs(self):
+        lookups_to_find = {'exact_lookups': {'user_pk': self.user.pk}}
+
+        with patch.object(ShardedRouter, 'db_for_write') as write_route_function:
+            write_route_function.return_value = 'app_shard_001'
+
+            test_model, created = TestModel.objects.get_or_create(user_pk=self.user.pk, random_string='test')
+            self.assertIn(lookups_to_find, write_route_function.call_args)
+
+    def test_router_hints_receives_create_kwargs(self):
+        lookups_to_find = {'exact_lookups': {'user_pk': self.user.pk}}
+
+        with patch.object(ShardedRouter, 'db_for_read') as write_route_function:
+            write_route_function.return_value = 'app_shard_001'
+
+            test_model = TestModel.objects.create(user_pk=self.user.pk, random_string='test')
+            self.assertIn(lookups_to_find, write_route_function.call_args)
+
+    def test_router_hints_receives_update_or_create_kwargs(self):
+        lookups_to_find = {'exact_lookups': {'user_pk': self.user.pk}}
+        instance = TestModel.objects.create(user_pk=self.user.pk)
+
+        with patch.object(ShardedRouter, 'db_for_write') as write_route_function:
+            write_route_function.return_value = 'app_shard_001'
+            test_model, created = TestModel.objects.update_or_create(user_pk=self.user.pk, id=instance.id,
+                                                                     defaults={'random_string': 'test'})
+            self.assertIn(lookups_to_find, write_route_function.call_args)
 
 
 class RouterAllowRelationTestCase(TransactionTestCase):

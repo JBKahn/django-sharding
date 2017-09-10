@@ -143,24 +143,25 @@ class ShardedRouter(object):
         # is the app label of the app where the change is defined but to app with the model is
         # passed in with the model name.
         try:
-            app = apps.get_app_config(app_label)
-            model = app.get_model(model_name)
-        except LookupError:
-            try:
-                app_label = model_name.split('.')[0]
+            if "." in model_name:
+                _app_label = model_name.split('.')[0]
+                app = apps.get_app_config(_app_label)
+                model = app.get_model(model_name[len(_app_label) + 1:])
+            else:
                 app = apps.get_app_config(app_label)
-                model = app.get_model(model_name[len(app_label) + 1:])
-            except LookupError as exception:
-                deleted_model_settings = getattr(settings, 'DJANGO_SHARDING_SETTINGS', {}).get('DELETED_MODELS', {})
-                if model_name not in deleted_model_settings:
-                    raise exception
-                deleted_model_data = deleted_model_settings[model_name]
-                if deleted_model_data is None or ("shard_group" not in deleted_model_data and "database" not in deleted_model_data):
-                    return db == "default"
-                elif "database" in deleted_model_data:
-                    return db == deleted_model_data["database"]
-                else:
-                    return settings.DATABASES[db]['SHARD_GROUP'] == deleted_model_data["shard_group"]
+                model = app.get_model(model_name)
+        except LookupError as exception:
+            deleted_model_settings = getattr(settings, 'DJANGO_SHARDING_SETTINGS', {}).get('DELETED_MODELS', {})
+            entry = "{}.{}".format(app_label, model_name) if "." not in model_name else model_name
+            if entry not in deleted_model_settings:
+                raise exception
+            deleted_model_data = deleted_model_settings[entry]
+            if deleted_model_data is None or ("shard_group" not in deleted_model_data and "database" not in deleted_model_data):
+                return db == "default"
+            elif "database" in deleted_model_data:
+                return db == deleted_model_data["database"]
+            else:
+                return settings.DATABASES[db]['SHARD_GROUP'] == deleted_model_data["shard_group"]
 
         try:
             return is_model_class_on_database(model=model, database=db)

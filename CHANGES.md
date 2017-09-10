@@ -1,6 +1,18 @@
 Changelog
 =========
 
+2.0.0 (Sep 10th 2017)
+
+### Small updates
+
+- Unpin `dj-database-url` from a specific minor version to a specific major version.
+- Initial support for deleting django models. I'm not going to update the docs just yet
+as I don't entirely like this solution...something is better than nothing.
+Check the `test_deleted_model_in_settings` tests to see this. The issue is that django
+needs to know about a model after you've deleted the class so sharded settings on deleted
+models need to be tracked somewhere.
+
+
 1.2.0 (May 1st 2017)
 ------------------
 

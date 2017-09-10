@@ -22,7 +22,6 @@ env:
     - TOX_ENV=py27-dj19
     - TOX_ENV=py27-dj110
     - TOX_ENV=py27-dj111
-    - TOX_ENV=py27-djdev
     - TOX_ENV=py36-dj18
     - TOX_ENV=py36-dj19
     - TOX_ENV=py36-dj110
@@ -31,7 +30,6 @@ env:
 matrix:
   fast_finish: true
   allow_failures:
-    - env: TOX_ENV=py27-djdev
     - env: TOX_ENV=py36-djdev
 
 before_install:

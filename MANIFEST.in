@@ -1,2 +1,2 @@
 include *.md
-include requirements.txt
+include *.txt

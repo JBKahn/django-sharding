@@ -1,6 +1,6 @@
 sudo: false
 language: python
-python: 3.5
+python: 3.6
 cache: pip
 services:
   - mysql
@@ -22,22 +22,16 @@ env:
     - TOX_ENV=py27-dj110
     - TOX_ENV=py27-dj111
     - TOX_ENV=py27-djdev
-    - TOX_ENV=py34-dj18
-    - TOX_ENV=py34-dj19
-    - TOX_ENV=py34-dj110
-    - TOX_ENV=py34-dj111
-    - TOX_ENV=py34-djdev
-    - TOX_ENV=py35-dj18
-    - TOX_ENV=py35-dj19
-    - TOX_ENV=py35-dj110
-    - TOX_ENV=py35-dj111
-    - TOX_ENV=py35-djdev
+    - TOX_ENV=py36-dj18
+    - TOX_ENV=py36-dj19
+    - TOX_ENV=py36-dj110
+    - TOX_ENV=py36-dj111
+    - TOX_ENV=py36-djdev
 matrix:
   fast_finish: true
   allow_failures:
     - env: TOX_ENV=py27-djdev
-    - env: TOX_ENV=py34-djdev
-    - env: TOX_ENV=py35-djdev
+    - env: TOX_ENV=py36-djdev
 
 before_install:
   - psql -c 'CREATE DATABASE "default";' -U postgres

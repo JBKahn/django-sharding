@@ -4,7 +4,7 @@ import unittest
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
-from django.test import TransactionTestCase
+from django.test import TransactionTestCase, override_settings
 
 from tests.models import TestModel, ShardedTestModelIDs, PostgresCustomAutoIDModel, PostgresShardUser
 from django_sharding_library.exceptions import InvalidMigrationException
@@ -523,6 +523,42 @@ class RouterAllowMigrateTestCase(TransactionTestCase):
             can_migrate_default=True,
             can_migrate_shard=False,
         )
+
+    @override_settings(DJANGO_SHARDING_SETTINGS={"DELETED_MODELS": {"deleted.Whatever": {"database": "app_shard_002"}}})
+    def test_deleted_model_in_settings__specific_database(self):
+        self.assertFalse(self.sut.allow_migrate(model_name="deleted.Whatever", db='default', app_label='deleted', **{}))
+        self.assertTrue(self.sut.allow_migrate(model_name="deleted.Whatever", db='app_shard_002', app_label='deleted', **{}))
+
+        self.assertFalse(self.sut.allow_migrate(model_name="Whatever", db='default', app_label='deleted', **{}))
+        self.assertTrue(self.sut.allow_migrate(model_name="Whatever", db='app_shard_002', app_label='deleted', **{}))
+
+    @override_settings(DJANGO_SHARDING_SETTINGS={"DELETED_MODELS": {"deleted.Whatever": {"shard_group": "default"}}})
+    def test_deleted_model_in_settings__shard_group(self):
+        self.assertFalse(self.sut.allow_migrate(model_name="deleted.Whatever", db='default', app_label='deleted', **{}))
+        self.assertTrue(self.sut.allow_migrate(model_name="deleted.Whatever", db='app_shard_001', app_label='deleted', **{}))
+        self.assertTrue(self.sut.allow_migrate(model_name="deleted.Whatever", db='app_shard_002', app_label='deleted', **{}))
+        self.assertFalse(self.sut.allow_migrate(model_name="deleted.Whatever", db='app_shard_001_replica_001', app_label='deleted', **{}))
+        self.assertFalse(self.sut.allow_migrate(model_name="deleted.Whatever", db='app_shard_001_replica_002', app_label='deleted', **{}))
+
+        self.assertFalse(self.sut.allow_migrate(model_name="Whatever", db='default', app_label='deleted', **{}))
+        self.assertTrue(self.sut.allow_migrate(model_name="Whatever", db='app_shard_001', app_label='deleted', **{}))
+        self.assertTrue(self.sut.allow_migrate(model_name="Whatever", db='app_shard_002', app_label='deleted', **{}))
+        self.assertFalse(self.sut.allow_migrate(model_name="Whatever", db='app_shard_001_replica_001', app_label='deleted', **{}))
+        self.assertFalse(self.sut.allow_migrate(model_name="Whatever", db='app_shard_001_replica_002', app_label='deleted', **{}))
+
+    @override_settings(DJANGO_SHARDING_SETTINGS={"DELETED_MODELS": {"deleted.Whatever": None}})
+    def test_deleted_model_in_settings__unsharded(self):
+        self.assertTrue(self.sut.allow_migrate(model_name="deleted.Whatever", db='default', app_label='deleted', **{}))
+        self.assertFalse(self.sut.allow_migrate(model_name="deleted.Whatever", db='app_shard_001', app_label='deleted', **{}))
+        self.assertFalse(self.sut.allow_migrate(model_name="deleted.Whatever", db='app_shard_002', app_label='deleted', **{}))
+        self.assertFalse(self.sut.allow_migrate(model_name="deleted.Whatever", db='app_shard_001_replica_001', app_label='deleted', **{}))
+        self.assertFalse(self.sut.allow_migrate(model_name="deleted.Whatever", db='app_shard_001_replica_002', app_label='deleted', **{}))
+
+        self.assertTrue(self.sut.allow_migrate(model_name="Whatever", db='default', app_label='deleted', **{}))
+        self.assertFalse(self.sut.allow_migrate(model_name="Whatever", db='app_shard_001', app_label='deleted', **{}))
+        self.assertFalse(self.sut.allow_migrate(model_name="Whatever", db='app_shard_002', app_label='deleted', **{}))
+        self.assertFalse(self.sut.allow_migrate(model_name="Whatever", db='app_shard_001_replica_001', app_label='deleted', **{}))
+        self.assertFalse(self.sut.allow_migrate(model_name="Whatever", db='app_shard_001_replica_002', app_label='deleted', **{}))
 
 
 class RouterForPostgresIDFieldTest(TransactionTestCase):

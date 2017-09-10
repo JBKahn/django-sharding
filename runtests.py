@@ -29,6 +29,7 @@ def run_tests(*test_args):
 
     location = (os.environ.get('TRAVIS') and "postgres and mysql") or "sqlite"
     print("I am running tests on {}".format(location))  # noqa
+    print("TOX_ENV: {}".format(os.environ.get('TOX_ENV')))  # noqa
 
     failures = test_runner.run_tests(test_args, interactive=False)
 

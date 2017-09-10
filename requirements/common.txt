@@ -1,2 +1,1 @@
-django>=1.8,<2.0.0
 dj-database-url>=0.4.1,<1.0.0

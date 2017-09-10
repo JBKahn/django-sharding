@@ -3,6 +3,11 @@ from setuptools import setup, find_packages
 version = '1.2.0'
 
 
+def get_requirements(file_path):
+    with open(file_path) as f:
+        return [line for line in f if line and not line.startswith('-')]
+
+
 setup(
     name='django_sharding',
     version=version,
@@ -13,8 +18,9 @@ setup(
     url='https://github.com/JBKahn/django-sharding',
     packages=find_packages(),
     include_package_data=True,
-    install_requires=['Django>=1.8', 'dj-database-url==0.4.1'],
-    tests_require=['psycopg2==2.6.2', 'mysqlclient==1.3.7', 'mock==2.0.0', 'django_nose==1.4.4', 'tox==2.3.1'],
+    install_requires=get_requirements('requirements/common.txt'),
+    tests_require=get_requirements('requirements/development.txt'),
+    setup_requires=['pytest-runner'],
     license="BSD",
     zip_safe=False,
     keywords='django shard sharding library',
@@ -25,6 +31,7 @@ setup(
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5'
+        'Programming Language :: Python :: 3.6'
     ],
     test_suite='runtests.run_tests',
 )

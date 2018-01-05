@@ -85,9 +85,9 @@ class ShardStorageTable(ShardStorageModel):
 
 
 class ShardedByForiegnKeyModel(models.Model):
-    shard = ShardForeignKeyStorageField(ShardStorageTable, shard_group='default')
+    shard = ShardForeignKeyStorageField(ShardStorageTable, shard_group='default', on_delete=models.CASCADE)
     random_string = models.CharField(max_length=120)
-    test = models.ForeignKey(UnshardedTestModel)
+    test = models.ForeignKey(UnshardedTestModel, on_delete=models.CASCADE)
 
     def get_shard_key(self):
         return self.test.user_pk

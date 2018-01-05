@@ -26,6 +26,7 @@ env:
     - TOX_ENV=py36-dj19
     - TOX_ENV=py36-dj110
     - TOX_ENV=py36-dj111
+    - TOX_ENV=py36-dj2
     - TOX_ENV=py36-djdev
 matrix:
   fast_finish: true

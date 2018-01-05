@@ -1,7 +1,16 @@
 Changelog
 =========
 
+2.1.0 (Jan 5th 2018)
+------------------
+
+### Official Support for Django 2.0.0
+
+- Support for Django 2.0.0.
+
+
 2.0.0 (Sep 10th 2017)
+------------------
 
 ### Small updates
 

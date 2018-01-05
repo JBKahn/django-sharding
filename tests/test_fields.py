@@ -4,6 +4,7 @@ import unittest
 from django.conf import settings
 from django.db import connections
 from django.db.utils import DataError, IntegrityError
+from django.db.models import CASCADE
 from django.test import TestCase
 from django.utils.six.moves import xrange
 
@@ -170,7 +171,7 @@ class ShardForeignKeyStorageFieldMixinTestCase(TestCase):
 
 class ShardForeignKeyStorageFieldTestCase(TestCase):
     def test_pre_save_calls_save_shard(self):
-        sut = ShardForeignKeyStorageField(ShardStorageTable, shard_group='default')
+        sut = ShardForeignKeyStorageField(ShardStorageTable, shard_group='default', on_delete=CASCADE)
         model_instance = object()
         with patch.object(sut, 'save_shard') as mock_save_shard:
             with self.assertRaises(Exception):

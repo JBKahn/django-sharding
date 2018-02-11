@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-version = '2.0.0'
+version = '2.1.0'
 
 
 def get_requirements(file_path):
@@ -18,7 +18,7 @@ setup(
     url='https://github.com/JBKahn/django-sharding',
     packages=find_packages(),
     include_package_data=True,
-    install_requires=get_requirements('requirements/common.txt') + ["django>=1.8,<2.0.0"],
+    install_requires=get_requirements('requirements/common.txt') + ["django>=1.8,<2.0.1"],
     tests_require=get_requirements('requirements/development.txt'),
     license="BSD",
     zip_safe=False,

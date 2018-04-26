@@ -18,7 +18,7 @@ setup(
     url='https://github.com/JBKahn/django-sharding',
     packages=find_packages(),
     include_package_data=True,
-    install_requires=get_requirements('requirements/common.txt') + ["django>=1.8,<2.0.1"],
+    install_requires=get_requirements('requirements/common.txt') + ["django>=1.8,<3.0.0"],
     tests_require=get_requirements('requirements/development.txt'),
     license="BSD",
     zip_safe=False,

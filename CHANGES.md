@@ -1,6 +1,14 @@
 Changelog
 =========
 
+3.0.0 (April 26th 2018)
+------------------
+
+### Official Support for Django 2.0.0 in setup.py
+
+- Support for Django > 2.0.0 and < 3.0.0 in setup.py
+
+
 2.1.0 (Jan 5th 2018)
 ------------------
 

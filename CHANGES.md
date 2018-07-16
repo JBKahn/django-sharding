@@ -1,6 +1,14 @@
 Changelog
 =========
 
+4.0.0 (July 16th 2018)
+------------------
+
+### Remove test folder from packaging and installation.
+
+- Makes it less likely for someone to make a mistake and get this by accident.
+
+
 3.0.0 (April 26th 2018)
 ------------------
 

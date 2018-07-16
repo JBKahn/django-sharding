@@ -16,7 +16,7 @@ setup(
     author='JBKahn',
     author_email='josephbkahn@gmail.com',
     url='https://github.com/JBKahn/django-sharding',
-    packages=find_packages(),
+    packages=find_packages(exclude=['tests']),
     include_package_data=True,
     install_requires=get_requirements('requirements/common.txt') + ["django>=1.8,<3.0.0"],
     tests_require=get_requirements('requirements/development.txt'),

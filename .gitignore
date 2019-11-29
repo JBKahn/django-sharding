@@ -1,5 +1,7 @@
 *.py[cod]
 __pycache__
+.mypy_cache/
+.DS_Store
 
 # Packages
 *.egg

@@ -1,7 +1,6 @@
 from django.apps import apps
 from django.conf import settings
 
-from django_sharding_library.fields import BasePostgresShardGeneratedIDField
 from django_sharding_library.exceptions import DjangoShardingException, InvalidMigrationException
 from django_sharding_library.utils import (
     is_model_class_on_database,
@@ -20,16 +19,8 @@ class ShardedRouter(object):
     def get_shard_for_instance(self, instance):
         return instance._state.db or instance.get_shard()
 
-    def get_shard_for_id_field(self, model, sharded_by_field_id):
-        try:
-            return model.get_shard_from_id(sharded_by_field_id)
-        except Exception:
-            # This is overly broad on purpose: we dont know what a user might try to do to get a shard from an ID (our
-            # example is a .get(), but someone could do anything) and if it excepts, we want to fall back to the next
-            # attempt at grabbing a shard based on other potential filters
-            return None
-
     def get_shard_for_postgres_pk_field(self, model, pk_value):
+        raise Exception("I want to move this")
         group = getattr(model, 'django_sharding__shard_group', None)
         shard_id_to_find = int(bin(pk_value)[-23:-10], 2)  # We know where the shard id is stored in the PK's bits.
 
@@ -46,9 +37,6 @@ class ShardedRouter(object):
 
     def _get_shard(self, model, **hints):
         shard = None
-
-        model_has_sharded_id_field = getattr(model, 'django_sharding__sharded_by_field', None) is not None
-
         #####
         #
         # This is setup as multiple IF statements on purpose. If any attempt to get a shard fails, the function that
@@ -62,18 +50,6 @@ class ShardedRouter(object):
         #####
         if hints.get("instance", None):
             shard = get_database_for_model_instance(instance=hints["instance"])
-        if shard is None and model_has_sharded_id_field:
-            sharded_by_field_id = hints.get('exact_lookups', {}).get(
-                getattr(model, 'django_sharding__sharded_by_field'), None
-            )
-            if sharded_by_field_id:
-                shard = self.get_shard_for_id_field(model, sharded_by_field_id)
-
-        is_pk_postgres_generated_id_field = issubclass(type(getattr(model._meta, 'pk')), BasePostgresShardGeneratedIDField)
-        lookup_pk = hints.get('exact_lookups', {}).get('pk') or hints.get('exact_lookups', {}).get('id')
-
-        if shard is None and is_pk_postgres_generated_id_field and lookup_pk is not None:
-            return self.get_shard_for_postgres_pk_field(model, lookup_pk)
 
         return shard
 

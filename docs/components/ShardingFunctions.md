@@ -25,13 +25,13 @@ class BaseBucketingStrategy(object):
         Returns the shard for the model which has not previously been bucketed
         into a shard.
         """
-        raise NotImplemented
+        raise NotImplementedError
 
     def get_shard(self, model_sharded_by):
         """
         Returns the shard for a model which has already been assigned a shard.
         """
-        raise NotImplemented
+        raise NotImplementedError
 ```
 
 There are multiple ways to implement the above code and I will provide, as an example, the functions that are shipped with this packages. There are two types of strategies that you may wish to use. The first kind, deterministic functions, will always return the same bucket and storage of the chosen shard is optional. The second kind, non-deterministic functions, require the shard to be stored as there is no way to derive the shard that belongs to a group of objects

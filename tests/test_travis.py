@@ -7,6 +7,7 @@ from django_sharding_library.constants import Backends
 
 
 class TravisTestCase(TransactionTestCase):
+    databases = '__all__'
 
     def test_travis_uses_non_sqlite_databases(self):
         TRAVISCI = os.environ.get('TRAVIS')

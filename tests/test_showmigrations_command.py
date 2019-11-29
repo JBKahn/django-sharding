@@ -7,6 +7,7 @@ from django_sharding_library.exceptions import InvalidShowMigrationsException
 
 @patch('django.core.management.commands.showmigrations.Command.handle')
 class MigrationCommandTestCase(TestCase):
+    databases = '__all__'
 
     def test_defauls_migrates_all_primary_dbs(self, mock_migrate_command):
         call_command('showmigrations', verbosity=0)

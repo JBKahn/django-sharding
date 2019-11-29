@@ -1,20 +1,14 @@
-from mock import call, patch
-import unittest
+from mock import patch
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.test import TransactionTestCase, override_settings
 
-from tests.models import TestModel, ShardedTestModelIDs, PostgresCustomAutoIDModel, PostgresShardUser
+from tests.models import TestModel, ShardedTestModelIDs
 from django_sharding_library.exceptions import InvalidMigrationException
 from django_sharding_library.router import ShardedRouter
 from django_sharding_library.routing_read_strategies import BaseRoutingStrategy
-from django_sharding_library.fields import PostgresShardGeneratedIDAutoField
-from django_sharding_library.constants import Backends
-from django_sharding_library.manager import ShardManager
-
-from django.db.models import Sum, Q
 
 
 class FakeRoutingStrategy(BaseRoutingStrategy):
@@ -27,9 +21,9 @@ class FakeRoutingStrategy(BaseRoutingStrategy):
 
 
 class RouterReadTestCase(TransactionTestCase):
+    databases = '__all__'
 
     def setUp(self):
-        from django.contrib.auth import get_user_model
         self.sut = ShardedRouter()
         self.user = get_user_model().objects.create_user(username='username', password='pwassword', email='test@example.com')
 
@@ -57,272 +51,13 @@ class RouterReadTestCase(TransactionTestCase):
             self.assertEqual(self.sut.db_for_read(model=ShardedTestModelIDs), 'app_shard_001')
 
     def test_other(self):
-        from django.contrib.auth import get_user_model
         self.assertEqual(self.sut.db_for_read(model=get_user_model()), "default")
-
-    def test_router_hints_receives_get_kwargs(self):
-        original_id = TestModel.objects.create(user_pk=self.user.pk).id
-
-        lookups_to_find = {'exact_lookups': {'user_pk': self.user.pk}}
-
-        with patch.object(ShardedRouter, 'db_for_write', wraps=self.sut.db_for_write) as write_route_function:
-            with patch.object(ShardedRouter, 'db_for_read', wraps=self.sut.db_for_read) as read_route_function:
-                result = TestModel.objects.get(user_pk=self.user.pk)
-
-        self.assertEqual(result.id, original_id)
-        self.assertEqual(
-            [call(TestModel, **lookups_to_find), call(get_user_model())],
-            read_route_function.mock_calls
-        )
-        self.assertEqual(
-            [],
-            write_route_function.mock_calls
-        )
-
-    def test_router_hints_receives_get_kwargs_on_get_or_create__get(self):
-        original_id = TestModel.objects.create(user_pk=self.user.pk).id
-
-        lookups_to_find = {'exact_lookups': {'user_pk': self.user.pk}}
-
-        with patch.object(ShardedRouter, 'db_for_write', wraps=self.sut.db_for_write) as write_route_function:
-            with patch.object(ShardedRouter, 'db_for_read', wraps=self.sut.db_for_read) as read_route_function:
-                result, created = TestModel.objects.get_or_create(user_pk=self.user.pk)
-
-        self.assertEqual(result.id, original_id)
-        self.assertFalse(created)
-        self.assertEqual(
-            [call(get_user_model())],
-            read_route_function.mock_calls
-        )
-
-        self.assertEqual(
-            [
-                call(TestModel, **lookups_to_find),
-            ],
-            write_route_function.mock_calls
-        )
-
-    def test_router_hints_receives_get_kwargs_on_get_or_create__create(self):
-        lookups_to_find = {'exact_lookups': {'user_pk': self.user.pk}}
-
-        with patch.object(ShardedRouter, 'db_for_write', wraps=self.sut.db_for_write) as write_route_function:
-            with patch.object(ShardedRouter, 'db_for_read', wraps=self.sut.db_for_read) as read_route_function:
-
-                _, created = TestModel.objects.get_or_create(user_pk=self.user.pk)
-
-        self.assertTrue(created)
-        self.assertEqual(
-            [call(get_user_model()), call(get_user_model()), call(get_user_model())],
-            read_route_function.mock_calls
-        )
-
-        self.assertEqual(
-            [
-                call(TestModel, **lookups_to_find),
-                call(TestModel, **lookups_to_find),
-                call(TestModel, instance=write_route_function.mock_calls[2][2]["instance"], **lookups_to_find),  # no way to access that copy of the instance here, the one prior to saving.
-                call(ShardedTestModelIDs),
-            ],
-            write_route_function.mock_calls
-        )
-
-    def test_router_hints_receives_get_kwargs_on_update_or_create__get(self):
-        original_id = TestModel.objects.create(user_pk=self.user.pk).id
-
-        lookups_to_find = {'exact_lookups': {'user_pk': self.user.pk}}
-
-        with patch.object(ShardedRouter, 'db_for_read', wraps=self.sut.db_for_read) as read_route_function:
-            with patch.object(ShardedRouter, 'db_for_write', wraps=self.sut.db_for_write) as write_route_function:
-
-                result, created = TestModel.objects.update_or_create(user_pk=self.user.pk)
-
-        self.assertEqual(result.id, original_id)
-        self.assertFalse(created)
-
-        import django
-        if django.VERSION < (1, 10) or django.VERSION >= (1, 11):
-            self.assertEqual(
-                [call(get_user_model()), call(get_user_model()), call(get_user_model())],
-                read_route_function.mock_calls
-            )
-            self.assertEqual(
-                [call(TestModel, **lookups_to_find), call(TestModel, **lookups_to_find), call(TestModel, **lookups_to_find)],
-                write_route_function.mock_calls
-            )
-        else:
-            # Django 1.10 dropped a call for each here :)
-            self.assertEqual(
-                [call(get_user_model()), call(get_user_model())],
-                read_route_function.mock_calls
-            )
-            self.assertEqual(
-                [call(TestModel, **lookups_to_find), call(TestModel, **lookups_to_find)],
-                write_route_function.mock_calls
-            )
-
-    def test_router_hints_receives_get_kwargs_on_update_or_create__create(self):
-        lookups_to_find = {'exact_lookups': {'user_pk': self.user.pk}}
-
-        with patch.object(ShardedRouter, 'db_for_read', wraps=self.sut.db_for_read) as read_route_function:
-            with patch.object(ShardedRouter, 'db_for_write', wraps=self.sut.db_for_write) as write_route_function:
-
-                instance, created = TestModel.objects.update_or_create(user_pk=self.user.pk)
-
-        self.assertTrue(created)
-        import django
-        if (1, 11) > django.VERSION:
-            self.assertEqual(
-                [call(get_user_model()), call(get_user_model()), call(get_user_model())],
-                read_route_function.mock_calls
-            )
-            self.assertEqual(
-                [
-                    call(TestModel, **lookups_to_find),
-                    call(TestModel, **lookups_to_find),
-                    # no way to access that copy of the instance here, the one prior to saving.
-                    call(TestModel, instance=write_route_function.mock_calls[2][2]["instance"], **lookups_to_find),
-                    call(ShardedTestModelIDs),
-                ],
-                write_route_function.mock_calls
-            )
-        else:
-            self.assertEqual(
-                [call(get_user_model()), call(get_user_model()), call(get_user_model()), call(get_user_model())],
-                read_route_function.mock_calls
-            )
-            self.assertEqual(
-                [
-                    call(TestModel, **lookups_to_find),
-                    call(TestModel, **lookups_to_find),
-                    call(TestModel, **lookups_to_find),
-                    call(TestModel, instance=write_route_function.mock_calls[3][2]["instance"], **lookups_to_find),
-                    call(ShardedTestModelIDs),
-                ],
-                write_route_function.mock_calls
-            )
-
-    def test_router_hints_receives_filter_kwargs_on_count(self):
-        TestModel.objects.create(user_pk=self.user.pk)
-
-        lookups_to_find = {'exact_lookups': {'user_pk': self.user.pk}}
-
-        with patch.object(ShardedRouter, 'db_for_write', wraps=self.sut.db_for_write) as write_route_function:
-            with patch.object(ShardedRouter, 'db_for_read', wraps=self.sut.db_for_read) as read_route_function:
-                result = TestModel.objects.filter(user_pk=self.user.pk).count()
-
-        self.assertEqual(result, 1)
-        self.assertEqual(
-            [call(TestModel, **lookups_to_find), call(get_user_model())],
-            read_route_function.mock_calls
-        )
-        self.assertEqual(
-            [],
-            write_route_function.mock_calls
-        )
-
-    def test_router_hints_receives_filter_kwargs_on_exists(self):
-        TestModel.objects.create(user_pk=self.user.pk)
-
-        lookups_to_find = {'exact_lookups': {'user_pk': self.user.pk}}
-
-        with patch.object(ShardedRouter, 'db_for_write', wraps=self.sut.db_for_write) as write_route_function:
-            with patch.object(ShardedRouter, 'db_for_read', wraps=self.sut.db_for_read) as read_route_function:
-                result = TestModel.objects.filter(user_pk=self.user.pk).exists()
-
-        self.assertTrue(result)
-        self.assertEqual(
-            [call(TestModel, **lookups_to_find), call(get_user_model())],
-            read_route_function.mock_calls
-        )
-        self.assertEqual(
-            [],
-            write_route_function.mock_calls
-        )
-
-    def test_router_hints_receives_filter_kwargs(self):
-        TestModel.objects.create(user_pk=self.user.pk)
-
-        lookups_to_find = {'exact_lookups': {'user_pk': self.user.pk}}
-
-        with patch.object(ShardedRouter, 'db_for_write', wraps=self.sut.db_for_write) as write_route_function:
-            with patch.object(ShardedRouter, 'db_for_read', wraps=self.sut.db_for_read) as read_route_function:
-                list(TestModel.objects.filter(user_pk=self.user.pk))
-
-        self.assertEqual(
-            [call(TestModel, **lookups_to_find), call(get_user_model())],
-            read_route_function.mock_calls
-        )
-        self.assertEqual(
-            [],
-            write_route_function.mock_calls
-        )
-
-    def test_router_gets_hints_correctly_with_positional_arguments_like_Q_in_filter(self):
-        TestModel.objects.create(user_pk=self.user.pk, random_string="test")
-
-        lookups_to_find = {'exact_lookups': {'user_pk': self.user.pk}}
-
-        with patch.object(ShardedRouter, 'db_for_write', wraps=self.sut.db_for_write) as write_route_function:
-            with patch.object(ShardedRouter, 'db_for_read', wraps=self.sut.db_for_read) as read_route_function:
-                list(TestModel.objects.filter(Q(random_string="test") | Q(random_string__isnull=True), user_pk=self.user.pk))
-
-        self.assertEqual(
-            [call(TestModel, **lookups_to_find), call(get_user_model())],
-            read_route_function.mock_calls
-        )
-        self.assertEqual(
-            [],
-            write_route_function.mock_calls
-        )
-
-    def test_router_gets_hints_correctly_with_positional_arguments_like_Q_in_get(self):
-        TestModel.objects.create(user_pk=self.user.pk, random_string="test")
-
-        lookups_to_find = {'exact_lookups': {'user_pk': self.user.pk}}
-
-        with patch.object(ShardedRouter, 'db_for_write', wraps=self.sut.db_for_write) as write_route_function:
-            with patch.object(ShardedRouter, 'db_for_read', wraps=self.sut.db_for_read) as read_route_function:
-                TestModel.objects.get(Q(random_string="test") | Q(random_string__isnull=True), user_pk=self.user.pk)
-
-        self.assertEqual(
-            [call(TestModel, **lookups_to_find), call(get_user_model())],
-            read_route_function.mock_calls
-        )
-        self.assertEqual(
-            [],
-            write_route_function.mock_calls
-        )
-
-    def test_queryset_router_filter_returns_existing_objects(self):
-        for i in range(1, 11):
-            test_model_obj = TestModel.objects.create(user_pk=self.user.pk, random_string="%s" % i)
-            self.assertIn(test_model_obj._state.db, ['app_shard_001', 'app_shard_002'])
-
-        test_models = TestModel.objects.filter(user_pk=self.user.pk)
-        self.assertEqual(len(test_models), 10)
-
-        from django.contrib.auth import get_user_model
-        new_user = get_user_model().objects.create_user(username='username2', password='pwassword', email='test2@example.com')
-        for i in range(1, 21):
-            TestModel.objects.create(user_pk=new_user.pk, random_string="%s" % i)
-
-        test_models = TestModel.objects.filter(user_pk=new_user.pk)
-        self.assertEqual(len(test_models), 20)
-
-    def test_queryset_router_filter_with_aggregates(self):
-        for i in range(1, 11):
-            TestModel.objects.create(user_pk=self.user.pk, random_string="%s" % i)
-        num_models = TestModel.objects.filter(user_pk=self.user.pk).count()
-        self.assertEqual(num_models, 10)
-
-        sum_model_pk = TestModel.objects.filter(user_pk=self.user.pk).aggregate(user_pk_sum=Sum('user_pk'))
-        self.assertEqual(sum_model_pk['user_pk_sum'], self.user.pk * 10)
 
 
 class RouterWriteTestCase(TransactionTestCase):
+    databases = '__all__'
 
     def setUp(self):
-        from django.contrib.auth import get_user_model
         self.sut = ShardedRouter()
         self.user = get_user_model().objects.create_user(username='username', password='pwassword', email='test@example.com')
 
@@ -350,19 +85,13 @@ class RouterWriteTestCase(TransactionTestCase):
             self.assertEqual(self.sut.db_for_write(model=ShardedTestModelIDs), 'app_shard_001')
 
     def test_other(self):
-        from django.contrib.auth import get_user_model
         self.assertEqual(self.sut.db_for_write(model=get_user_model()), "default")
-
-    def test_create_sharded_object_without_using(self):
-        instance = TestModel.objects.create(user_pk=self.user.pk)
-        self.assertEqual(instance._state.db, self.user.shard)
-        self.assertTrue(TestModel.objects.using(self.user.shard).get(id=instance.id))
 
 
 class RouterAllowRelationTestCase(TransactionTestCase):
+    databases = '__all__'
 
     def setUp(self):
-        from django.contrib.auth import get_user_model
         self.sut = ShardedRouter()
         self.user = get_user_model().objects.create_user(username='username', password='pwassword', email='test@example.com')
 
@@ -405,6 +134,7 @@ class RouterAllowRelationTestCase(TransactionTestCase):
 
 
 class RouterAllowMigrateTestCase(TransactionTestCase):
+    databases = '__all__'
 
     def setUp(self):
         self.sut = ShardedRouter()
@@ -436,7 +166,6 @@ class RouterAllowMigrateTestCase(TransactionTestCase):
         self.assertFalse(self.sut.allow_migrate(db='app_shard_001_replica_002', app_label='tests', model_name="User"))
 
     def test_model_passed_in(self):
-        from django.contrib.auth import get_user_model
 
         hints = {'model': get_user_model()}
 
@@ -559,30 +288,3 @@ class RouterAllowMigrateTestCase(TransactionTestCase):
         self.assertFalse(self.sut.allow_migrate(model_name="Whatever", db='app_shard_002', app_label='deleted', **{}))
         self.assertFalse(self.sut.allow_migrate(model_name="Whatever", db='app_shard_001_replica_001', app_label='deleted', **{}))
         self.assertFalse(self.sut.allow_migrate(model_name="Whatever", db='app_shard_001_replica_002', app_label='deleted', **{}))
-
-
-class RouterForPostgresIDFieldTest(TransactionTestCase):
-
-    def setUp(self):
-        self.sut = ShardedRouter()
-        self.user = PostgresShardUser.objects.create_user(username='username', password='pwassword', email='test@example.com')
-
-    @unittest.skipIf(settings.DATABASES['default']['ENGINE'] not in Backends.POSTGRES, "Not a postgres backend")
-    def test_postgres_sharded_id_can_be_queried_without_using_and_without_sharded_by(self):
-        created_model = PostgresCustomAutoIDModel.objects.create(random_string='Test String', user_pk=self.user.id)
-        self.assertTrue(getattr(created_model, 'id'))
-
-        self.assertTrue(isinstance(PostgresCustomAutoIDModel._meta.pk, PostgresShardGeneratedIDAutoField))
-
-        self.assertTrue(isinstance(PostgresCustomAutoIDModel.objects, ShardManager))
-
-        instance = PostgresCustomAutoIDModel.objects.get(id=created_model.id)
-        self.assertEqual(created_model._state.db, instance._state.db)
-
-        instance = PostgresCustomAutoIDModel.objects.get(pk=created_model.id)
-        self.assertEqual(created_model._state.db, instance._state.db)
-
-    @unittest.skipIf(settings.DATABASES['default']['ENGINE'] not in Backends.POSTGRES, "Not a postgres backend")
-    def test_shard_extracted_correctly(self):
-        created_model = PostgresCustomAutoIDModel.objects.create(random_string='Test String', user_pk=self.user.pk)
-        self.assertEqual(self.user.shard, self.sut.get_shard_for_postgres_pk_field(PostgresCustomAutoIDModel, created_model.id))

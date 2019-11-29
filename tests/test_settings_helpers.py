@@ -1,4 +1,4 @@
-from dj_database_url import config
+import environ
 
 from django.test import TestCase
 
@@ -6,46 +6,50 @@ from django_sharding_library.settings_helpers import database_config, database_c
 
 
 class DatabaseConfigTestCase(TestCase):
+    databases = '__all__'
 
     def setUp(self):
         self.default_database_url = 'postgres://user:pass@localhost/test_db'
-        self.dj_database_config = config(env='TEST_ENV_VAR', default=self.default_database_url)
+        env = environ.Env()
+        self.db_config = env.db('TEST_ENV_VAR', default=self.default_database_url)
 
     def test_returns_none_when_no_env_var_and_no_url(self):
         result = database_config(environment_variable='TEST_ENV_VAR', default_database_url=None, shard_group='default')
         expected_result = {}
         self.assertEqual(result, expected_result)
 
-    def test_no_extra_args_equivalent_to_dj_database_with_non_shard_status_added(self):
+    def test_no_extra_args_equivalent_to_environ_database_with_non_shard_status_added(self):
         result = database_config(environment_variable='TEST_ENV_VAR', default_database_url=self.default_database_url)
         expected_result = {'SHARD_GROUP': None, 'TEST': {}}
-        expected_result.update(self.dj_database_config)
+        expected_result.update(self.db_config)
         self.assertEqual(result, expected_result)
 
     def test_adds_sharded_state_to_dict_when_sharded(self):
         result = database_config(environment_variable='TEST_ENV_VAR', default_database_url=self.default_database_url, shard_group='default')
         expected_result = {'SHARD_GROUP': 'default', 'TEST': {}}
-        expected_result.update(self.dj_database_config)
+        expected_result.update(self.db_config)
         self.assertEqual(result, expected_result)
 
     def test_adds_replica_state_to_dict(self):
         result = database_config(environment_variable='TEST_ENV_VAR', default_database_url=self.default_database_url, is_replica_of='some_database')
         expected_result = {'PRIMARY': 'some_database', 'SHARD_GROUP': None, 'TEST': {'MIRROR': 'some_database'}}
-        expected_result.update(self.dj_database_config)
+        expected_result.update(self.db_config)
         self.assertEqual(result, expected_result)
 
     def test_adds_replica_state_to_dict_also_when_sharded(self):
         result = database_config(environment_variable='TEST_ENV_VAR', default_database_url=self.default_database_url, shard_group='default_set_of_shards', is_replica_of='some_database')
         expected_result = {'PRIMARY': 'some_database', 'SHARD_GROUP': 'default_set_of_shards', 'TEST': {'MIRROR': 'some_database'}}
-        expected_result.update(self.dj_database_config)
+        expected_result.update(self.db_config)
         self.assertEqual(result, expected_result)
 
 
 class DatabaseConfigsTestCase(TestCase):
+    databases = '__all__'
 
     def setUp(self):
         self.default_database_url = 'postgres://user:pass@localhost/test_db'
-        self.dj_database_config = config(env='TEST_ENV_VAR', default=self.default_database_url)
+        env = environ.Env()
+        self.db_config = env.db('TEST_ENV_VAR', default=self.default_database_url)
 
     def test_skips_databases_with_no_envvar_value_or_deafult_url(self):
 
@@ -79,7 +83,7 @@ class DatabaseConfigsTestCase(TestCase):
         del os.environ['SOME_USELESS_ENV']
 
         DB01 = {'SHARD_GROUP': None, 'TEST': {}}
-        DB01.update(self.dj_database_config)
+        DB01.update(self.db_config)
 
         self.assertEqual(result, {'DB01': DB01})
 
@@ -96,7 +100,7 @@ class DatabaseConfigsTestCase(TestCase):
         result = database_configs(simple_config)
 
         DB01 = {'SHARD_GROUP': None, 'TEST': {}}
-        DB01.update(self.dj_database_config)
+        DB01.update(self.db_config)
 
         self.assertEqual(result, {'DB01': DB01})
 
@@ -114,7 +118,7 @@ class DatabaseConfigsTestCase(TestCase):
         result = database_configs(simple_config)
 
         DB01 = {'SHARD_GROUP': None, 'TEST': {}}
-        DB01.update(self.dj_database_config)
+        DB01.update(self.db_config)
         DB01['NAME'] = 'another_db'
 
         self.assertEqual(result, {'DB01': DB01})
@@ -133,11 +137,10 @@ class DatabaseConfigsTestCase(TestCase):
         result = database_configs(simple_config)
 
         DB01 = {'SHARD_GROUP': None, 'TEST': {}}
-        DB01.update(self.dj_database_config)
+        DB01.update(self.db_config)
         DB01['NAME'] = 'another_db'
 
         self.assertEqual(result, {'DB01': DB01})
-
 
     def test_unsharded_databases_ignore_shard_group(self):
         simple_config = {
@@ -153,7 +156,7 @@ class DatabaseConfigsTestCase(TestCase):
         result = database_configs(simple_config)
 
         DB01 = {'SHARD_GROUP': None, 'TEST': {}}
-        DB01.update(self.dj_database_config)
+        DB01.update(self.db_config)
 
         self.assertEqual(result, {'DB01': DB01})
 
@@ -170,7 +173,7 @@ class DatabaseConfigsTestCase(TestCase):
         result = database_configs(simple_config)
 
         DB01 = {'SHARD_GROUP': 'default', 'TEST': {}, 'SHARD_ID': 0}
-        DB01.update(self.dj_database_config)
+        DB01.update(self.db_config)
 
         self.assertEqual(result, {'DB01': DB01})
 
@@ -188,7 +191,7 @@ class DatabaseConfigsTestCase(TestCase):
         result = database_configs(simple_config)
 
         DB01 = {'SHARD_GROUP': 'testing', 'TEST': {}, 'SHARD_ID': 0}
-        DB01.update(self.dj_database_config)
+        DB01.update(self.db_config)
 
         self.assertEqual(result, {'DB01': DB01})
 
@@ -234,11 +237,11 @@ class DatabaseConfigsTestCase(TestCase):
         DB03 = {'SHARD_GROUP': 'default', 'TEST': {}, 'SHARD_ID': 0}
         DB04 = {'SHARD_GROUP': 'default', 'TEST': {}, 'SHARD_ID': 1}
         DB05 = {'SHARD_GROUP': 'default', 'TEST': {}, 'SHARD_ID': 2}
-        DB01.update(self.dj_database_config)
-        DB02.update(self.dj_database_config)
-        DB03.update(self.dj_database_config)
-        DB04.update(self.dj_database_config)
-        DB05.update(self.dj_database_config)
+        DB01.update(self.db_config)
+        DB02.update(self.db_config)
+        DB03.update(self.db_config)
+        DB04.update(self.db_config)
+        DB05.update(self.db_config)
 
         self.assertEqual(result['DB01'], DB01)
         self.assertEqual(result['DB02'], DB02)
@@ -264,9 +267,9 @@ class DatabaseConfigsTestCase(TestCase):
         result = database_configs(simple_config)
 
         DB01 = {'SHARD_GROUP': None, 'TEST': {}}
-        DB01.update(self.dj_database_config)
+        DB01.update(self.db_config)
         DB01_replica = {'SHARD_GROUP': None, 'PRIMARY': 'DB01', 'TEST': {'MIRROR': 'DB01'}}
-        DB01_replica.update(self.dj_database_config)
+        DB01_replica.update(self.db_config)
 
         self.assertEqual(result, {'DB01': DB01, 'DB01_replica': DB01_replica})
 
@@ -289,8 +292,8 @@ class DatabaseConfigsTestCase(TestCase):
         result = database_configs(simple_config)
 
         DB01 = {'SHARD_GROUP': 'testing', 'TEST': {}, 'SHARD_ID': 0}
-        DB01.update(self.dj_database_config)
+        DB01.update(self.db_config)
         DB01_replica = {'SHARD_GROUP': 'testing', 'PRIMARY': 'DB01', 'TEST': {'MIRROR': 'DB01'}}
-        DB01_replica.update(self.dj_database_config)
+        DB01_replica.update(self.db_config)
 
         self.assertEqual(result, {'DB01': DB01, 'DB01_replica': DB01_replica})

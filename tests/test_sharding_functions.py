@@ -13,6 +13,7 @@ from django_sharding_library.sharding_functions import (
 
 
 class BaseBucketingStrategyTestCase(TestCase):
+    databases = '__all__'
 
     def test_get_shards(self):
         sut = BaseBucketingStrategy(shard_group='default')
@@ -37,6 +38,7 @@ class BaseBucketingStrategyTestCase(TestCase):
 
 
 class BaseShardedModelBucketingStrategyTestCase(TestCase):
+    databases = '__all__'
 
     def test_get_shard_reads_shard_from_model(self):
         class FakeModel(object):
@@ -48,6 +50,7 @@ class BaseShardedModelBucketingStrategyTestCase(TestCase):
 
 
 class RoundRobinBucketingStrategyTestCase(TestCase):
+    databases = '__all__'
 
     def test_picking_is_cyclic(self):
         class FakeUser():
@@ -102,6 +105,7 @@ class RoundRobinBucketingStrategyTestCase(TestCase):
 
 
 class RandomBucketingStrategyTestCase(TestCase):
+    databases = '__all__'
 
     def test_pick_shard_picks_valid_shards(self):
         sut = RandomBucketingStrategy(shard_group='default', databases=settings.DATABASES)
@@ -114,6 +118,7 @@ class RandomBucketingStrategyTestCase(TestCase):
 
 
 class ModBucketingStrategyTestCase(TestCase):
+    databases = '__all__'
 
     def test_pick_shard_and_get_shard_equals_hash_shard_using_mod_of_pk(self):
         sut = ModBucketingStrategy(shard_group='default', databases=settings.DATABASES)
@@ -131,6 +136,7 @@ class ModBucketingStrategyTestCase(TestCase):
 
 
 class SavedModBucketingStrategyTestCase(TestCase):
+    databases = '__all__'
 
     def test_pick_shard_equals_hash_shard_using_mod_of_pk_and_get_reads_from_model(self):
         sut = SavedModBucketingStrategy(shard_group='default', databases=settings.DATABASES)

@@ -16,7 +16,7 @@ class BaseIDGenerationStrategy(object):
         """
         A function which takes no arguments and returns a new unique identifier.
         """
-        raise NotImplemented
+        raise NotImplementedError
 
 
 @deconstructible

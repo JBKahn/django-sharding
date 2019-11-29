@@ -1,4 +1,3 @@
-import django
 from django.apps import apps
 from django.conf import settings
 from django.db.models import AutoField, CharField, ForeignKey, BigIntegerField, OneToOneField
@@ -130,10 +129,7 @@ class ShardForeignKeyStorageFieldMixin(ShardStorageFieldMixin):
         if type(model_class) == str:
             app_label = model_class.split('.')[0]
             app = apps.get_app_config(app_label)
-            if (1, 11) > django.VERSION:
-                model_class = app.get_model(model_class[len(app_label) + 1:])
-            else:
-                model_class = app.get_model(model_class[len(app_label) + 1:], require_ready=False)
+            model_class = app.get_model(model_class[len(app_label) + 1:], require_ready=False)
         setattr(self, 'django_sharding__shard_storage_table', model_class)
         return super(ShardForeignKeyStorageFieldMixin, self).__init__(*args, **kwargs)
 

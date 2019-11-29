@@ -38,7 +38,7 @@ class BaseRoutingStrategy(object):
         Given the name of a primary, pick the name of the database to read
         from which may be a replica or the primary itself.
         """
-        raise NotImplemented
+        raise NotImplementedError
 ```
 
 

@@ -59,3 +59,35 @@ class ShardStorageModel(models.Model):
 
     class Meta:
         abstract = True
+
+
+class ShardLookupQuerySet(models.QuerySet):
+    def bulk_create(self, objs, batch_size=None):
+        objs = list(objs)
+        for obj in objs:
+            if obj._state.db is None:
+                obj._state.db = self._db
+
+        return super().bulk_create(objs, batch_size)
+
+
+class ShardLookupBaseModel(models.Model):
+    """
+    Unfortunatly when you call `model.objects.using(db).create(...) Django
+    ignores the `db` passed to using and still tries to access the router.
+
+    This can lead to many unnecesarry calls as well as circular resolution
+    of the model.
+
+    This is one way of solving this problem.
+    """
+    objects = ShardLookupQuerySet.as_manager()
+
+    class Meta:
+        abstract = True
+
+    def save(self, **kwargs):
+        if not self._state.db:
+            self._state.db = kwargs["using"]
+
+        return super().save(**kwargs)

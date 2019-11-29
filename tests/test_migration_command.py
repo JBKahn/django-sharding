@@ -9,6 +9,7 @@ from django_sharding_library.exceptions import InvalidMigrationException
 
 @patch('django.core.management.commands.migrate.Command.handle')
 class MigrationCommandTestCase(TestCase):
+    databases = '__all__'
 
     def test_defauls_migrates_all_primary_dbs(self, mock_migrate_command):
         call_command('migrate', verbosity=0)

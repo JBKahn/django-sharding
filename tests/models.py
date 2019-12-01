@@ -3,20 +3,12 @@ from django.db import models
 from django.conf import settings
 from django_sharding_library.decorators import model_config, shard_storage_config
 from django_sharding_library.fields import (
-    TableShardedIDField,
     ShardForeignKeyStorageField,
     PostgresShardGeneratedIDAutoField,
     PostgresShardGeneratedIDField
 )
-from django_sharding_library.models import ShardedByMixin, ShardStorageModel, TableStrategyModel
+from django_sharding_library.models import ShardedByMixin, ShardStorageModel
 from django_sharding_library.constants import Backends
-
-
-# A model for use with a sharded model to generate pk's using
-# an autoincrement field on the backing TableStrategyModel.
-# This one is initialized but used in no strategy.
-class ShardedModelIDs(TableStrategyModel):
-    pass
 
 
 # An implementation of the extension of a the Django user to add
@@ -37,24 +29,9 @@ class PostgresShardUser(AbstractUser, ShardedByMixin):
     user_permissions = None
 
 
-# A model for use with a sharded model to generate pk's using
-# an autoincrement field on the backing TableStrategyModel.
-# This one is initialized for use with TestModel and is stored
-# on `app_shard_001`.
-
-
-@model_config(database='app_shard_001')
-class ShardedTestModelIDs(TableStrategyModel):
-    pass
-
-
-# An example of a sharded model which uses the `TableStrategy` to
-# generate uuid's for its instances.
-
-
 @model_config(shard_group='default')
 class TestModel(models.Model):
-    id = TableShardedIDField(primary_key=True, source_table_name='tests.ShardedTestModelIDs')
+    id = PostgresShardGeneratedIDAutoField(primary_key=True)
     random_string = models.CharField(max_length=120)
     user_pk = models.PositiveIntegerField()
 
@@ -71,7 +48,7 @@ class TestModel(models.Model):
 
 @model_config(database='default')
 class UnshardedTestModel(models.Model):
-    id = TableShardedIDField(primary_key=True, source_table_name='tests.ShardedTestModelIDs')
+    id = PostgresShardGeneratedIDAutoField(primary_key=True)
     random_string = models.CharField(max_length=120)
     user_pk = models.PositiveIntegerField()
 
@@ -93,17 +70,9 @@ class ShardedByForiegnKeyModel(models.Model):
         return self.test.user_pk
 
 
-@model_config(database='app_shard_001')
-class PostgresCustomIDModelBackupField(TableStrategyModel):
-    pass
-
-
 @model_config(shard_group="postgres")
 class PostgresCustomAutoIDModel(models.Model):
-    if settings.DATABASES['default']['ENGINE'] in Backends.POSTGRES:
-        id = PostgresShardGeneratedIDAutoField(primary_key=True)
-    else:
-        id = TableShardedIDField(primary_key=True, source_table_name='tests.PostgresCustomIDModelBackupField')
+    id = PostgresShardGeneratedIDAutoField(primary_key=True)
     random_string = models.CharField(max_length=120)
     user_pk = models.PositiveIntegerField()
 
@@ -117,12 +86,8 @@ class PostgresCustomAutoIDModel(models.Model):
 
 @model_config(shard_group="postgres")
 class PostgresCustomIDModel(models.Model):
-    if settings.DATABASES['default']['ENGINE'] in Backends.POSTGRES:
-        id = PostgresShardGeneratedIDField(primary_key=True)
-        some_field = PostgresShardGeneratedIDField()
-    else:
-        id = TableShardedIDField(primary_key=True, source_table_name='tests.PostgresCustomIDModelBackupField')
-        some_field = models.PositiveIntegerField()
+    id = PostgresShardGeneratedIDField(primary_key=True)
+    some_field = PostgresShardGeneratedIDField()
     random_string = models.CharField(max_length=120)
     user_pk = models.PositiveIntegerField()
 

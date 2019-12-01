@@ -53,24 +53,6 @@ class ShardedIDFieldMixin(object):
         return instance.pk
 
 
-class TableShardedIDField(ShardedIDFieldMixin, BigAutoField):
-    """
-    An autoincrimenting field which takes a `source_table_name` as an argument in
-    order to generate unqiue ids for the sharded model.  i.e. `app.model_name`.
-    """
-    def __init__(self, *args, **kwargs):
-        from django_sharding_library.id_generation_strategies import TableStrategy
-        kwargs['strategy'] = TableStrategy(backing_model_name=kwargs['source_table_name'])
-        setattr(self, 'source_table_name', kwargs['source_table_name'])
-        del kwargs['source_table_name']
-        return super(TableShardedIDField, self).__init__(*args, **kwargs)
-
-    def deconstruct(self):
-        name, path, args, kwargs = super(TableShardedIDField, self).deconstruct()
-        kwargs['source_table_name'] = getattr(self, 'source_table_name')
-        return name, path, args, kwargs
-
-
 class ShardedUUID4Field(ShardedIDFieldMixin, CharField):
     def __init__(self, *args, **kwargs):
         from django_sharding_library.id_generation_strategies import UUIDStrategy

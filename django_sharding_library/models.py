@@ -35,19 +35,6 @@ class ShardedByMixin(models.Model):
         abstract = True
 
 
-class TableStrategyModel(models.Model):
-    """
-    A model for use with the TableStrategy in order to generate ids using an
-    autoincrimenting field. To use this, simply inherit from this class and give
-    the model a more meaningful name e.g. InvoiceIDs.
-    """
-    id = BigAutoField(primary_key=True)
-    stub = models.NullBooleanField(null=True, default=True, unique=True)
-
-    class Meta:
-        abstract = True
-
-
 class ShardStorageModel(models.Model):
     """
     A model for storing shards.

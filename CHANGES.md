@@ -15,11 +15,11 @@ I've decided to remove it.
 
 - Remove `sharded_by_field` from the `model_config` function.
 - Removal of `ShardQuerySet` and `ShardManager`.
-- Removal of `router.get_shard_for_id_field` and support in the router for the magic.
+- Removal of `router.get_shard_for_id_field`, `router.get_shard_for_postgres_pk_field` and support in the router for the magic.
 
-### Magic Additions
+### Less Magical Additions
 
-- Added `ShardLookupQuerySet` and `ShardLookupBaseModel`, will add to docs.
+- Added `ShardLookupQuerySet` and `ShardLookupBaseModel` which help reduce the number of router lookups. WIll add more to docs in upcoming months.
 
 ### Limit Support
 

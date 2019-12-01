@@ -19,18 +19,6 @@ class ShardedRouter(object):
     def get_shard_for_instance(self, instance):
         return instance._state.db or instance.get_shard()
 
-    def get_shard_for_postgres_pk_field(self, model, pk_value):
-        raise Exception("I want to move this")
-        group = getattr(model, 'django_sharding__shard_group', None)
-        shard_id_to_find = int(bin(pk_value)[-23:-10], 2)  # We know where the shard id is stored in the PK's bits.
-
-        # We can check the shard id from the PK against the shard ID in the databases config
-        for alias, db_settings in settings.DATABASES.items():
-            if db_settings["SHARD_GROUP"] == group and db_settings["SHARD_ID"] == shard_id_to_find:
-                return alias
-
-        return None  # Return None if we could not determine the shard so we can fall through to the next shard grab attempt
-
     def get_read_db_routing_strategy(self, shard_group):
         app_config_app_label = getattr(settings, 'DJANGO_SHARDING_SETTINGS', {}).get('APP_CONFIG_APP', 'django_sharding')
         return apps.get_app_config(app_config_app_label).get_routing_strategy(shard_group)

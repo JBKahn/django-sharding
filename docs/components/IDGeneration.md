@@ -13,7 +13,7 @@ class BaseIDGenerationStrategy(object):
         """
         A function which returns a new unique identifier.
         """
-        raise NotImplemented
+        raise NotImplementedError
 ```
 
 In the above example, it takes an optional database. However you will find that you can choose to provide additional arguments later on when you make use of the generator. The only real requirements is that it be a class with a `get_next_id` function.

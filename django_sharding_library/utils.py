@@ -99,13 +99,6 @@ def get_database_for_model_instance(instance):
     elif len(possible_databases) == 0:
         pass
     else:
-        model_has_sharded_id_field = getattr(model, 'django_sharding__sharded_by_field', None) is not None
-
-        if model_has_sharded_id_field:
-            sharded_by_field_id = getattr(instance, getattr(model, 'django_sharding__sharded_by_field', 'django_sharding__none'), None)
-            if sharded_by_field_id is not None:
-                return model.get_shard_from_id(sharded_by_field_id)
-
         return instance.get_shard()
 
     raise DjangoShardingException("Unable to deduce datbase for model instance")

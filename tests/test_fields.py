@@ -32,6 +32,8 @@ from tests.models import (
 
 
 class BigAutoFieldTestCase(TestCase):
+    databases = '__all__'
+
     def test_largest_id(self):
         if settings.DATABASES['default']['ENGINE'] in Backends.POSTGRES + Backends.SQLITE:
             max_id = 9223372036854775807
@@ -60,8 +62,10 @@ class FakeIDGenerationStrategy(BaseIDGenerationStrategy):
 
 
 class TableShardedIDFieldTestCase(TestCase):
+    databases = '__all__'
+
     def test_largest_id(self):
-        if settings.DATABASES['app_shard_001']['ENGINE'] in Backends.POSTGRES + Backends.SQLITE:
+        if settings.DATABASES['default']['ENGINE'] in Backends.POSTGRES + Backends.SQLITE:
             max_id = 9223372036854775807
         else:
             max_id = 18446744073709551615
@@ -82,6 +86,8 @@ class TableShardedIDFieldTestCase(TestCase):
 
 
 class TableShardedIDMixinTestCase(TestCase):
+    databases = '__all__'
+
     def test_initialization_makes_id_generation_available(self):
         field = ShardedIDFieldMixin(strategy=FakeIDGenerationStrategy())
         self.assertTrue(hasattr(field.strategy, 'get_next_id'))
@@ -98,6 +104,8 @@ class TableShardedIDMixinTestCase(TestCase):
 
 
 class ShardStorageFieldMixinTestCase(TestCase):
+    databases = '__all__'
+
     def test_takes_shard_group_and_sets_attributes(self):
         sut = ShardStorageFieldMixin(shard_group='testing')
         self.assertEqual(sut.django_sharding__shard_group, 'testing')
@@ -106,6 +114,8 @@ class ShardStorageFieldMixinTestCase(TestCase):
 
 
 class ShardLocalStorageFieldMixinTestCase(TestCase):
+    databases = '__all__'
+
     def test_takes_shard_group_and_sets_attributes(self):
         sut = ShardLocalStorageFieldMixin(shard_group='testing')
         self.assertEqual(sut.django_sharding__shard_group, 'testing')
@@ -114,6 +124,8 @@ class ShardLocalStorageFieldMixinTestCase(TestCase):
 
 
 class ShardForeignKeyStorageFieldMixinTestCase(TestCase):
+    databases = '__all__'
+
     def test_save_shard_works(self):
         initial_count = ShardStorageTable.objects.count()
 
@@ -170,6 +182,8 @@ class ShardForeignKeyStorageFieldMixinTestCase(TestCase):
 
 
 class ShardForeignKeyStorageFieldTestCase(TestCase):
+    databases = '__all__'
+
     def test_pre_save_calls_save_shard(self):
         sut = ShardForeignKeyStorageField(ShardStorageTable, shard_group='default', on_delete=CASCADE)
         model_instance = object()
@@ -181,6 +195,7 @@ class ShardForeignKeyStorageFieldTestCase(TestCase):
 
 
 class PostgresShardIdFieldTestCase(TestCase):
+    databases = '__all__'
 
     @unittest.skipIf(settings.DATABASES['default']['ENGINE'] not in Backends.POSTGRES, "Not a postgres backend")
     def test_check_shard_id_function(self):
@@ -200,7 +215,7 @@ class PostgresShardIdFieldTestCase(TestCase):
     @unittest.skipIf(settings.DATABASES['default']['ENGINE'] not in Backends.POSTGRES, "Not a postgres backend")
     def test_check_shard_id_returns_with_model_save(self):
         user = PostgresShardUser.objects.create_user(username='username', password='pwassword', email='test@example.com')
-        created_model = PostgresCustomAutoIDModel.objects.create(random_string='Test String', user_pk=user.id)
+        created_model = PostgresCustomAutoIDModel.objects.using(user.shard).create(random_string='Test String', user_pk=user.id)
         self.assertTrue(getattr(created_model, 'id'))
 
         # Same as above, lets create an id that would have been made 10 seconds ago and make sure the one that was

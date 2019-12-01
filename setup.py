@@ -18,8 +18,11 @@ setup(
     url='https://github.com/JBKahn/django-sharding',
     packages=find_packages(exclude=['tests']),
     include_package_data=True,
-    install_requires=get_requirements('requirements/common.txt') + ["django>=1.8,<3.0.0"],
+    install_requires=get_requirements('requirements/common.txt') + ["django>=1.11,<3.0.0"],
     tests_require=get_requirements('requirements/development.txt'),
+    setup_requires=[
+        'pytest-runner',
+    ],
     license="BSD",
     zip_safe=False,
     keywords='django shard sharding library',
@@ -32,5 +35,4 @@ setup(
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6'
     ],
-    test_suite='runtests.run_tests',
 )

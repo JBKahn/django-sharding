@@ -1,0 +1,138 @@
+jobs:
+  django-2-0:
+    executor:
+      name: python/default
+      tag: 3.8.0
+    steps:
+      - checkout
+      - python/load-cache:
+          key: python-cache-2-0
+      - python/install-deps
+      - python/save-cache:
+          key: python-cache-2-0
+      - run:
+          command: pip install --user "Django>=2.0.0,<2.1.0"
+          name: Install Django
+      - run: mkdir /tmp/test-reports
+      - run:
+          command: |
+            python -m pytest \
+              -vv \
+              --junitxml /tmp/test-reports/xunit.xml \
+              --durations 10
+          name: Test
+      - store_test_results:
+          path: /tmp/test-reports/
+
+  django-2-1:
+    executor:
+      name: python/default
+      tag: 3.8.0
+    steps:
+      - checkout
+      - python/load-cache:
+          key: python-cache-2-1
+      - python/install-deps
+      - python/save-cache:
+          key: python-cache-2-1
+      - run:
+          command: pip install --user "Django>=2.1.0,<2.2.0"
+          name: Install Django
+      - run: mkdir /tmp/test-reports
+      - run:
+          command: |
+            python -m pytest \
+              -vv \
+              --junitxml /tmp/test-reports/xunit.xml \
+              --durations 10
+          name: Test
+      - store_test_results:
+          path: /tmp/test-reports/
+
+  django-2-2:
+    executor:
+      name: python/default
+      tag: 3.8.0
+    steps:
+      - checkout
+      - python/load-cache:
+          key: python-cache-2-2
+      - python/install-deps
+      - python/save-cache:
+          key: python-cache-2-2
+      - run:
+          command: pip install --user "Django>=2.2.0,<2.3.0"
+          name: Install Django
+      - run: mkdir /tmp/test-reports
+      - run:
+          command: |
+            python -m pytest \
+              -vv \
+              --junitxml /tmp/test-reports/xunit.xml \
+              --durations 10
+          name: Test
+      - store_test_results:
+          path: /tmp/test-reports/
+
+  django-1-11:
+    executor:
+      name: python/default
+      tag: 2.7.14
+    steps:
+      - checkout
+      - python/load-cache:
+          key: python-cache-1-11
+      - python/install-deps:
+          local: false
+      - python/save-cache:
+          key: python-cache-1-11
+      - run:
+          command: pip install --user "Django>=1.11,<1.12" "pytest==4.0.0"
+          name: Install Django
+      - run: mkdir /tmp/test-reports
+      - run:
+          command: |
+            python -m pytest \
+              -vv \
+              --junitxml /tmp/test-reports/xunit.xml \
+              --durations 10
+          name: Test
+      - store_test_results:
+          path: /tmp/test-reports/
+
+  django-latest:
+    executor:
+      name: python/default
+      tag: 3.8.0
+    steps:
+      - checkout
+      - python/load-cache:
+          key: python-cache-latest
+      - python/install-deps
+      - python/save-cache:
+          key: python-cache-latest
+      - run:
+          command: pip install --user -U "Django>=3.0rc1"
+          name: Install Django
+      - run: mkdir /tmp/test-reports
+      - run:
+          command: |
+            python -m pytest \
+              -vv \
+              --junitxml /tmp/test-reports/xunit.xml \
+              --durations 10
+          name: Test
+      - store_test_results:
+          path: /tmp/test-reports/
+
+orbs:
+  python: circleci/python@0.1
+version: 2.1
+workflows:
+  main:
+    jobs:
+      - django-2-0
+      - django-2-1
+      - django-2-2
+      - django-1-11
+      - django-latest

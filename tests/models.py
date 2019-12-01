@@ -52,7 +52,7 @@ class ShardedTestModelIDs(TableStrategyModel):
 # generate uuid's for its instances.
 
 
-@model_config(shard_group='default', sharded_by_field='user_pk')
+@model_config(shard_group='default')
 class TestModel(models.Model):
     id = TableShardedIDField(primary_key=True, source_table_name='tests.ShardedTestModelIDs')
     random_string = models.CharField(max_length=120)
@@ -98,7 +98,7 @@ class PostgresCustomIDModelBackupField(TableStrategyModel):
     pass
 
 
-@model_config(shard_group="postgres", sharded_by_field="user_pk")
+@model_config(shard_group="postgres")
 class PostgresCustomAutoIDModel(models.Model):
     if settings.DATABASES['default']['ENGINE'] in Backends.POSTGRES:
         id = PostgresShardGeneratedIDAutoField(primary_key=True)

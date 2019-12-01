@@ -6,6 +6,7 @@ from django_sharding_library.routing_read_strategies import RoundRobinRoutingStr
 
 
 class RoundRobinBucketingStrategyTestCase(TestCase):
+    databases = '__all__'
 
     def test_is_cyclic(self):
         sut = RoundRobinRoutingStrategy(settings.DATABASES)
@@ -25,6 +26,7 @@ class RoundRobinBucketingStrategyTestCase(TestCase):
 
 
 class MasterOnlyRoutingStrategyTestCase(TestCase):
+    databases = '__all__'
 
     def test_is_always_primary(self):
         sut = PrimaryOnlyRoutingStrategy(settings.DATABASES)
@@ -35,6 +37,7 @@ class MasterOnlyRoutingStrategyTestCase(TestCase):
 
 
 class RandomRoutingStrategyTestCase(TestCase):
+    databases = '__all__'
 
     def test_no_exception_raised(self):
         sut = RoundRobinRoutingStrategy(settings.DATABASES)

@@ -7,12 +7,12 @@ from django_sharding_library.decorators import model_config
 from django_sharding_library.exceptions import NonExistentDatabaseException, ShardedModelInitializationException
 from django_sharding_library.fields import PostgresShardGeneratedIDField, TableShardedIDField
 from django.test import TestCase
-from django_sharding_library.manager import ShardManager
 
 from django_sharding_library.constants import Backends
 
 
 class ModelConfigDecoratorTestCase(TestCase):
+    databases = '__all__'
 
     def test_model_cannot_be_both_sharded_and_marked_for_a_specific_db(self):
         with self.assertRaises(ShardedModelInitializationException):
@@ -101,94 +101,6 @@ class ModelConfigDecoratorTestCase(TestCase):
             pass
 
         self.assertEqual(getattr(ShardedTestModelIDsThree, 'django_sharding__database', None), 'app_shard_002')
-
-    def test_abstract_model_with_defined_manager_raises_exception_if_not_instance_of_shard_manager(self):
-        # Manager is defined and not shard model, should raise an exception
-        with self.assertRaises(ShardedModelInitializationException):
-            @model_config(shard_group='default', sharded_by_field="user_pk")
-            class TestModelOne(models.Model):
-                id = TableShardedIDField(primary_key=True, source_table_name="blah")
-                random_string = models.CharField(max_length=120)
-                user_pk = models.PositiveIntegerField()
-
-                objects = models.Manager()
-
-                class Meta:
-                    abstract = True
-
-                def get_shard(self):
-                    pass
-
-                @staticmethod
-                def get_shard_from_id(id):
-                    pass
-
-        # Manager is not defined, should NOT raise an exception
-        @model_config(shard_group='default', sharded_by_field="user_pk")
-        class TestModelTwo(models.Model):
-            id = TableShardedIDField(primary_key=True, source_table_name="blah")
-            random_string = models.CharField(max_length=120)
-            user_pk = models.PositiveIntegerField()
-
-            class Meta:
-                abstract = True
-
-            def get_shard(self):
-                pass
-
-            @staticmethod
-            def get_shard_from_id(id):
-                pass
-
-        # Manager is defines but is a shardmanager, should not raise an exception
-        @model_config(shard_group='default', sharded_by_field="user_pk")
-        class TestModelThree(models.Model):
-            id = TableShardedIDField(primary_key=True, source_table_name="blah")
-            random_string = models.CharField(max_length=120)
-            user_pk = models.PositiveIntegerField()
-
-            objects = ShardManager()
-
-            class Meta:
-                abstract = True
-
-            def get_shard(self):
-                pass
-
-            @staticmethod
-            def get_shard_from_id(id):
-                pass
-
-    def test_decorator_raises_exception_when_sharded_by_field_is_defined_with_no_get_shard_from_id_function(self):
-        with self.assertRaises(ShardedModelInitializationException):
-            @model_config(shard_group='default', sharded_by_field="user_pk")
-            class TestModelOne(models.Model):
-                id = TableShardedIDField(primary_key=True, source_table_name="blah")
-                random_string = models.CharField(max_length=120)
-                user_pk = models.PositiveIntegerField()
-
-                def get_shard(self):
-                    pass
-
-    def test_decorator_raises_exception_when_using_sharded_by_field_and_custom_manager_is_not_shard_manager_instance(self):
-        class CustomManager(models.Manager):
-            pass
-
-        with self.assertRaises(ShardedModelInitializationException):
-            @model_config(shard_group='default', sharded_by_field="user_pk")
-            class TestModelOne(models.Model):
-                id = TableShardedIDField(primary_key=True, source_table_name="blah")
-                random_string = models.CharField(max_length=120)
-                user_pk = models.PositiveIntegerField()
-
-                objects = CustomManager()
-
-                def get_shard(self):
-                    pass
-
-                @staticmethod
-                def get_shard_from_id(id):
-                    pass
 
     def test_decorator_raises_exception_when_no_arguments_passed_in(self):
         with self.assertRaises(ShardedModelInitializationException):

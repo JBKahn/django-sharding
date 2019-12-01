@@ -9,6 +9,7 @@ mock_verify_path = 'django_sharding_library.management.commands.create_postgres_
 
 
 class MigrationCommandTestCase(TestCase):
+    databases = '__all__'
 
     def test_defauls_migrates_all_primary_dbs_with_shard_id(self):
         with patch(mock_verify_path, return_value=True) as mock_verify:

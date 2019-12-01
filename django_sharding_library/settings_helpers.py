@@ -1,14 +1,18 @@
-from dj_database_url import config
+import environ
 
 
 def database_config(environment_variable, default_database_url, database_name=None, shard_group=None, is_replica_of=None):
     """
-    Wraps dj_database_url to provide additional arguments to specify whether a database is a shard
+    Wraps django environ to provide additional arguments to specify whether a database is a shard
     and if it a replica of another database.
 
     If database_name is provided, it will override the database name in the environment_variable URL
     """
-    db_config = config(env=environment_variable, default=default_database_url)
+    env = environ.Env()
+    if env.get_value(environment_variable, default=None) is None and default_database_url is None:
+        return {}
+
+    db_config = env.db(environment_variable, default=default_database_url)
     if not db_config:
         return db_config
 

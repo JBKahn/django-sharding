@@ -2,6 +2,7 @@ from django.test import TestCase
 
 
 class TestSaveShardHandler(TestCase):
+    databases = '__all__'
 
     def test_shard_is_set(self):
         from django.contrib.auth import get_user_model

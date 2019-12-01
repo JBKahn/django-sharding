@@ -1,6 +1,36 @@
 Changelog
 =========
 
+5.0.0 (November 30th 2019)
+------------------
+
+This is a combination of maintenance and planning so that I can start down the
+road of fixing the documentation and being opinionated about how this works. As
+a first step, I'm removing the more magical parts of this library that route the
+lookups based on the params passed. It's not a feature I had ever planned to
+support but had accepted from an outside contributor. Without consistent support
+I've decided to remove it.
+
+### Magic Removal
+
+- Remove `sharded_by_field` from the `model_config` function.
+- Removal of `ShardQuerySet` and `ShardManager`.
+- Removal of `router.get_shard_for_id_field` and support in the router for the magic.
+
+### Magic Additions
+
+- Added `ShardLookupQuerySet` and `ShardLookupBaseModel`, will add to docs.
+
+### Limit Support
+
+- Support Django 1.11 and up only.
+- Test on python3.8 and on newer versions of django.
+
+### Replace dj_database_url
+
+- Added requirement for `django-environ` and remove usage of `dj_database_url`.
+
+
 4.0.0 (July 16th 2018)
 ------------------
 

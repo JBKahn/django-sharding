@@ -13,6 +13,7 @@ setup(
     version=version,
     description="""A sharding app to include in your project so that you can shard your data.""",
     long_description=open('README.md').read(),
+    long_description_content_type='text/markdown',
     author='JBKahn',
     author_email='josephbkahn@gmail.com',
     url='https://github.com/JBKahn/django-sharding',

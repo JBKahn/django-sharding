@@ -35,7 +35,10 @@ class BigAutoFieldTestCase(TestCase):
     databases = '__all__'
 
     def test_largest_id(self):
-        max_id = 9223372036854775807
+        if settings.DATABASES['default']['ENGINE'] in Backends.POSTGRES + Backends.SQLITE:
+            max_id = 9223372036854775807
+        else:
+            max_id = 18446744073709551615
 
         item = ShardedModelIDs.objects.create(id=max_id, stub=None)
         self.assertEqual(item.pk, max_id)
@@ -62,7 +65,10 @@ class TableShardedIDFieldTestCase(TestCase):
     databases = '__all__'
 
     def test_largest_id(self):
-        max_id = 9223372036854775807
+        if settings.DATABASES['default']['ENGINE'] in Backends.POSTGRES + Backends.SQLITE:
+            max_id = 9223372036854775807
+        else:
+            max_id = 18446744073709551615
 
         item = TestModel.objects.using('app_shard_001').create(id=max_id, user_pk=1)
         self.assertEqual(item.pk, max_id)

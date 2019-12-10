@@ -1,7 +1,8 @@
+from six import iteritems
+
 from django.conf import settings
 from django.apps import apps
 from django_sharding_library.constants import Backends
-from django.utils.six import iteritems
 
 from django_sharding_library.exceptions import NonExistentDatabaseException, ShardedModelInitializationException
 from django_sharding_library.fields import ShardedIDFieldMixin, BasePostgresShardGeneratedIDField

@@ -1,6 +1,7 @@
+from six.moves import xrange
+
 from django.conf import settings
 from django.test import TestCase
-from django.utils.six.moves import xrange
 
 from django_sharding_library.routing_read_strategies import RoundRobinRoutingStrategy, PrimaryOnlyRoutingStrategy
 

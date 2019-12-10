@@ -1,7 +1,6 @@
 from itertools import cycle
 from random import choice, randint
-
-from django.utils.six import next, viewitems
+from six import next, viewitems
 
 
 class BaseRoutingStrategy(object):

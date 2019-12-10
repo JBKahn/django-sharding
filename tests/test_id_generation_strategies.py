@@ -1,9 +1,9 @@
 from random import choice
+from six.moves import xrange
 from uuid import UUID
 
 from django.conf import settings
 from django.test import TestCase
-from django.utils.six.moves import xrange
 
 from tests.models import ShardedModelIDs
 from django_sharding_library.id_generation_strategies import TableStrategy, UUIDStrategy

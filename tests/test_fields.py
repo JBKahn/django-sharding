@@ -1,4 +1,5 @@
 from mock import patch
+from six.moves import xrange
 import unittest
 
 from django.conf import settings
@@ -6,7 +7,6 @@ from django.db import connections
 from django.db.utils import DataError, IntegrityError
 from django.db.models import CASCADE
 from django.test import TestCase
-from django.utils.six.moves import xrange
 
 import time
 from datetime import datetime

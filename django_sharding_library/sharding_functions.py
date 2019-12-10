@@ -1,7 +1,6 @@
 from itertools import cycle
 from random import choice, randint
-
-from django.utils.six import next
+from six import next
 
 
 class BaseBucketingStrategy(object):

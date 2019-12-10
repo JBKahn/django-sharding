@@ -100,6 +100,31 @@ jobs:
       - store_test_results:
           path: /tmp/test-reports/
 
+  django-3-0:
+    executor:
+      name: python/default
+      tag: 3.8.0
+    steps:
+      - checkout
+      - python/load-cache:
+          key: python-cache-latest
+      - python/install-deps
+      - python/save-cache:
+          key: python-cache-latest
+      - run:
+          command: pip install --user -U "Django>=3,<3.1"
+          name: Install Django
+      - run: mkdir /tmp/test-reports
+      - run:
+          command: |
+            python -m pytest \
+              -vv \
+              --junitxml /tmp/test-reports/xunit.xml \
+              --durations 10
+          name: Test
+      - store_test_results:
+          path: /tmp/test-reports/
+
   django-latest:
     executor:
       name: python/default
@@ -135,4 +160,5 @@ workflows:
       - django-2-1
       - django-2-2
       - django-1-11
+      - django-3-0
       - django-latest

@@ -18,7 +18,7 @@ setup(
     url='https://github.com/JBKahn/django-sharding',
     packages=find_packages(exclude=['tests']),
     include_package_data=True,
-    install_requires=get_requirements('requirements/common.txt') + ["django>=1.11,<3.0.0"],
+    install_requires=get_requirements('requirements/common.txt') + ["django>=1.11,<4.0.0"],
     tests_require=get_requirements('requirements/development.txt'),
     setup_requires=[
         'pytest-runner',

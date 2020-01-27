@@ -82,8 +82,7 @@ jobs:
       - checkout
       - python/load-cache:
           key: python-cache-1-11
-      - python/install-deps:
-          local: false
+      - python/install-deps
       - python/save-cache:
           key: python-cache-1-11
       - run:

@@ -1,6 +1,11 @@
 Changelog
 =========
 
+5.2.0 (January 27th 2020)
+------------------
+
+- Add `skip_runtime_checks` to `model_config` to allow for use of linting tools where sharded databases aren't setup.
+
 5.1.0 (December 10th 2019)
 ------------------
 

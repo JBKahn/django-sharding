@@ -20,7 +20,7 @@ def shard_storage_config(shard_group='default', shared_field='shard'):
     return configure
 
 
-def model_config(shard_group=None, database=None):
+def model_config(shard_group=None, database=None, skip_runtime_checks=False):
     """
     A decorator for marking a model as being either sharded or stored on a
     particular database. When sharding, it does some verification to ensure
@@ -34,14 +34,14 @@ def model_config(shard_group=None, database=None):
             raise ShardedModelInitializationException('The model should be either sharded or stored on a database in the `model_config` decorator is used.')
 
         if database:
-            if database not in settings.DATABASES or settings.DATABASES[database].get('PRIMARY'):
+            if (database not in settings.DATABASES or settings.DATABASES[database].get('PRIMARY')) and skip_runtime_checks is False:
                 raise NonExistentDatabaseException(
                     'Unable to place {} in {} as that is not an existing primary database in the system.'.format(cls._meta.model_name, database)
                 )
             setattr(cls, 'django_sharding__database', database)
 
         postgres_shard_id_fields = list(filter(lambda field: issubclass(type(field), BasePostgresShardGeneratedIDField), cls._meta.fields))
-        if postgres_shard_id_fields:
+        if postgres_shard_id_fields and skip_runtime_checks is False:
             database_dicts = [settings.DATABASES[database]] if database else [db_settings for db, db_settings in
                                                                               iteritems(settings.DATABASES) if
                                                                               db_settings["SHARD_GROUP"] == shard_group]

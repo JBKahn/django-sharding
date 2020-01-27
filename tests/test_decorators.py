@@ -95,6 +95,10 @@ class ModelConfigDecoratorTestCase(TestCase):
             class ShardedTestModelIDsTwo(TableStrategyModel):
                 pass
 
+        @model_config(database='i_do_not_exist', skip_runtime_checks=True)
+        class ShardedTestModelIDsTwo(TableStrategyModel):
+            pass
+
     def test_puts_database_name_on_model_stored_on_another_database(self):
         @model_config(database='app_shard_002')
         class ShardedTestModelIDsThree(TableStrategyModel):
